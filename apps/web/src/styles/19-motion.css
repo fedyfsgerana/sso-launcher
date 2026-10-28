@@ -1,0 +1,185 @@
+:root {
+  --ease-out: cubic-bezier(.2, .8, .2, 1);
+  --ease-in-out: cubic-bezier(.65, 0, .35, 1);
+  --dur-fast: .15s;
+  --dur: .22s;
+  --dur-slow: .3s
+}
+
+@keyframes motionFadeIn {
+  from {
+    opacity: 0
+  }
+
+  to {
+    opacity: 1
+  }
+}
+
+@keyframes motionRise {
+  from {
+    opacity: 0;
+    transform: translateY(8px)
+  }
+
+  to {
+    opacity: 1;
+    transform: none
+  }
+}
+
+@keyframes motionPop {
+  from {
+    opacity: 0;
+    transform: translateY(-4px) scale(.98)
+  }
+
+  to {
+    opacity: 1;
+    transform: none
+  }
+}
+
+@keyframes motionModal {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(.98)
+  }
+
+  to {
+    opacity: 1;
+    transform: none
+  }
+}
+
+@keyframes motionDrawer {
+  from {
+    transform: translateX(100%)
+  }
+
+  to {
+    transform: none
+  }
+}
+
+.shell,
+.shell.is-collapsed,
+.shell:not(.is-collapsed) {
+  grid-template-columns: auto minmax(0, 1fr);
+  transition: none
+}
+
+.shell .sb {
+  width: var(--sw);
+  min-width: 0;
+  max-width: none;
+  will-change: width;
+  transition: width var(--dur-slow) var(--ease-in-out)
+}
+
+.shell.is-collapsed .sb {
+  width: var(--sw-c)
+}
+
+.nav {
+  transition: background var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out), gap var(--dur-slow) var(--ease-in-out)
+}
+
+.nav span {
+  display: inline-block;
+  max-width: 300px;
+  opacity: 1;
+  transition: opacity var(--dur) var(--ease-out) .08s, max-width var(--dur-slow) var(--ease-in-out)
+}
+
+.is-collapsed .nav span {
+  display: inline-block;
+  max-width: 0;
+  opacity: 0;
+  transition: opacity var(--dur-fast) var(--ease-out), max-width var(--dur-slow) var(--ease-in-out)
+}
+
+.page {
+  animation: motionRise var(--dur-slow) var(--ease-out)
+}
+
+.ma-panel .table-wrap,
+.ma-panel .empty {
+  animation: motionFadeIn var(--dur) var(--ease-out)
+}
+
+.menu-pop {
+  transform-origin: top right;
+  animation: motionPop var(--dur-fast) var(--ease-out)
+}
+
+.modal.show {
+  animation: motionFadeIn var(--dur) var(--ease-out)
+}
+
+.modal.show .modal-card {
+  animation: motionModal var(--dur) var(--ease-out)
+}
+
+.btn,
+.sm-btn,
+.icon-btn,
+.icon-sq,
+.kebab,
+.seg,
+.mi,
+.ac,
+.card,
+.tag,
+.status,
+.switch i,
+.cbx i {
+  transition-duration: var(--dur-fast);
+  transition-timing-function: var(--ease-out)
+}
+
+.toast {
+  transition: opacity var(--dur) var(--ease-out), transform var(--dur) var(--ease-out)
+}
+
+@media (max-width:680px) {
+
+  .shell,
+  .shell.is-collapsed,
+  .shell:not(.is-collapsed) {
+    display: block
+  }
+}
+
+@media (prefers-reduced-motion:reduce) {
+
+  .page,
+  .menu-pop,
+  .modal.show,
+  .modal.show .modal-card,
+  .ma-panel .table-wrap {
+    animation: none !important
+  }
+
+  .shell .sb,
+  .nav,
+  .nav span,
+  .sb-section-title,
+  .sb-section,
+  .sb-submenu-wrap {
+    transition: none !important
+  }
+}
+
+.shell:not(.is-ready) .sb,
+.shell:not(.is-ready) .sb *,
+.shell:not(.is-ready) .sb *::before {
+  transition: none !important
+}
+
+.nav.active::before,
+.nav.branch-active::before,
+.is-collapsed .nav.active::before,
+.is-collapsed .nav.branch-active::before {
+  display: none
+}

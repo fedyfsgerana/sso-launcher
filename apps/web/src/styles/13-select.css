@@ -1,0 +1,215 @@
+.seg-select>svg {
+  display: none
+}
+
+.seg-select {
+  position: relative
+}
+
+.ts-control {
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  height: var(--ctl);
+  width: 100%;
+  min-width: 140px;
+  padding: 0 12px 0 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-ctl);
+  background: var(--card);
+  font: inherit;
+  font-size: var(--fs-sm);
+  font-weight: 500;
+  color: var(--ink);
+  text-align: left;
+  cursor: pointer;
+  transition: border-color .15s, box-shadow .15s
+}
+
+.ts-control:hover {
+  border-color: var(--g300)
+}
+
+.ts-control:focus-visible,
+.ts-control.open {
+  outline: 0;
+  border-color: var(--g600);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--g700) 12%, transparent)
+}
+
+.ts-control:disabled {
+  background: var(--g50);
+  color: var(--muted);
+  cursor: not-allowed
+}
+
+.ts-control .ts-val {
+  flex: 1;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis
+}
+
+.ts-control.is-placeholder .ts-val {
+  color: var(--ink-3)
+}
+
+.ts-control>svg {
+  width: 16px;
+  height: 16px;
+  flex: none;
+  color: var(--body);
+  transition: transform .15s
+}
+
+.ts-control.open>svg {
+  transform: rotate(180deg)
+}
+
+.ts-control.sm {
+  height: 36px;
+  min-width: 0
+}
+
+.ts-control.filter {
+  min-width: 150px;
+  padding: 0 38px 0 16px;
+  border-radius: 999px;
+  position: relative
+}
+
+.ts-control.filter>svg {
+  position: absolute;
+  right: 14px
+}
+
+.fld .ts-control {
+  font-size: var(--fs-md);
+  font-weight: 400
+}
+
+.ts-dropdown {
+  position: fixed;
+  z-index: 150;
+  display: flex;
+  flex-direction: column;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--r-ctl);
+  box-shadow: 0 18px 40px -14px color-mix(in srgb, var(--shadow-ink) 30%, transparent);
+  overflow: hidden;
+  animation: tsIn .12s ease
+}
+
+@keyframes tsIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px)
+  }
+
+  to {
+    opacity: 1;
+    transform: none
+  }
+}
+
+.ts-search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--line)
+}
+
+.ts-search svg {
+  width: 16px;
+  height: 16px;
+  color: var(--muted);
+  flex: none
+}
+
+.ts-search input {
+  flex: 1;
+  min-width: 0;
+  height: 30px;
+  border: 0;
+  outline: 0;
+  font: inherit;
+  font-size: var(--fs-sm);
+  background: transparent
+}
+
+.ts-list {
+  list-style: none;
+  margin: 0;
+  padding: 6px;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto
+}
+
+.ts-list li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: var(--r-sm);
+  font-size: var(--fs-sm);
+  cursor: pointer;
+  color: var(--ink-2)
+}
+
+.ts-list li em {
+  font-style: normal;
+  color: var(--muted)
+}
+
+.ts-list li.hi {
+  background: var(--g50)
+}
+
+.ts-list li.sel {
+  font-weight: 600;
+  color: var(--g900)
+}
+
+.ts-list li svg {
+  width: 15px;
+  height: 15px;
+  color: var(--g700);
+  flex: none
+}
+
+.ts-list .ts-empty {
+  color: var(--muted);
+  cursor: default;
+  justify-content: center
+}
+
+.pager .ts-control {
+  height: 36px
+}
+
+@media (max-width:760px) {
+  .us-bar .ts-control {
+    min-width: 0
+  }
+}
+
+.bar {
+  height: 6px;
+  border-radius: 99px;
+  background: var(--g100);
+  overflow: hidden
+}
+
+.bar i {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--g600), var(--g800));
+  transition: width .4s ease
+}

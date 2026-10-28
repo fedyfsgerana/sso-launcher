@@ -1,0 +1,61 @@
+.interactive {
+  pointer-events: auto
+}
+
+.message {
+  flex: 1;
+  min-width: 0;
+  line-height: 1.45
+}
+
+.reference {
+  display: block;
+  margin-top: 3px;
+  font-size: var(--fs-xs);
+  opacity: .85
+}
+
+.reference b {
+  user-select: all;
+  font-family: var(--font-mono);
+  font-weight: 600;
+  letter-spacing: .04em
+}
+
+.close {
+  flex: none;
+  width: 26px;
+  height: 26px;
+  margin: -4px -8px -4px 2px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--r-sm);
+  display: grid;
+  place-items: center;
+  background: transparent;
+  color: inherit;
+  opacity: .7;
+  cursor: pointer;
+  transition: opacity .15s, background .15s
+}
+
+.close:hover {
+  opacity: 1;
+  background: rgba(255, 255, 255, .12)
+}
+
+.close:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 1px;
+  opacity: 1
+}
+
+:global(.toast) .close svg {
+  width: 15px;
+  height: 15px;
+  color: currentColor
+}
+
+:global(html[data-theme="dark"]) .close:hover {
+  background: rgba(0, 0, 0, .08)
+}

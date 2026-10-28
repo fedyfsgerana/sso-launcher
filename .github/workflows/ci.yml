@@ -1,0 +1,107 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+    branches:
+      - main
+      - develop
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  frontend:
+    name: Frontend
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.17.1
+          run_install: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24.19.0
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint
+        run: pnpm --prefix apps/web lint
+
+      - name: Type check
+        run: pnpm --prefix apps/web typecheck
+
+      - name: Test
+        run: pnpm --prefix apps/web test
+
+      - name: Build
+        run: pnpm --prefix apps/web build
+
+  backend:
+    name: Backend
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Restore API
+        run: dotnet restore apps/api/SsoLauncher.Api.csproj
+
+      - name: Build API
+        run: >
+          dotnet build
+          apps/api/SsoLauncher.Api.csproj
+          --configuration Release
+          --no-restore
+
+      - name: Test API
+        env:
+          SSO_LAUNCHER_TEST_DB_CONNECTION: "Host=127.0.0.1;Port=5432;Database=sso_launcher_test;Username=postgres;Password=postgres"
+        run: >
+          dotnet test
+          --project apps/api/tests/SsoLauncher.Api.Tests/SsoLauncher.Api.Tests.csproj
+          --configuration Release

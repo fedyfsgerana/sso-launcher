@@ -1,0 +1,83 @@
+.app-hr {
+  background: var(--pal-teal)
+}
+
+.app-wh {
+  background: var(--pal-slate)
+}
+
+.app-pr {
+  background: var(--pal-orange)
+}
+
+.app-pj {
+  background: var(--pal-indigo)
+}
+
+.app-as {
+  background: var(--pal-ocean)
+}
+
+.app-dc {
+  background: var(--pal-red)
+}
+
+.app-fn {
+  background: var(--pal-gold)
+}
+
+.app-hd {
+  background: var(--pal-magenta)
+}
+
+.app-nv {
+  background: var(--pal-navy)
+}
+
+.app-vi {
+  background: var(--pal-violet)
+}
+
+.app-br {
+  background: var(--pal-brown)
+}
+
+.app-gy {
+  background: var(--pal-gray)
+}
+
+.app-crm {
+  background: var(--pal-teal)
+}
+
+.app-fr {
+  background: var(--pal-teal)
+}
+
+.app-ol {
+  background: var(--pal-gold)
+}
+
+.app-cy {
+  background: var(--pal-ocean)
+}
+
+.app-rs {
+  background: var(--pal-magenta)
+}
+
+.app-mr {
+  background: var(--pal-red)
+}
+
+.ac-logo,
+.rc-ic[class*="app-"] {
+  border-radius: var(--pal-radius);
+  box-shadow: var(--pal-shadow-sm)
+}
+
+[class*="app-"].logo,
+.av[class*="app-"],
+html[data-theme="dark"] .av[class*="app-"] {
+  color: #fff
+}

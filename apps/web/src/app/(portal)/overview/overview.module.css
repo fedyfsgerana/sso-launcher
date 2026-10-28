@@ -1,0 +1,593 @@
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 16px
+}
+
+.row {
+  display: grid;
+  grid-template-columns: minmax(0, 8fr) minmax(0, 4fr);
+  gap: 16px;
+  align-items: stretch
+}
+
+.row> :global(.card) {
+  height: 100%
+}
+
+.section {
+  overflow: hidden
+}
+
+.sectionHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 58px;
+  padding: 12px 18px;
+  border-bottom: 1px solid var(--line)
+}
+
+.toolbar {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  min-width: 0
+}
+
+.toolbar :global(.search) {
+  flex: 1;
+  max-width: 520px
+}
+
+.sectionHead h3 {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  color: var(--ink);
+  font-size: 15.5px;
+  font-weight: 600
+}
+
+.sectionFoot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 52px;
+  padding: 10px 18px;
+  border-top: 1px solid var(--line)
+}
+
+.pagerGrid {
+  display: grid;
+  grid-template-columns: repeat(var(--columns, 4), minmax(0, 1fr));
+  gap: 6px;
+  padding: 10px 12px
+}
+
+.pagerNav {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: auto
+}
+
+.pagerInfo {
+  margin-right: 6px;
+  color: var(--muted);
+  font-size: 12.5px;
+  white-space: nowrap
+}
+
+.pagerButton {
+  flex: none;
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  line-height: 0;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  background: var(--card);
+  color: var(--g800);
+  cursor: pointer;
+  transition: background .15s, border-color .15s, opacity .15s
+}
+
+.pagerButton svg {
+  position: relative
+}
+
+.pagerPrev svg {
+  left: -1px
+}
+
+.pagerNext svg {
+  left: 1px
+}
+
+.pagerButton:hover:not(:disabled) {
+  background: var(--g50);
+  border-color: var(--g300)
+}
+
+.pagerButton:disabled {
+  opacity: .35;
+  cursor: default
+}
+
+.tile {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 7px;
+  min-width: 0;
+  padding: 10px 6px 8px;
+  border: 1px solid transparent;
+  border-radius: var(--r-ctl);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: center;
+  cursor: pointer;
+  transition: background .15s, border-color .15s, transform .15s
+}
+
+.tile:hover {
+  background: var(--bg);
+  border-color: var(--line);
+  transform: translateY(-1px)
+}
+
+.tile:focus-visible {
+  outline: 2px solid var(--g600);
+  outline-offset: 2px
+}
+
+.tile.disabled {
+  cursor: default
+}
+
+.tile.disabled:hover {
+  transform: none
+}
+
+.tile.maintenance .logo {
+  filter: grayscale(.45);
+  opacity: .8
+}
+
+.tileIcon {
+  position: relative;
+  display: grid
+}
+
+.logo {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--pal-radius);
+  display: grid;
+  place-items: center;
+  flex: none;
+  color: #fff;
+  box-shadow: var(--pal-shadow)
+}
+
+.tileIcon .logo svg {
+  width: 24px;
+  height: 24px
+}
+
+.logo b {
+  font-size: 16px
+}
+
+.tile:hover :global(.app-dot) {
+  box-shadow: 0 0 0 2px var(--bg)
+}
+
+.listGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 4px 12px;
+  padding: 10px 12px
+}
+
+.listRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  padding: 8px 10px;
+  border: 1px solid transparent;
+  border-radius: var(--r-ctl);
+  background: transparent;
+  color: var(--muted);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background .15s, border-color .15s
+}
+
+.listRow:hover {
+  background: var(--surface-hover);
+  border-color: var(--line)
+}
+
+.listRow:hover :global(.app-dot) {
+  box-shadow: 0 0 0 2px var(--surface-hover)
+}
+
+.listRow:focus-visible {
+  outline: 2px solid var(--g600);
+  outline-offset: 2px
+}
+
+.listRow.disabled {
+  cursor: default
+}
+
+.listRow.maintenance .listLogo {
+  filter: grayscale(.45);
+  opacity: .8
+}
+
+.tileIcon .listLogo {
+  width: 38px;
+  height: 38px;
+  box-shadow: var(--pal-shadow-sm)
+}
+
+.tileIcon .listLogo svg {
+  width: 20px;
+  height: 20px
+}
+
+.listText {
+  flex: 1;
+  min-width: 0;
+  display: grid;
+  gap: 2px
+}
+
+.listText b,
+.listText small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap
+}
+
+.listText b {
+  color: var(--ink);
+  font-size: 13.5px;
+  font-weight: 600
+}
+
+.listText small {
+  color: var(--muted);
+  font-size: 12px
+}
+
+.listRow.maintenance .listText small {
+  color: var(--tone-warn-ink)
+}
+
+@media (max-width: 900px) {
+  .listGrid {
+    grid-template-columns: minmax(0, 1fr)
+  }
+}
+
+.tileName {
+  width: 100%;
+  color: var(--ink);
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.3;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+  overflow-wrap: anywhere
+}
+
+.tileMeta {
+  width: 100%;
+  margin-top: -5px;
+  color: var(--muted);
+  font-size: 11.5px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis
+}
+
+.tile.maintenance .tileMeta {
+  color: var(--tone-warn-ink)
+}
+
+.tileText,
+.activityText {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0
+}
+
+.tileText b,
+.activityText b {
+  color: var(--ink);
+  font-size: 14px;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap
+}
+
+.tileText small,
+.activityText small {
+  color: var(--muted);
+  font-size: 12.5px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap
+}
+
+.tileText small,
+.activityText small {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  white-space: normal;
+  line-height: 1.45
+}
+
+.activities {
+  margin: 0;
+  padding: 6px 0;
+  list-style: none;
+  max-height: 300px;
+  overflow-y: auto;
+  scrollbar-width: thin
+}
+
+.activity {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 18px
+}
+
+.activity:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  left: 34px;
+  top: calc(50% + 21px);
+  bottom: calc(-50% + 21px);
+  width: 2px;
+  border-radius: 2px;
+  background: var(--line)
+}
+
+.activityTime {
+  font-size: 12px;
+  color: var(--muted);
+  white-space: nowrap
+}
+
+.activityIcon {
+  width: 34px;
+  height: 34px;
+  border-radius: var(--r-sm);
+  display: grid;
+  place-items: center;
+  color: #fff
+}
+
+.activityIcon.soft {
+  background: var(--g50);
+  color: var(--g700)
+}
+
+.activityIcon:global(.on) {
+  background: var(--tone-success-soft);
+  color: var(--tone-success-ink)
+}
+
+.activityIcon:global(.warn) {
+  background: var(--tone-warn-soft);
+  color: var(--tone-warn-ink)
+}
+
+.activityIcon:global(.danger) {
+  background: var(--tone-danger-soft);
+  color: var(--tone-danger-ink)
+}
+
+.activityIcon:global(.info) {
+  background: var(--tone-info-soft);
+  color: var(--tone-info-ink)
+}
+
+.activityIcon:global(.off) {
+  background: var(--pal-gray-soft);
+  color: var(--pal-gray-ink)
+}
+
+.activity :global(.sm-btn) {
+  justify-self: end
+}
+
+.skTitle {
+  width: 120px;
+  height: 14px
+}
+
+.skTile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 7px;
+  min-width: 0;
+  padding: 10px 6px 8px
+}
+
+.skLogo {
+  flex: none;
+  width: 48px;
+  height: 48px;
+  border-radius: var(--pal-radius)
+}
+
+.skText {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 70%;
+  min-width: 0
+}
+
+.skStack {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 0;
+  background: transparent
+}
+
+.skStackLogo {
+  width: 26px;
+  height: 26px;
+  margin-left: -7px;
+  border: 2px solid var(--card);
+  border-radius: var(--r-sm);
+  background: var(--g100)
+}
+
+.skStackLogo:first-child {
+  margin-left: 0
+}
+
+.skStackCount {
+  width: 64px;
+  height: 10px;
+  margin-left: 8px;
+  border-radius: var(--r-sm);
+  background: var(--g100)
+}
+
+:global(html[data-theme="dark"]) .skStackLogo,
+:global(html[data-theme="dark"]) .skStackCount {
+  background: var(--surface-muted)
+}
+
+.skCount {
+  width: 64px;
+  height: 10px
+}
+
+.skButton {
+  flex: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%
+}
+
+.skActivityIcon {
+  width: 34px;
+  height: 34px;
+  border-radius: var(--r-sm)
+}
+
+.skHelp {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 12px;
+  padding: 24px
+}
+
+.skRule {
+  width: 30px;
+  height: 2px;
+  border-radius: 2px
+}
+
+.skHelpButton {
+  width: 180px;
+  height: 40px;
+  margin-top: 6px;
+  border-radius: var(--r-ctl)
+}
+
+.section :global(.empty) {
+  padding: 28px 24px
+}
+
+@media (max-width: 1180px) {
+  .row {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr)
+  }
+
+  .row> :first-child {
+    grid-column: 1 / -1
+  }
+}
+
+@media (max-width: 720px) {
+  .row {
+    grid-template-columns: minmax(0, 1fr)
+  }
+}
+
+@media (max-width: 760px) {
+  .sectionHead {
+    flex-wrap: wrap
+  }
+
+  .toolbar {
+    flex-basis: 100%;
+    flex-wrap: wrap;
+    justify-content: flex-start
+  }
+
+  .toolbar :global(.search) {
+    flex: 1 1 100%;
+    max-width: none
+  }
+
+  .toolbar :global(.seg-select) {
+    flex: 1 1 0;
+    min-width: 0
+  }
+
+  .toolbar :global(.seg-select .ts-control) {
+    width: 100%
+  }
+}
+
+@media (max-width: 380px) {
+  .toolbar :global(.seg-select) {
+    flex-basis: 100%
+  }
+}
+
+@media (max-width: 480px) {
+  .sectionFoot {
+    flex-wrap: wrap
+  }
+
+  .pagerNav {
+    margin-left: auto
+  }
+}

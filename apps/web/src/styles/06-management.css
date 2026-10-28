@@ -1,0 +1,64 @@
+.ma-bar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap
+}
+
+.seg {
+  border-radius: 999px;
+  font-weight: 500;
+  transition: background .15s, color .15s
+}
+
+.seg-select {
+  display: inline-flex;
+  align-items: center
+}
+
+.seg-select select {
+  appearance: none;
+  -webkit-appearance: none;
+  font: inherit;
+  font-weight: 500;
+  cursor: pointer;
+  outline: 0
+}
+
+.seg-select select:focus-visible {
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--g700) 20%, transparent)
+}
+
+.seg-select svg {
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  pointer-events: none
+}
+
+.view-tg {
+  overflow: hidden
+}
+
+.ma-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr))
+}
+
+.ma-grid.is-list {
+  grid-template-columns: 1fr;
+  gap: 10px
+}
+
+@media (max-width:1280px) {
+  .ma-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr))
+  }
+
+}
+
+@media (max-width:680px) {
+  .ma-grid {
+    grid-template-columns: 1fr
+  }
+
+}

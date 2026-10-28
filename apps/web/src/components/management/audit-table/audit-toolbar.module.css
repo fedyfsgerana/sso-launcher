@@ -1,0 +1,43 @@
+.dateRange {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: var(--ctl)
+}
+
+.dateRange span {
+  color: var(--muted);
+  font-size: var(--fs-sm)
+}
+
+.dateRange input {
+  height: var(--ctl);
+  padding: 0 10px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-ctl);
+  background: var(--card);
+  color: var(--ink);
+  font: inherit;
+  font-size: var(--fs-sm)
+}
+
+.dateRange input:focus {
+  outline: 0;
+  border-color: var(--g700);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--g600) 14%, transparent)
+}
+
+:global(html[data-theme="dark"]) .dateRange input {
+  color-scheme: dark
+}
+
+@media (max-width:760px) {
+  .dateRange {
+    flex: 1 1 100%
+  }
+
+  .dateRange input {
+    flex: 1;
+    min-width: 0
+  }
+}

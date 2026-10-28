@@ -1,0 +1,277 @@
+html[data-theme="dark"] {
+  --g900: #dfe9e2;
+  --g800: #8fc4a5;
+  --g700: #7bb795;
+  --g600: #5f9c7b;
+  --g500: #4d8567;
+  --g300: #3a4a41;
+  --g200: #2b3530;
+  --g100: #212723;
+  --g50: #1b1f1d;
+  --ink: #ebeced;
+  --body: #b7babf;
+  --muted: #8d9096;
+  --line: #2c2e32;
+  --ink-2: #dcdee0;
+  --ink-3: #c4c7cb;
+  --faint: #6f7378;
+  --line-strong: #3a3d42;
+  --line-hover: #484b50;
+  --surface-sunken: #151618;
+  --surface-stripe: rgba(255, 255, 255, .025);
+  --surface-hover: #222427;
+  --surface-muted: #26282b;
+  --surface-panel: #202125;
+  --shadow-ink: #000;
+  --bg: #111214;
+  --card: #1a1b1e;
+  --danger: var(--pal-red-ink);
+  --shadow: 0 1px 2px rgba(0, 0, 0, .4), 0 4px 14px -6px rgba(0, 0, 0, .5);
+  color-scheme: dark;
+}
+
+html[data-theme="dark"] .sb,
+html[data-theme="dark"] .tb,
+html[data-theme="dark"] .card,
+html[data-theme="dark"] .ac,
+html[data-theme="dark"] .ma-panel .ac,
+html[data-theme="dark"] .ma-panel .ma-bar,
+html[data-theme="dark"] .rc-table .ma-bar,
+html[data-theme="dark"] .menu-pop,
+html[data-theme="dark"] .modal-card,
+html[data-theme="dark"] .sheet,
+html[data-theme="dark"] .bn,
+html[data-theme="dark"] .tile,
+html[data-theme="dark"] .launch-card,
+html[data-theme="dark"] .ts-dropdown,
+html[data-theme="dark"] .ts-control,
+html[data-theme="dark"] .seg-select select,
+html[data-theme="dark"] .fld input,
+html[data-theme="dark"] .icon-sq,
+html[data-theme="dark"] .pages button,
+html[data-theme="dark"] .sb-toggle,
+html[data-theme="dark"] .btn-ghost,
+html[data-theme="dark"] .ac-btn.ghost,
+html[data-theme="dark"] .sm-btn,
+html[data-theme="dark"] .view-tg,
+html[data-theme="dark"] .cbx i {
+  background: var(--card);
+  color: var(--ink)
+}
+
+html[data-theme="dark"] .search,
+html[data-theme="dark"] .us-bar .us-search {
+  background: var(--surface-sunken);
+  border-color: var(--line);
+  color: var(--ink)
+}
+
+html[data-theme="dark"] .search:focus-within {
+  background: var(--card)
+}
+
+html[data-theme="dark"] input::placeholder {
+  color: var(--muted)
+}
+
+html[data-theme="dark"] .segs,
+html[data-theme="dark"] .view-tg {
+  background: var(--surface-sunken);
+  border-color: var(--line)
+}
+
+html[data-theme="dark"] .segs .seg:hover,
+html[data-theme="dark"] .view-tg button:hover {
+  background: var(--card)
+}
+
+html[data-theme="dark"] .segs .seg.on,
+html[data-theme="dark"] .view-tg button.on,
+html[data-theme="dark"] .pages button.on,
+html[data-theme="dark"] .sm-btn.on,
+html[data-theme="dark"] .cbx input:checked+i,
+html[data-theme="dark"] .cbx input:indeterminate+i {
+  background: var(--g700);
+  border-color: var(--g700);
+  color: var(--bg)
+}
+
+html[data-theme="dark"] .btn {
+  background: var(--g700);
+  color: var(--bg)
+}
+
+html[data-theme="dark"] .btn:hover {
+  background: var(--g600)
+}
+
+html[data-theme="dark"] .btn.btn-ghost {
+  background: var(--card);
+  border-color: var(--line);
+  color: var(--ink)
+}
+
+html[data-theme="dark"] .btn.btn-ghost:hover {
+  background: var(--surface-hover);
+  border-color: var(--line-hover)
+}
+
+html[data-theme="dark"] .btn.btn-ghost svg {
+  color: var(--muted)
+}
+
+html[data-theme="dark"] .fld>span {
+  color: var(--body)
+}
+
+html[data-theme="dark"] .mn-tree-copy small {
+  color: var(--muted)
+}
+
+html[data-theme="dark"] .ac-btn {
+  background: var(--g700);
+  color: var(--bg)
+}
+
+html[data-theme="dark"] .nav {
+  color: var(--body)
+}
+
+html[data-theme="dark"] .nav.active {
+  color: var(--g900)
+}
+
+html[data-theme="dark"] .sb-tip {
+  background: var(--g100);
+  color: var(--ink)
+}
+
+html[data-theme="dark"] .sb-tip::before {
+  background: var(--g100)
+}
+
+html[data-theme="dark"] .av {
+  color: var(--bg)
+}
+
+html[data-theme="dark"] .av.soft,
+html[data-theme="dark"] .rc-ic.soft {
+  color: var(--g900)
+}
+
+html[data-theme="dark"] .hero {
+  border-color: var(--line)
+}
+
+html[data-theme="dark"] .hero h1 {
+  color: var(--ink)
+}
+
+html[data-theme="dark"] .ut th,
+html[data-theme="dark"] .rc-head,
+html[data-theme="dark"] .ma-panel .ma-bar {
+  background: var(--surface-sunken)
+}
+
+html[data-theme="dark"] .dt tbody tr:hover,
+html[data-theme="dark"] .ut tr:hover td,
+html[data-theme="dark"] .rc-row:hover {
+  background: var(--surface-hover)
+}
+
+html[data-theme="dark"] .seg-select select:hover {
+  background: var(--surface-hover)
+}
+
+html[data-theme="dark"] .ut tr.sel td {
+  background: var(--g100)
+}
+
+html[data-theme="dark"] .cbx i {
+  border-color: var(--line-hover)
+}
+
+html[data-theme="dark"] .cbx:hover i {
+  border-color: var(--g600)
+}
+
+html[data-theme="dark"] .ac:hover {
+  --dot-ring: var(--surface-hover);
+  background: var(--surface-hover)
+}
+
+html[data-theme="dark"] .tag {
+  background: rgba(255, 255, 255, .07);
+  color: var(--body)
+}
+
+html[data-theme="dark"] .path,
+html[data-theme="dark"] .kind {
+  background: var(--surface-sunken);
+  border-color: var(--line);
+  color: var(--body)
+}
+
+html[data-theme="dark"] .modal {
+  background: rgba(0, 0, 0, .55)
+}
+
+html[data-theme="dark"] .toast {
+  background: var(--g100);
+  color: var(--ink)
+}
+
+html[data-theme="dark"] .tip-card {
+  background: var(--card)
+}
+
+html[data-theme="dark"] .brand b {
+  color: var(--g700)
+}
+
+html[data-theme="dark"] .ts-control.is-placeholder .ts-val {
+  color: var(--muted)
+}
+
+html[data-theme="dark"] .ts-list li {
+  color: var(--body)
+}
+
+html[data-theme="dark"] .ts-list li.hi {
+  background: var(--surface-hover);
+  color: var(--ink)
+}
+
+html[data-theme="dark"] .ts-list li.sel {
+  color: var(--g800)
+}
+
+html[data-theme="dark"] .icon-btn {
+  color: var(--body)
+}
+
+html[data-theme="dark"] .icon-btn:hover {
+  background: var(--surface-hover);
+  color: var(--ink)
+}
+
+html[data-theme="dark"] .icon-btn .dot {
+  box-shadow: 0 0 0 2px var(--card)
+}
+
+html[data-theme="dark"] .ac-btn.ghost {
+  border-color: var(--line)
+}
+
+html[data-theme="dark"] .ac-btn.ghost:hover {
+  background: var(--surface-hover);
+  border-color: var(--line-hover)
+}
+
+html[data-theme="dark"] .dt tbody tr:nth-child(even):not(:hover):not(.row-danger):not(.row-warn) {
+  background: rgba(255, 255, 255, .025)
+}
+
+html[data-theme="dark"] .rc-table .rc-wrap:nth-child(even of .rc-wrap)>.rc-row:not(:hover):not(.sel) {
+  background: rgba(255, 255, 255, .025)
+}

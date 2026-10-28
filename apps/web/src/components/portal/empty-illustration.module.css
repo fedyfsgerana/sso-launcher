@@ -1,0 +1,184 @@
+.art {
+  position: relative;
+  width: 200px;
+  margin: 0 auto 14px
+}
+
+.scene {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible
+}
+
+.backdrop {
+  fill: var(--g50)
+}
+
+.ground {
+  fill: color-mix(in srgb, var(--shadow-ink) 7%, transparent)
+}
+
+.leafLeft,
+.leafRight {
+  fill: var(--pal-sage);
+  opacity: .75;
+  transform-box: fill-box;
+  animation: empty-sway 5s ease-in-out infinite
+}
+
+.leafLeft {
+  transform-origin: 100% 100%
+}
+
+.leafRight {
+  transform-origin: 0% 100%;
+  animation-delay: -2.5s
+}
+
+.card {
+  transform-box: fill-box;
+  animation: empty-float 4.2s ease-in-out infinite
+}
+
+.sheet {
+  fill: var(--card);
+  stroke: var(--line-strong);
+  stroke-width: 1.5;
+  filter: drop-shadow(0 10px 14px color-mix(in srgb, var(--shadow-ink) 14%, transparent))
+}
+
+.head {
+  fill: var(--g100)
+}
+
+.headDot {
+  fill: var(--pal-sage)
+}
+
+.row {
+  fill: var(--surface-sunken);
+  stroke: var(--line-strong);
+  stroke-width: 1.5;
+  stroke-dasharray: 4 4
+}
+
+.lens {
+  transform-box: fill-box;
+  transform-origin: 30% 30%;
+  animation: empty-search 3.6s ease-in-out infinite
+}
+
+.lensGlass {
+  fill: color-mix(in srgb, var(--card) 85%, transparent);
+  stroke: var(--pal-brand);
+  stroke-width: 6
+}
+
+.lensMark,
+.lensHandle {
+  fill: none;
+  stroke: var(--pal-brand);
+  stroke-linecap: round
+}
+
+.lensMark {
+  stroke-width: 3.5
+}
+
+.lensHandle {
+  stroke-width: 9
+}
+
+.spark {
+  fill: none;
+  stroke: var(--pal-amber);
+  stroke-width: 3;
+  stroke-linecap: round;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: empty-twinkle 2.8s ease-in-out infinite
+}
+
+.sparkLate {
+  animation-delay: -1.4s
+}
+
+.dot {
+  fill: var(--pal-sage);
+  animation: empty-twinkle 3.2s ease-in-out infinite
+}
+
+.dotB {
+  animation-delay: -1s
+}
+
+.dotC {
+  animation-delay: -2s
+}
+
+:global(html[data-theme="dark"]) .backdrop {
+  fill: color-mix(in srgb, var(--g100) 70%, transparent)
+}
+
+:global(html[data-theme="dark"]) .lensGlass,
+:global(html[data-theme="dark"]) .lensMark,
+:global(html[data-theme="dark"]) .lensHandle {
+  stroke: var(--g700)
+}
+
+@keyframes empty-float {
+
+  0%,
+  100% {
+    transform: translateY(0)
+  }
+
+  50% {
+    transform: translateY(-6px)
+  }
+}
+
+@keyframes empty-search {
+
+  0%,
+  100% {
+    transform: translate(0, 0) rotate(0)
+  }
+
+  50% {
+    transform: translate(-6px, -4px) rotate(-6deg)
+  }
+}
+
+@keyframes empty-sway {
+
+  0%,
+  100% {
+    transform: rotate(0)
+  }
+
+  50% {
+    transform: rotate(4deg)
+  }
+}
+
+@keyframes empty-twinkle {
+
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1)
+  }
+
+  50% {
+    opacity: .35;
+    transform: scale(.8)
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .art * {
+    animation: none !important
+  }
+}

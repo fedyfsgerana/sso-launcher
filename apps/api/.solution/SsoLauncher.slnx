@@ -1,0 +1,11 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="../src/SsoLauncher.Application/SsoLauncher.Application.csproj" />
+    <Project Path="../src/SsoLauncher.Domain/SsoLauncher.Domain.csproj" />
+    <Project Path="../src/SsoLauncher.Infrastructure/SsoLauncher.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="../tests/SsoLauncher.Api.Tests/SsoLauncher.Api.Tests.csproj" />
+  </Folder>
+  <Project Path="../SsoLauncher.Api.csproj" />
+</Solution>

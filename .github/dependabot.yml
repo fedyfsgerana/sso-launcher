@@ -1,0 +1,39 @@
+version: 2
+
+updates:
+  - package-ecosystem: npm
+    directory: "/"
+    schedule:
+      interval: weekly
+      day: monday
+      time: "08:00"
+      timezone: Asia/Jakarta
+    open-pull-requests-limit: 5
+    groups:
+      web-minor-and-patch:
+        update-types:
+          - minor
+          - patch
+
+  - package-ecosystem: nuget
+    directories:
+      - "/apps/api"
+      - "/apps/api/src/*"
+    schedule:
+      interval: weekly
+      day: monday
+      time: "08:00"
+      timezone: Asia/Jakarta
+    open-pull-requests-limit: 5
+    groups:
+      api-minor-and-patch:
+        update-types:
+          - minor
+          - patch
+
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: monthly
+      timezone: Asia/Jakarta
+    open-pull-requests-limit: 3

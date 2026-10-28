@@ -1,0 +1,157 @@
+.box {
+  border: 1px solid var(--line);
+  border-radius: var(--r-card);
+  background: var(--card);
+  overflow: hidden
+}
+
+.bar {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--line);
+  background: var(--g50)
+}
+
+.current {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  max-width: 45%;
+  height: 32px;
+  padding: 0 12px;
+  overflow: hidden;
+  border-radius: var(--r-sm);
+  background: var(--g800);
+  color: #fff;
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  white-space: nowrap;
+  text-overflow: ellipsis
+}
+
+.search {
+  flex: 1 1 auto;
+  width: auto;
+  min-width: 0;
+  max-width: none;
+  height: 34px;
+  padding: 0 12px;
+  box-sizing: border-box;
+  background: var(--card)
+}
+
+.search input {
+  width: 100%;
+  min-width: 0;
+  height: auto;
+  min-height: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none
+}
+
+.search input:focus {
+  border: 0;
+  box-shadow: none;
+  outline: 0
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(82px, 1fr));
+  gap: 6px;
+  max-height: 196px;
+  padding: 10px;
+  overflow-y: auto
+}
+
+.grid button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  height: 60px;
+  padding: 4px;
+  border: 1px solid transparent;
+  border-radius: var(--r-ctl);
+  background: transparent;
+  color: var(--body);
+  transition: background .15s, border-color .15s, color .15s
+}
+
+.grid button em {
+  max-width: 100%;
+  overflow: hidden;
+  font-size: 10.5px;
+  font-style: normal;
+  line-height: 1.2;
+  text-align: center;
+  white-space: nowrap;
+  text-overflow: ellipsis
+}
+
+.grid button:hover {
+  background: var(--g50);
+  border-color: var(--g200);
+  color: var(--ink)
+}
+
+.grid button.on {
+  background: var(--g800);
+  border-color: var(--g800);
+  color: #fff
+}
+
+.gridEmpty {
+  max-height: none
+}
+
+.gridEmpty :global(.empty) {
+  padding: 14px 12px 18px;
+  font-size: var(--fs-sm)
+}
+
+.grid .none {
+  border-style: dashed;
+  color: var(--muted)
+}
+
+.grid .none.on {
+  border-style: solid
+}
+
+:global(html[data-theme="dark"]) .bar {
+  background: var(--surface-sunken)
+}
+
+:global(html[data-theme="dark"]) .current {
+  background: var(--g700);
+  color: var(--bg)
+}
+
+:global(html[data-theme="dark"]) .grid button.on {
+  background: var(--g700);
+  border-color: var(--g700);
+  color: var(--bg)
+}
+
+@media (max-width:560px) {
+  .bar {
+    flex-wrap: wrap
+  }
+
+  .current {
+    max-width: 100%
+  }
+
+  .search {
+    flex: 1 1 100%
+  }
+}

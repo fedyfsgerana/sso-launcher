@@ -1,0 +1,141 @@
+.standalone {
+  position: fixed;
+  inset: 0;
+  z-index: 95;
+  overflow-y: auto;
+  min-height: 100vh;
+  display: grid;
+  grid-template-rows: 1fr auto;
+  gap: 24px;
+  padding: 28px clamp(20px, 5vw, 56px);
+  background: var(--bg)
+}
+
+.center {
+  display: grid;
+  align-items: center;
+  width: min(1040px, 100%);
+  margin: 0 auto
+}
+
+.inline {
+  padding: 8px 0 24px
+}
+
+.panel {
+  min-height: 340px;
+  padding: 36px clamp(24px, 4vw, 48px)
+}
+
+.copy {
+  max-width: 560px
+}
+
+.copy h1 {
+  margin: 0 0 10px;
+  font-size: clamp(22px, 2.4vw, 30px)
+}
+
+.copy p {
+  max-width: 460px;
+  font-size: 14px;
+  line-height: 1.7
+}
+
+.copy :global(.hero-actions) {
+  margin: 24px 0 0;
+  padding-left: 0
+}
+
+.code {
+  display: block;
+  margin: 12px 0 10px;
+  font-size: clamp(76px, 11vw, 132px);
+  font-weight: 800;
+  line-height: .95;
+  letter-spacing: -.05em;
+  background: linear-gradient(135deg, var(--g800) 0%, var(--g500) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent
+}
+
+.danger .code {
+  background: linear-gradient(135deg, var(--tone-danger-strong) 0%, color-mix(in srgb, var(--tone-danger) 70%, #fff) 100%);
+  -webkit-background-clip: text;
+  background-clip: text
+}
+
+.danger :global(.rule) {
+  background: var(--tone-danger)
+}
+
+.danger :global(.eyebrow) {
+  color: var(--tone-danger-ink)
+}
+
+.reference {
+  margin: 12px 0 0;
+  color: var(--muted);
+  font-size: 12.5px
+}
+
+.reference code {
+  padding: 2px 6px;
+  border-radius: var(--r-xs);
+  background: rgba(255, 255, 255, .7);
+  color: var(--ink);
+  font-size: 12px
+}
+
+.footer {
+  margin: 0;
+  color: var(--muted);
+  font-size: 12.5px;
+  text-align: center
+}
+
+@media (max-width: 720px) {
+  .panel {
+    min-height: 0
+  }
+
+  .panel :global(.hero-actions) {
+    flex-direction: column;
+    align-items: stretch
+  }
+}
+
+.art {
+  position: absolute;
+  z-index: 1;
+  top: 50%;
+  right: clamp(12px, 3vw, 32px);
+  height: 96%;
+  aspect-ratio: 420 / 330;
+  transform: translateY(-50%);
+  pointer-events: none
+}
+
+.art svg {
+  display: block;
+  width: 100%;
+  height: 100%
+}
+
+:global(html[data-theme="dark"]) .art :global(.art-backdrop) {
+  opacity: .06
+}
+
+@media (max-width: 900px) {
+  .art {
+    height: 70%;
+    opacity: .35
+  }
+}
+
+@media (max-width: 680px) {
+  .art {
+    display: none
+  }
+}
