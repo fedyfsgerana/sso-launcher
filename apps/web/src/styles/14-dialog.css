@@ -1,0 +1,289 @@
+.modal.ask {
+  z-index: 140
+}
+
+.ask-card {
+  position: relative;
+  width: min(420px, 100%);
+  padding: 26px 24px 0;
+  text-align: center;
+  align-items: center;
+  animation: askIn .16s ease
+}
+
+@keyframes askIn {
+  from {
+    opacity: 0;
+    transform: scale(.96)
+  }
+
+  to {
+    opacity: 1;
+    transform: none
+  }
+}
+
+.ask-close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 34px;
+  height: 34px;
+  color: var(--muted)
+}
+
+.ask-ic {
+  width: 52px;
+  height: 52px;
+  border-radius: var(--pal-radius);
+  display: grid;
+  place-items: center;
+  margin: 0 auto 14px
+}
+
+.ask-ic svg {
+  width: 24px;
+  height: 24px
+}
+
+.ask-card.is-danger .ask-close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 34px;
+  height: 34px;
+  color: var(--muted)
+}
+
+.ask-ic {
+  --ask-tone: var(--pal-brand);
+  background: var(--ask-tone);
+  color: #fff;
+  box-shadow: 0 0 0 8px color-mix(in srgb, var(--ask-tone) 10%, transparent), var(--pal-shadow)
+}
+
+.ask-card.tone-primary .ask-ic {
+  --ask-tone: var(--pal-brand)
+}
+
+.ask-card.tone-success .ask-ic {
+  --ask-tone: var(--tone-success-strong)
+}
+
+.ask-card.tone-info .ask-ic {
+  --ask-tone: var(--tone-info-strong)
+}
+
+.ask-card.tone-warn .ask-ic {
+  --ask-tone: var(--tone-warn-strong)
+}
+
+.ask-card.tone-danger .ask-ic {
+  --ask-tone: var(--tone-danger-strong)
+}
+
+:root .btn.tone-success,
+:root .btn.tone-info,
+:root .btn.tone-warn,
+:root .btn.tone-danger {
+  background: var(--btn-tone);
+  border-color: var(--btn-tone);
+  color: #fff
+}
+
+:root .btn.tone-success:not(:disabled):hover,
+:root .btn.tone-info:not(:disabled):hover,
+:root .btn.tone-warn:not(:disabled):hover,
+:root .btn.tone-danger:not(:disabled):hover {
+  background: color-mix(in srgb, var(--btn-tone) 86%, #000);
+  border-color: color-mix(in srgb, var(--btn-tone) 86%, #000)
+}
+
+:root .btn.tone-success {
+  --btn-tone: var(--tone-success-strong)
+}
+
+:root .btn.tone-info {
+  --btn-tone: var(--tone-info-strong)
+}
+
+:root .btn.tone-warn {
+  --btn-tone: var(--tone-warn-strong)
+}
+
+:root .btn.tone-danger {
+  --btn-tone: var(--tone-danger-strong)
+}
+
+.ask-card h3 {
+  margin: 0 0 6px;
+  font-size: 18px
+}
+
+.ask-card p {
+  margin: 0 0 22px;
+  color: var(--body);
+  font-size: var(--fs-md);
+  line-height: 1.55
+}
+
+.ask-btns {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 10px;
+  width: calc(100% + 48px);
+  margin: 0 -24px;
+  padding: 14px 24px;
+  border-top: 1px solid var(--line)
+}
+
+.ask-btns .btn {
+  flex: 0 1 auto;
+  min-width: 132px;
+  padding: 0 14px
+}
+
+.ask-btns .btn span,
+.ask-btns .btn>*:not(svg) {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis
+}
+
+.sm-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px
+}
+
+.sm-btn svg {
+  width: 15px;
+  height: 15px
+}
+
+@keyframes iconShake {
+
+  0%,
+  100% {
+    transform: rotate(0)
+  }
+
+  20% {
+    transform: rotate(-14deg)
+  }
+
+  40% {
+    transform: rotate(11deg)
+  }
+
+  60% {
+    transform: rotate(-7deg)
+  }
+
+  80% {
+    transform: rotate(4deg)
+  }
+}
+
+button svg,
+.btn svg,
+a.nav svg,
+.bn a svg {
+  transform-origin: 50% 50%
+}
+
+button:not(:disabled):hover>svg,
+button:not(:disabled):focus-visible>svg,
+.nav:hover>svg,
+.nav:focus-visible>svg,
+.bn a:hover>svg,
+.ac-btn:hover>svg,
+.kebab:hover svg,
+.icon-btn:hover svg {
+  animation: iconShake .5s ease
+}
+
+.ts-control:hover>svg {
+  animation: none
+}
+
+.ts-control.open>svg {
+  animation: none
+}
+
+@media (prefers-reduced-motion:reduce) {
+
+  button svg,
+  .nav svg,
+  .bn a svg {
+    animation: none !important
+  }
+}
+
+a {
+  text-decoration: none;
+  color: inherit
+}
+
+.menu-pop .mi {
+  width: 100%
+}
+
+.mt tr.drow[draggable="true"] {
+  cursor: grab
+}
+
+.ut td .who small {
+  white-space: normal
+}
+
+.btn:not(:disabled):hover>svg,
+.ac-btn:not(:disabled):hover>svg,
+.sm-btn:hover>svg,
+.mi:hover>svg {
+  animation: iconShake .5s ease
+}
+
+.rc-wrap {
+  position: relative
+}
+
+.segs .seg {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px
+}
+
+.seg svg {
+  width: 15px;
+  height: 15px;
+  flex: none
+}
+
+.mt tr.is-dragging-row td {
+  background: var(--g50)
+}
+
+.mt tr.drow:focus-visible {
+  outline: 2px solid var(--g600);
+  outline-offset: -2px
+}
+
+.row-no {
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  color: var(--body);
+  font-size: var(--fs-sm)
+}
+
+.ut th.ta-c,
+.ut td.ta-c {
+  width: 56px
+}
+
+.btn,
+.ac-btn {
+  flex-direction: row-reverse
+}

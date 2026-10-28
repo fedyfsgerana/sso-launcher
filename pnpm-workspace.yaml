@@ -1,0 +1,9 @@
+packages:
+  - "apps/web"
+
+ignoredBuiltDependencies:
+  - unrs-resolver
+
+overrides:
+  "brace-expansion@<2": "^1.1.21"
+  "brace-expansion@>=4 <6": "^5.0.12"

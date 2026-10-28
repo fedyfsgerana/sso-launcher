@@ -1,0 +1,41 @@
+.reason {
+  width: 100%;
+  margin: -6px 0 18px;
+  text-align: left
+}
+
+.reason span {
+  display: block;
+  margin-bottom: 6px;
+  font-size: var(--fs-sm);
+  font-weight: 500;
+  color: var(--ink)
+}
+
+.reason textarea {
+  width: 100%;
+  min-height: 84px;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-ctl);
+  background: var(--card);
+  color: var(--ink);
+  font: inherit;
+  font-size: var(--fs-md);
+  line-height: 1.5;
+  resize: vertical;
+  outline: 0
+}
+
+.reason textarea:focus {
+  border-color: var(--g600);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--g700) 12%, transparent)
+}
+
+.reason em {
+  display: block;
+  margin-top: 6px;
+  color: var(--muted);
+  font-size: var(--fs-xs);
+  font-style: normal
+}

@@ -1,0 +1,82 @@
+name: CodeQL
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  pull_request:
+    branches:
+      - main
+      - master
+  schedule:
+    - cron: "0 2 * * 1"
+
+permissions:
+  contents: read
+
+jobs:
+  analyze-csharp:
+    name: Analyze C#
+    runs-on: windows-latest
+
+    permissions:
+      security-events: write
+      packages: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: csharp
+          queries: security-extended
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.0.x"
+
+      - name: Restore
+        working-directory: apps/api
+        run: dotnet restore ".solution/SsoLauncher.slnx"
+
+      - name: Build
+        working-directory: apps/api
+        run: dotnet build ".solution/SsoLauncher.slnx" --no-restore --configuration Release -warnaserror
+
+      - name: Analyze
+        uses: github/codeql-action/analyze@v3
+        with:
+          category: "/language:csharp"
+
+  analyze-typescript:
+    name: Analyze TypeScript
+    runs-on: ubuntu-latest
+
+    permissions:
+      security-events: write
+      packages: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: javascript-typescript
+          queries: security-extended
+          config: |
+            paths:
+              - apps/web/src
+            paths-ignore:
+              - "**/node_modules"
+              - "**/.next"
+
+      - name: Analyze
+        uses: github/codeql-action/analyze@v3
+        with:
+          category: "/language:javascript-typescript"

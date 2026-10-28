@@ -1,0 +1,111 @@
+.skBar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap
+}
+
+.skFilter {
+  width: 150px;
+  height: 40px;
+  border-radius: 999px
+}
+
+.skSquare {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--r-ctl)
+}
+
+.skCheck {
+  flex: none;
+  width: 18px;
+  height: 18px;
+  border-radius: var(--r-xs)
+}
+
+.skNo {
+  flex: none;
+  width: 18px;
+  height: 10px
+}
+
+.skLogo {
+  flex: none;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--r-ctl)
+}
+
+.skName {
+  display: grid;
+  gap: 8px;
+  flex: 1;
+  min-width: 0
+}
+
+.skName .skTitle {
+  width: 40%;
+  height: 13px
+}
+
+.skName .skSub {
+  width: 60%;
+  height: 10px
+}
+
+.skTime {
+  width: 110px;
+  height: 12px
+}
+
+.skActions {
+  display: flex;
+  gap: 6px
+}
+
+.skAction {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--r-sm)
+}
+
+.skPagerText {
+  width: 180px;
+  height: 12px
+}
+
+.skTip {
+  display: grid;
+  gap: 12px;
+  padding: 22px
+}
+
+.skTipTitle {
+  display: flex;
+  align-items: center;
+  gap: 10px
+}
+
+.skTipTitle .skLine {
+  width: 60%;
+  height: 16px
+}
+
+.skTipStat {
+  height: 56px;
+  border-radius: var(--r-ctl)
+}
+
+.skTipButton {
+  height: 40px;
+  border-radius: var(--r-ctl)
+}
+
+@media (max-width:760px) {
+
+  .skTime,
+  .skNo {
+    display: none
+  }
+}

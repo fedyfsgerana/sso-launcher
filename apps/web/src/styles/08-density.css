@@ -1,0 +1,346 @@
+:root {
+  --fs-xs: 12px;
+  --fs-sm: 13px;
+  --fs-md: 14px;
+  --fs-lg: 16px;
+  --fs-title: 24px;
+  --fs-hero: 28px;
+  --ctl: 40px;
+  --ctl-sm: 32px;
+  --r-xs: 6px;
+  --r-sm: 8px;
+  --r-ctl: 12px;
+  --r-card: 16px;
+  --ico: 20px;
+  --tb: 64px;
+}
+
+.btn,
+.hero-actions .btn {
+  height: var(--ctl);
+  padding: 0 16px;
+  border-radius: var(--r-ctl);
+  font-size: var(--fs-md);
+  font-weight: 600;
+  gap: 8px;
+  white-space: nowrap
+}
+
+.btn svg {
+  width: 18px;
+  height: 18px
+}
+
+.sm-btn {
+  height: var(--ctl-sm);
+  border-radius: var(--r-sm);
+  font-size: var(--fs-sm)
+}
+
+.search {
+  height: var(--ctl);
+  border-radius: var(--r-ctl);
+  padding: 0 14px
+}
+
+.search input {
+  font-size: var(--fs-md)
+}
+
+.search svg {
+  width: 18px;
+  height: 18px
+}
+
+.card,
+.hero {
+  border-radius: var(--r-card)
+}
+
+.sb-brand {
+  height: var(--tb)
+}
+
+.sb-nav {
+  padding: 16px 14px 12px
+}
+
+.nav {
+  height: 40px;
+  font-size: var(--fs-md);
+  gap: 12px;
+  margin: 2px 0
+}
+
+.nav svg.i {
+  width: var(--ico);
+  height: var(--ico)
+}
+
+.nav.active::before {
+  top: 8px;
+  bottom: 8px
+}
+
+.sb-foot small {
+  font-size: var(--fs-xs)
+}
+
+.av {
+  width: 36px;
+  height: 36px;
+  font-size: var(--fs-sm)
+}
+
+.tb {
+  padding: 0 28px
+}
+
+.tb .search {
+  width: min(380px, 100%)
+}
+
+.icon-btn {
+  width: 36px;
+  height: 36px
+}
+
+.icon-btn .dot {
+  top: 7px;
+  right: 8px
+}
+
+.acct b {
+  font-size: var(--fs-md)
+}
+
+.acct small {
+  font-size: var(--fs-xs)
+}
+
+.page {
+  padding: 24px 28px 40px
+}
+
+.hero {
+  min-height: 104px;
+  padding: 18px 30px;
+  justify-content: space-between;
+  gap: 16px
+}
+
+.hero h1 {
+  font-size: 24px;
+  margin: 6px 0 4px
+}
+
+.hero p {
+  font-size: 13px
+}
+
+.hero .eyebrow {
+  font-size: 11.5px
+}
+
+.hero-actions {
+  position: relative;
+  z-index: 2;
+  margin: 0 0 0 auto;
+  padding-left: 16px
+}
+
+.audit-shell>.tab-bar {
+  padding: 12px 16px;
+  margin-bottom: 0;
+  border-bottom: 1px solid var(--line)
+}
+
+.tab-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 18px
+}
+
+.tab-bar>.btn {
+  flex: none;
+  height: 40px;
+  padding: 0 16px
+}
+
+.ma-bar>.btn {
+  flex: none;
+  height: 40px;
+  padding: 0 16px
+}
+
+.hero-rings {
+  position: absolute;
+  z-index: 1;
+  top: 50%;
+  left: -36px;
+  height: 180%;
+  width: auto;
+  color: var(--g700);
+  transform: translateY(-50%);
+  pointer-events: none
+}
+
+.panel {
+  padding: 18px 20px 16px
+}
+
+.help h3 {
+  font-size: var(--fs-lg)
+}
+
+.tile {
+  padding: 10px 12px;
+  gap: 12px
+}
+
+.tile .logo {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--r-ctl)
+}
+
+.tile .logo svg {
+  width: var(--ico);
+  height: var(--ico)
+}
+
+.tile b {
+  font-size: var(--fs-md)
+}
+
+.tile small {
+  font-size: var(--fs-xs)
+}
+
+.help {
+  padding: 22px
+}
+
+.ma-bar {
+  gap: 8px;
+  margin-bottom: 18px
+}
+
+.seg,
+.seg-select select {
+  height: var(--ctl);
+  font-size: var(--fs-md)
+}
+
+.seg {
+  padding: 0 16px
+}
+
+.seg-select select {
+  padding: 0 38px 0 16px
+}
+
+.seg-select svg {
+  right: 14px
+}
+
+.view-tg svg {
+  width: 18px;
+  height: 18px
+}
+
+.ma-grid {
+  gap: 14px
+}
+
+.dt th {
+  font-size: var(--fs-xs);
+  padding: 11px 16px
+}
+
+.dt td {
+  font-size: var(--fs-md);
+  padding: 12px 16px
+}
+
+.menu-pop .mi {
+  font-size: var(--fs-md);
+  padding: 10px 16px
+}
+
+.menu-pop header b {
+  font-size: var(--fs-md)
+}
+
+.empty b {
+  font-size: var(--fs-lg)
+}
+
+@media (max-width:1024px) and (min-width:681px) {
+
+  .tb,
+  .page {
+    padding-left: 22px;
+    padding-right: 22px
+  }
+}
+
+@media (max-width:680px) {
+  :root {
+    --tb: 60px;
+    --fs-title: 22px;
+    --fs-hero: 24px
+  }
+
+  .tb {
+    padding: 0 14px
+  }
+
+  .page {
+    padding: 16px 14px calc(96px + env(safe-area-inset-bottom, 0px))
+  }
+
+  .hero {
+    padding: 22px 20px;
+    min-height: 0;
+    flex-wrap: wrap
+  }
+
+  .hero-actions {
+    margin: 14px 0 0;
+    padding-left: 0;
+    width: 100%
+  }
+
+  .hero-page .btn {
+    width: 100%
+  }
+
+  .panel {
+    padding: 16px 14px 12px
+  }
+
+}
+
+.seg,
+.seg-select select {
+  background: var(--card);
+  border: 1px solid var(--g200);
+  color: var(--ink-2);
+  box-shadow: 0 1px 2px color-mix(in srgb, var(--shadow-ink) 4%, transparent)
+}
+
+.seg:hover,
+.seg-select select:hover {
+  background: var(--g50);
+  border-color: var(--g300)
+}
+
+.seg.on {
+  background: var(--g800);
+  border-color: var(--g800);
+  color: #fff
+}

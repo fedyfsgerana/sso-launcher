@@ -1,0 +1,97 @@
+.list {
+  max-height: min(420px, 60vh);
+  overflow-y: auto
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding-right: 10px;
+  border-bottom: 1px solid var(--line)
+}
+
+.row:last-child {
+  border-bottom: 0
+}
+
+.remove {
+  flex: none;
+  align-self: center;
+  margin: auto 0;
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  border-radius: var(--r-sm);
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  transition: background .15s, color .15s
+}
+
+.remove:hover,
+.remove:focus-visible {
+  background: color-mix(in srgb, var(--danger) 12%, transparent);
+  color: var(--danger)
+}
+
+.item :global(.ic) {
+  align-self: center
+}
+
+.item {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  border-bottom: 0;
+  border-radius: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left
+}
+
+.clickable {
+  cursor: pointer
+}
+
+.row:has(.clickable:hover) {
+  background: var(--g50)
+}
+
+.unread {
+  background: color-mix(in srgb, var(--g600) 6%, transparent)
+}
+
+.unread .item,
+.unread .remove {
+  background: transparent
+}
+
+.unread .item b::after {
+  content: "";
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  margin-left: 6px;
+  border-radius: 50%;
+  background: var(--tone-danger);
+  vertical-align: middle
+}
+
+.state {
+  padding: 28px 18px;
+  color: var(--muted);
+  font-size: 13px;
+  text-align: center
+}
+
+.state b {
+  display: block;
+  margin-bottom: 2px;
+  color: var(--ink);
+  font-size: 13.5px
+}

@@ -1,0 +1,598 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Demo — SSO Launcher</title>
+<meta name="description" content="Demo interaktif SSO Launcher: login sekali, buka semua aplikasi. Data contoh tersimpan di browser.">
+<link rel="icon" href="{{LOGO}}">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script>
+(() => {
+  try {
+    if (localStorage.getItem("sso-demo-theme") === "dark") document.documentElement.dataset.theme = "dark";
+  } catch {}
+})();
+</script>
+<style>
+:root { --font-geist-sans: "Geist"; --font-geist-mono: "Geist Mono"; }
+/* APP_CSS */
+.demo-bar {
+  position: relative;
+  z-index: 50;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 4px 14px;
+  padding: 7px 16px;
+  background: var(--g900);
+  color: #fff;
+  font-size: 12.5px;
+  line-height: 18px;
+}
+.demo-bar button,
+.demo-bar a {
+  color: inherit;
+  background: none;
+  border: 0;
+  padding: 0;
+  font: inherit;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.demo-accounts {
+  display: grid;
+  gap: 6px;
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px solid var(--line);
+  text-align: left;
+}
+.demo-accounts h2 {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink);
+  margin: 0 0 2px;
+}
+.demo-account {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--card);
+  color: var(--body);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.demo-account:hover { border-color: var(--g600); }
+.demo-account b { display: block; font-weight: 600; color: var(--ink); font-size: 13px; }
+.demo-account small { color: var(--muted); font-size: 12px; }
+.demo-app {
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--ink);
+}
+.demo-app-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 24px;
+  color: #fff;
+}
+.demo-app-bar b { font-size: 16px; }
+.demo-app-bar small { opacity: .8; }
+.demo-app-bar .demo-app-brand { display: flex; align-items: center; gap: 12px; }
+.demo-app-bar .demo-app-brand > span { width: 38px; height: 38px; border-radius: 10px; display: grid; place-items: center; background: rgba(255,255,255,.18); }
+.demo-app-bar button { border: 1px solid rgba(255,255,255,.5); background: rgba(255,255,255,.12); color: #fff; border-radius: 10px; padding: 8px 14px; font: inherit; font-weight: 600; cursor: pointer; display: inline-flex; gap: 8px; align-items: center; }
+.demo-app-body { max-width: 920px; margin: 0 auto; padding: 28px 20px 60px; display: grid; gap: 16px; }
+.demo-app-body .card { padding: 22px; }
+.demo-app-body h1 { margin: 0 0 6px; font-size: 22px; }
+.demo-app-body p { margin: 0; color: var(--body); }
+.demo-app-body pre { margin: 12px 0 0; padding: 14px; border-radius: 10px; background: var(--surface-sunken); border: 1px solid var(--line); overflow: auto; font-family: var(--font-mono); font-size: 12.5px; line-height: 1.6; color: var(--ink-2); }
+.demo-steps { margin: 12px 0 0; padding-left: 20px; display: grid; gap: 6px; color: var(--body); }
+.demo-table td, .demo-table th { white-space: nowrap; }
+.lp { top: var(--demo-bar-h, 0px); }
+.demo-still .shell *, .demo-still .shell *::before, .demo-still .shell *::after { animation: none !important; transition: none !important; }
+</style>
+</head>
+<body>
+<div class="demo-bar" role="note">
+  <span>Mode demo: data contoh tersimpan di browser Anda, tanpa server.</span>
+  <button type="button" data-act="theme">Ganti tema terang/gelap</button>
+  <button type="button" data-act="reset">Atur ulang data demo</button>
+  <a href="https://github.com/fedyfsgerana/sso-launcher">Kode sumber di GitHub</a>
+</div>
+<div id="root"></div>
+<div id="layer"></div>
+<div id="toast-root"></div>
+
+<script>
+(() => {
+  const STORE = "sso-demo-v1";
+  const SESSION = "sso-demo-session";
+  const PASSWORD = "demo1234";
+  const LOGO = "{{LOGO}}";
+  const SCENE = {{SCENE}};
+  const VERSION = "1.0.0";
+
+  const P = {
+    home: '<path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"/><path d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>',
+    grid: '<rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/>',
+    star: '<path d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z"/>',
+    starOff: '<path d="M8.34 8.34 2 9.27l5 4.87L5.82 21 12 17.77 18.18 21l-.59-3.43"/><path d="M18.42 12.76 22 9.27l-6.91-1L12 2l-1.44 2.91"/><line x1="2" x2="22" y1="2" y2="22"/>',
+    clock: '<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>',
+    users: '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>',
+    usersRound: '<path d="M18 21a8 8 0 0 0-16 0"/><circle cx="10" cy="8" r="5"/><path d="M22 20c0-3.37-2-6.5-4-8a5 5 0 0 0-.45-8.3"/>',
+    shield: '<path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/>',
+    shieldCheck: '<path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/>',
+    shieldAlert: '<path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="M12 8v4"/><path d="M12 16h.01"/>',
+    window: '<rect x="2" y="4" width="20" height="16" rx="2"/><path d="M10 4v4"/><path d="M2 8h20"/><path d="M6 4v4"/>',
+    list: '<path d="M3 12h.01"/><path d="M3 18h.01"/><path d="M3 6h.01"/><path d="M8 12h13"/><path d="M8 18h13"/><path d="M8 6h13"/>',
+    history: '<path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l4 2"/>',
+    bell: '<path d="M10.268 21a2 2 0 0 0 3.464 0"/><path d="M3.262 15.326A1 1 0 0 0 4 17h16a1 1 0 0 0 .74-1.673C19.41 13.956 18 12.499 18 8A6 6 0 0 0 6 8c0 4.499-1.411 5.956-2.738 7.326"/>',
+    chevronDown: '<path d="m6 9 6 6 6-6"/>',
+    chevronLeft: '<path d="m15 18-6-6 6-6"/>',
+    chevronRight: '<path d="m9 18 6-6-6-6"/>',
+    chevronsUpDown: '<path d="m7 15 5 5 5-5"/><path d="m7 9 5-5 5 5"/>',
+    search: '<circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>',
+    searchX: '<path d="m13.5 8.5-5 5"/><path d="m8.5 8.5 5 5"/><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>',
+    wrench: '<path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>',
+    plus: '<path d="M5 12h14"/><path d="M12 5v14"/>',
+    ellipsis: '<circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/>',
+    pencil: '<path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/><path d="m15 5 4 4"/>',
+    key: '<path d="M2.586 17.414A2 2 0 0 0 2 18.828V21a1 1 0 0 0 1 1h3a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h1a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h.172a2 2 0 0 0 1.414-.586l.814-.814a6.5 6.5 0 1 0-4-4z"/><circle cx="16.5" cy="7.5" r=".5" fill="currentColor"/>',
+    trash: '<path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/>',
+    tag: '<path d="M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z"/><circle cx="7.5" cy="7.5" r=".5" fill="currentColor"/>',
+    lock: '<rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>',
+    circleUser: '<circle cx="12" cy="12" r="10"/><circle cx="12" cy="10" r="3"/><path d="M7 20.662V19a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v1.662"/>',
+    settings: '<path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/>',
+    logOut: '<path d="m16 17 5-5-5-5"/><path d="M21 12H9"/><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>',
+    headset: '<path d="M3 11h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-5Zm0 0a9 9 0 1 1 18 0m0 0v5a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3Z"/><path d="M21 16v2a4 4 0 0 1-4 4h-5"/>',
+    triangle: '<path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/>',
+    circleCheck: '<circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/>',
+    circleX: '<circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/>',
+    circleAlert: '<circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/>',
+    circleDashed: '<path d="M10.1 2.182a10 10 0 0 1 3.8 0"/><path d="M13.9 21.818a10 10 0 0 1-3.8 0"/><path d="M17.609 3.721a10 10 0 0 1 2.69 2.7"/><path d="M2.182 13.9a10 10 0 0 1 0-3.8"/><path d="M20.279 17.609a10 10 0 0 1-2.7 2.69"/><path d="M21.818 10.1a10 10 0 0 1 0 3.8"/><path d="M3.721 6.391a10 10 0 0 1 2.7-2.69"/><path d="M6.391 20.279a10 10 0 0 1-2.69-2.7"/>',
+    external: '<path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>',
+    x: '<path d="M18 6 6 18"/><path d="m6 6 12 12"/>',
+    check: '<path d="M20 6 9 17l-5-5"/>',
+    rotate: '<path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/>',
+    logIn: '<path d="m10 17 5-5-5-5"/><path d="M15 12H3"/><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/>',
+    eye: '<path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"/><circle cx="12" cy="12" r="3"/>',
+    calendar: '<path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/>',
+    box: '<path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/>',
+    chart: '<path d="M3 3v16a2 2 0 0 0 2 2h16"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/>',
+    wallet: '<path d="M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1"/><path d="M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4"/>',
+    truck: '<path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"/><path d="M15 18H9"/><path d="M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.624l-3.48-4.35A1 1 0 0 0 17.52 8H14"/><circle cx="17" cy="18" r="2"/><circle cx="7" cy="18" r="2"/>',
+    file: '<path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/>',
+    message: '<path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/>',
+    clipboard: '<rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="m9 14 2 2 4-4"/>',
+    mail: '<rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>',
+    hammer: '<path d="m15 12-8.373 8.373a1 1 0 1 1-3-3L12 9"/><path d="m18 15 4-4"/><path d="m21.5 11.5-1.914-1.914A2 2 0 0 1 19 8.172V7l-2.26-2.26a6 6 0 0 0-4.202-1.756L9 2.96l.92.82A6.18 6.18 0 0 1 12 8.4V10l2 2h1.172a2 2 0 0 1 1.414.586L18.5 14.5"/>',
+    book: '<path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H19a1 1 0 0 1 1 1v18a1 1 0 0 1-1 1H6.5a1 1 0 0 1 0-5H20"/>',
+    building: '<path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"/><path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2"/><path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2"/><path d="M10 6h4"/><path d="M10 10h4"/><path d="M10 14h4"/><path d="M10 18h4"/>',
+  };
+  const icon = (name, size = 20, cls = "i") => `<svg class="${cls}" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">${P[name] || ""}</svg>`;
+  const esc = (v) => String(v ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  const initials = (name) => name.split(/\s+/).map((p) => p[0]).filter(Boolean).slice(0, 2).join("").toUpperCase();
+  const AVATAR = ["app-hr", "app-wh", "app-pr", "app-pj", "app-as", "app-fn", "app-hd", "app-nv", "app-vi", "app-br"];
+  const avatarClass = (seed) => { let h = 0; for (const c of seed.trim().toLocaleLowerCase("id-ID")) h = (h * 31 + c.charCodeAt(0)) >>> 0; return AVATAR[h % AVATAR.length]; };
+  const rings = (cls = "") => `<svg class="${cls}" viewBox="0 0 240 180" fill="none" aria-hidden="true" focusable="false"><g stroke="currentColor" stroke-opacity="0.06" stroke-width="5"><circle cx="96" cy="76" r="50"/><circle cx="148" cy="112" r="48"/></g><g stroke="currentColor" stroke-opacity="0.05" stroke-width="1"><circle cx="96" cy="76" r="76"/><circle cx="148" cy="112" r="74"/></g></svg>`;
+  const ago = (min) => new Date(Date.now() - min * 60000).toISOString();
+  const rel = (iso) => {
+    const m = Math.max(0, Math.round((Date.now() - Date.parse(iso)) / 60000));
+    if (m < 1) return "Baru saja";
+    if (m < 60) return `${m} menit lalu`;
+    const h = Math.round(m / 60);
+    if (h < 24) return `${h} jam lalu`;
+    return `${Math.round(h / 24)} hari lalu`;
+  };
+  const stamp = (iso) => new Date(iso).toLocaleString("id-ID", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" });
+  const greeting = () => { const h = new Date().getHours(); return h < 11 ? "Selamat pagi" : h < 15 ? "Selamat siang" : h < 18 ? "Selamat sore" : "Selamat malam"; };
+  const fullDate = () => new Date().toLocaleDateString("id-ID", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
+
+  const MENUS = [
+    { section: "Portal", items: [
+      { key: "overview", label: "Beranda", icon: "home" },
+      { key: "my-apps", label: "Aplikasi Saya", icon: "grid" },
+      { key: "favorites", label: "Favorit", icon: "star" },
+      { key: "recent", label: "Terbaru", icon: "clock" },
+    ] },
+    { section: "Manajemen", admin: true, items: [
+      { key: "users", label: "Pengguna", icon: "users" },
+      { key: "groups", label: "Grup & Akses", icon: "shield" },
+      { key: "applications", label: "Aplikasi", icon: "window" },
+      { key: "menus", label: "Menu", icon: "list" },
+    ] },
+    { section: "Sistem", admin: true, items: [
+      { key: "audit", label: "Riwayat Aktivitas", icon: "history" },
+    ] },
+  ];
+
+  function seed() {
+    const apps = [
+      ["Booking Ruang Meeting", "booking", "calendar", "app-hr", "General Affairs", "Pemesanan ruang meeting dan jadwal pemakaian", true, "active", 40],
+      ["ERP Utama", "erp", "box", "app-wh", "Operations", "Persediaan, pembelian, dan penjualan", true, "active", 180],
+      ["Dashboard Penjualan", "sales", "chart", "app-pj", "Marketing", "Laporan dan grafik penjualan harian", true, "active", 600],
+      ["Payroll", "payroll", "wallet", "app-fn", "Finance", "Penggajian dan slip gaji karyawan", true, "active", 1500],
+      ["Pengajuan Cuti", "cuti", "clipboard", "app-vi", "Human Resources", "Pengajuan dan persetujuan cuti", true, "active", 2900],
+      ["Gudang & Logistik", "gudang", "truck", "app-as", "Operations", "Stok, penerimaan, dan pengiriman barang", true, "maintenance", null],
+      ["Helpdesk IT", "helpdesk", "headset", "app-pr", "Information Technology", "Tiket bantuan dan permintaan perangkat", true, "active", null],
+      ["Arsip Dokumen", "arsip", "file", "app-nv", "General Affairs", "Penyimpanan dan pencarian dokumen", true, "active", null],
+      ["Work Order Teknik", "workorder", "hammer", "app-br", "Production", "Perawatan mesin dan work order", true, "active", null],
+      ["Email Kantor", "email", "mail", "app-hd", "Lintas Departemen", "Webmail perusahaan", false, "active", 300],
+      ["Wiki Internal", "wiki", "book", "app-gy", "Lainnya", "Panduan kerja dan SOP perusahaan", false, "active", null],
+      ["Forum Karyawan", "forum", "message", "app-dc", "Lainnya", "Pengumuman dan diskusi internal", false, "active", null],
+    ].map((a, i) => ({ id: i + 1, name: a[0], slug: a[1], icon: a[2], color: a[3], category: a[4], description: a[5], usesSso: a[6], status: a[7], lastOpenedAt: a[8] === null ? null : ago(a[8]), maintenanceMessage: a[7] === "maintenance" ? "Sedang pembaruan sistem gudang, kembali normal pukul 15.00." : "" }));
+    return {
+      apps,
+      users: [
+        { id: 1, name: "Administrator", email: "admin@demo.test", nik: "10001", department: "Information Technology", code: "IT", job: "Administrator Sistem", admin: true, active: true, groups: ["Administrator"], apps: apps.map((a) => a.id), favorites: [1, 2, 7] },
+        { id: 2, name: "Dewi Lestari", email: "dewi@demo.test", nik: "10002", department: "Human Resources", code: "HR", job: "Staf Rekrutmen", admin: false, active: true, groups: ["Staf HR"], apps: [1, 4, 5, 8, 10, 11, 12], favorites: [5, 1] },
+        { id: 3, name: "Bima Santoso", email: "bima@demo.test", nik: "10003", department: "Operations", code: "OPS", job: "Supervisor Gudang", admin: false, active: true, groups: ["Staf Operasional"], apps: [], favorites: [] },
+        { id: 4, name: "Rina Wijaya", email: "rina@demo.test", nik: "10004", department: "Finance", code: "FIN", job: "Akuntan", admin: false, active: true, groups: ["Staf Keuangan"], apps: [], favorites: [] },
+        { id: 5, name: "Agus Pratama", email: "agus@demo.test", nik: "10005", department: "Marketing", code: "MKT", job: "Sales Executive", admin: false, active: false, groups: [], apps: [], favorites: [] },
+      ],
+      groups: [
+        { id: 1, name: "Administrator", department: "Information Technology", members: 1, apps: 12, menus: 9, active: true },
+        { id: 2, name: "Staf HR", department: "Human Resources", members: 1, apps: 7, menus: 4, active: true },
+        { id: 3, name: "Staf Operasional", department: "Operations", members: 1, apps: 5, menus: 4, active: true },
+        { id: 4, name: "Staf Keuangan", department: "Finance", members: 1, apps: 4, menus: 4, active: true },
+      ],
+      audit: [
+        { at: ago(5), actor: "Administrator", action: "Ubah", tone: "info", target: "Aplikasi", name: "Gudang & Logistik", summary: "Mode maintenance diaktifkan" },
+        { at: ago(60), actor: "Administrator", action: "Tambah", tone: "on", target: "Kredensial SSO", name: "Booking Ruang Meeting", summary: "Kredensial baru dibuat" },
+        { at: ago(180), actor: "Dewi Lestari", action: "Buka", tone: "purple", target: "Aplikasi", name: "Pengajuan Cuti", summary: "Membuka aplikasi lewat SSO" },
+        { at: ago(1440), actor: "Administrator", action: "Tambah", tone: "on", target: "Pengguna", name: "Agus Pratama", summary: "Pengguna baru ditambahkan" },
+      ],
+      seq: 1,
+    };
+  }
+
+  let db = load();
+  let me = null;
+  const ui = { collapsed: false, pop: null, views: { fav: "grid", apps: "grid" }, pages: { fav: 0, apps: 0 }, q: "", cat: "", maQ: "", maCat: "", maView: "grid", maPage: 1, maSize: 9, userQ: "", userStatus: "", loginError: "" };
+
+  function load() { try { const r = localStorage.getItem(STORE); if (r) return JSON.parse(r); } catch {} const d = seed(); save(d); return d; }
+  function save(d = db) { try { localStorage.setItem(STORE, JSON.stringify(d)); } catch {} }
+  const myApps = () => db.apps.filter((a) => me.apps.includes(a.id)).map((a) => ({ ...a, isFavorite: me.favorites.includes(a.id) }));
+  function audit(action, tone, target, name, summary) { db.audit.unshift({ at: new Date().toISOString(), actor: me ? me.name : "-", action, tone, target, name, summary }); db.audit = db.audit.slice(0, 200); save(); }
+
+  const layer = document.getElementById("layer");
+  let toastTimer = null;
+  function toast(message, tone = "success") {
+    const ic = { success: "circleCheck", error: "circleAlert", warning: "triangle" }[tone];
+    const root = document.getElementById("toast-root");
+    root.innerHTML = `<div class="toast is-${tone} show to-interactive" role="status" style="position:fixed;top:20px;right:20px;z-index:2147483000">${icon(ic, 18)}<span class="to-message">${esc(message)}</span><button class="to-close" type="button" aria-label="Tutup notifikasi" data-act="toast-close">${icon("x", 15)}</button></div>`;
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => { const t = root.firstElementChild; if (t) t.classList.remove("show", "to-interactive"); }, 3200);
+  }
+
+  function hero(title, description, actions = "") {
+    return `<section class="hero hero-page"><div class="hero-copy"><div class="eyebrow"><i class="rule"></i>SSO LAUNCHER</div><h1>${esc(title)}</h1>${description ? `<p>${esc(description)}</p>` : ""}</div>${actions ? `<div class="hero-actions">${actions}</div>` : ""}${rings("hero-rings")}</section>`;
+  }
+  const dot = (a) => { const s = a.status === "maintenance" ? "maintenance" : a.usesSso ? "sso" : "link"; return `<span class="app-dot ${s}" aria-hidden="true">${icon({ sso: "shieldCheck", link: "external", maintenance: "wrench" }[s], 10)}</span>`; };
+  const empty = (title, description, inPanel = true) => `<div class="${inPanel ? "empty" : "card empty"}" style="${inPanel ? "grid-column:1 / -1" : ""}"><b>${esc(title)}</b>${esc(description)}</div>`;
+  const stack = (apps, label) => `<span class="as-stack">${apps.length ? `<span class="as-logos" aria-hidden="true">${apps.slice(0, 4).map((a) => `<span class="as-logo ${a.color}">${icon(a.icon, 13)}</span>`).join("")}${apps.length > 4 ? `<span class="as-more">+${apps.length - 4}</span>` : ""}</span>` : ""}<span class="as-count">${esc(label)}</span></span>`;
+  const viewToggle = (key, value) => `<div class="view-tg" role="group" aria-label="Tampilan"><button class="${value === "grid" ? "on" : ""}" type="button" aria-label="Tampilan kotak" aria-pressed="${value === "grid"}" data-view="${key}:grid">${icon("grid", 18)}</button><button class="${value === "list" ? "on" : ""}" type="button" aria-label="Tampilan daftar" aria-pressed="${value === "list"}" data-view="${key}:list">${icon("list", 18)}</button></div>`;
+  const statusBadge = (tone, ic, text) => `<span class="status ${tone}">${icon(ic, 13)}${esc(text)}</span>`;
+
+  function tilePager(key, apps, view, label) {
+    const width = (document.querySelector(".main")?.clientWidth || window.innerWidth) - 120;
+    const columns = Math.min(12, Math.max(1, Math.floor((width + 6) / 106)));
+    const size = view === "list" ? 6 : columns;
+    const pages = Math.max(1, Math.ceil(apps.length / size));
+    const current = Math.min(ui.pages[key], pages - 1);
+    ui.pages[key] = current;
+    const start = current * size;
+    const shown = apps.slice(start, start + size);
+    const item = (a) => view === "list"
+      ? `<button class="ov-listRow${a.status !== "active" ? " ov-disabled ov-maintenance" : ""}" type="button" data-open="${a.id}"><span class="ov-tileIcon"><span class="ov-logo ov-listLogo ${a.color}">${icon(a.icon, 20)}</span>${dot(a)}</span><span class="ov-listText"><b>${esc(a.name)}</b><small>${esc(a.category)}</small></span>${icon("chevronRight", 18)}</button>`
+      : `<button class="ov-tile${a.status !== "active" ? " ov-disabled ov-maintenance" : ""}" type="button" data-open="${a.id}" title="${a.status === "maintenance" ? esc(a.maintenanceMessage) : ""}"><span class="ov-tileIcon"><span class="ov-logo ${a.color}">${icon(a.icon, 24)}</span>${dot(a)}</span><b class="ov-tileName">${esc(a.name)}</b><small class="ov-tileMeta">${esc(a.category)}</small></button>`;
+    return `<div class="${view === "list" ? "ov-listGrid" : "ov-pagerGrid"}" style="--columns:${columns}">${shown.map(item).join("")}</div>
+      <footer class="ov-sectionFoot">${stack(apps, label)}<div class="ov-pagerNav"><span class="ov-pagerInfo">${start + 1}–${start + shown.length} dari ${apps.length}</span>
+      <button class="ov-pagerButton ov-pagerPrev" type="button" aria-label="Halaman sebelumnya" ${current === 0 ? "disabled" : ""} data-tpage="${key}:-1">${icon("chevronLeft", 18)}</button>
+      <button class="ov-pagerButton ov-pagerNext" type="button" aria-label="Halaman berikutnya" ${current >= pages - 1 ? "disabled" : ""} data-tpage="${key}:1">${icon("chevronRight", 18)}</button></div></footer>`;
+  }
+  const section = (title, ic, toolbar, body) => `<section class="card ov-section"><header class="ov-sectionHead"><h3><i class="ch-ic">${icon(ic, 18)}</i>${esc(title)}</h3>${toolbar}</header>${body}</section>`;
+
+  function pageOverview() {
+    const apps = myApps().sort((l, r) => (Date.parse(r.lastOpenedAt || 0) || 0) - (Date.parse(l.lastOpenedAt || 0) || 0) || l.name.localeCompare(r.name));
+    const favs = apps.filter((a) => a.isFavorite);
+    const cats = [...new Set(apps.map((a) => a.category))].sort();
+    const kw = ui.q.trim().toLowerCase();
+    const shown = apps.filter((a) => (!ui.cat || a.category === ui.cat) && (!kw || `${a.name} ${a.category} ${a.description}`.toLowerCase().includes(kw)));
+    const recent = db.audit.filter((x) => x.actor === me.name).slice(0, 8);
+    const first = me.name.split(" ")[0];
+    const stat = (ic, label, value, tone) => `<div class="sc-card sc-${tone}"><span class="sc-icon">${icon(ic, 20)}</span><span class="sc-text"><b>${value}</b><small>${esc(label)}</small></span></div>`;
+    const appToolbar = apps.length ? `<div class="ov-toolbar"><label class="search us-search">${icon("search", 18)}<input placeholder="Cari aplikasi" value="${esc(ui.q)}" data-input="q"></label>
+      <div class="seg-select"><select aria-label="Semua kategori" data-input="cat"><option value="">Semua kategori</option>${cats.map((c) => `<option ${c === ui.cat ? "selected" : ""}>${esc(c)}</option>`).join("")}</select></div>
+      ${viewToggle("apps", ui.views.apps)}<button class="icon-sq" type="button" aria-label="Atur ulang filter" title="Atur ulang filter" data-act="reset-filter">${icon("rotate", 18)}</button></div>` : "";
+    const topics = [["lock", "var(--pal-slate)", "Lupa password", "Minta reset ke Administrator", "Hubungi Administrator Sistem untuk mengatur ulang password Anda."], ["grid", "var(--pal-teal)", "Belum punya akses", "Ajukan akses aplikasi", "Minta Administrator Sistem menambahkan Anda ke grup yang punya akses aplikasi tersebut."], ["triangle", "var(--pal-red)", "Aplikasi tidak bisa dibuka", "Laporkan kendala", "Catat nama aplikasi dan pesan yang muncul, lalu laporkan ke Administrator Sistem."], ["shieldAlert", "var(--pal-orange)", "Akun terkunci", "Terlalu banyak percobaan login", "Akun dikunci sementara karena terlalu banyak percobaan login. Tunggu beberapa menit lalu coba lagi."]];
+    return `<div class="page" id="overviewPage">${hero(`Beranda — ${greeting()}, ${first}`, fullDate())}
+      <div class="ov-stack"><div class="sc-grid">${stat("window", "Aplikasi tersedia", apps.length, "success")}${stat("star", "Favorit", favs.length, "success")}${stat("history", "Dibuka minggu ini", apps.filter((a) => a.lastOpenedAt && Date.now() - Date.parse(a.lastOpenedAt) < 7 * 864e5).length, "info")}${stat("wrench", "Sedang perbaikan", apps.filter((a) => a.status === "maintenance").length, "warn")}</div>
+      ${section("Favorit", "star", favs.length ? viewToggle("fav", ui.views.fav) : "", favs.length ? tilePager("fav", favs, ui.views.fav, `${favs.length} favorit`) : empty("Belum ada favorit", "Tandai aplikasi yang sering dipakai dengan ikon bintang di Aplikasi Saya."))}
+      ${section("Aplikasi Saya", "grid", appToolbar, !apps.length ? empty("Belum ada aplikasi", "Hubungi Administrator Sistem untuk mendapatkan akses aplikasi.") : shown.length ? tilePager("apps", shown, ui.views.apps, `${shown.length} aplikasi`) : empty("Aplikasi tidak ditemukan", "Coba ubah kata kunci atau kategori."))}
+      <div class="ov-row">${section("Aktivitas Terbaru", "history", "", recent.length ? `<ul class="ov-activities">${recent.map((x) => `<li class="ov-activity"><span class="ov-activityIcon ov-soft ${x.tone}">${icon(x.action === "Buka" ? "external" : x.action === "Tambah" ? "plus" : "pencil", 17)}</span><span class="ov-activityText"><b>${esc(x.action)} ${esc(x.target.toLowerCase())}</b><small>${esc(x.name)}</small></span><time class="ov-activityTime">${rel(x.at)}</time></li>`).join("")}</ul>` : empty("Belum ada aktivitas", "Aplikasi yang Anda buka akan tercatat di sini."))}
+      <section class="card help"><div class="eyebrow"><i class="rule"></i>BANTUAN</div><h3>Butuh bantuan?</h3><ul class="help-topics">${topics.map((t) => `<li><button type="button" data-toast="${esc(t[4])}"><span class="help-tile" style="background:${t[1]}">${icon(t[0], 16)}</span><span class="help-text"><b>${t[2]}</b><small>${t[3]}</small></span>${icon("chevronRight", 16)}</button></li>`).join("")}</ul><button class="btn" type="button" data-toast="Hubungi Administrator Sistem untuk bantuan akun.">Hubungi Administrator${icon("headset", 18)}</button></section></div></div></div>`;
+  }
+
+  function pageMyApps(filter) {
+    const apps = myApps();
+    const cats = [...new Set(apps.map((a) => a.category))].sort();
+    const kw = ui.maQ.trim().toLowerCase();
+    let list = apps.filter((a) => (!ui.maCat || a.category === ui.maCat) && (!kw || `${a.name} ${a.category} ${a.description}`.toLowerCase().includes(kw)));
+    if (filter === "favorites") list = list.filter((a) => a.isFavorite);
+    if (filter === "recent") list = list.filter((a) => a.lastOpenedAt).sort((l, r) => Date.parse(r.lastOpenedAt) - Date.parse(l.lastOpenedAt));
+    const pages = Math.max(1, Math.ceil(list.length / ui.maSize));
+    ui.maPage = Math.min(ui.maPage, pages);
+    const rows = list.slice((ui.maPage - 1) * ui.maSize, ui.maPage * ui.maSize);
+    const title = { all: "Aplikasi Saya", favorites: "Favorit", recent: "Terbaru" }[filter];
+    const desc = { all: "Akses cepat ke aplikasi yang tersedia untuk Anda.", favorites: "Aplikasi yang Anda tandai sebagai favorit.", recent: "Aplikasi yang terakhir Anda buka." }[filter];
+    const segs = [["all", "Semua", "grid", "my-apps"], ["favorites", "Favorit", "star", "favorites"], ["recent", "Terbaru", "history", "recent"]];
+    const card = (a) => `<article class="ac${a.status === "maintenance" ? " is-maintenance" : ""}" title="${a.status === "maintenance" ? esc(a.maintenanceMessage) : ""}"><button class="ac-hit" type="button" aria-label="Buka ${esc(a.name)}" data-open="${a.id}"><span class="ac-logo-wrap"><span class="ac-logo ${a.color}">${icon(a.icon, 24)}</span>${dot(a)}</span><span class="ac-txt"><span class="ac-title"><b>${esc(a.name)}</b><span class="ac-cat${a.status === "maintenance" ? " warn" : ""}" title="${esc(a.category)}">${icon("tag", 12)}<span>${esc(a.category)}</span></span></span><small>${esc(a.description)}</small></span></button><button class="${a.isFavorite ? "star on" : "star"}" type="button" aria-pressed="${a.isFavorite}" aria-label="${a.isFavorite ? "Hapus dari" : "Tambah ke"} favorit" data-fav="${a.id}">${icon(a.isFavorite ? "starOff" : "star", 18)}</button></article>`;
+    const start = list.length ? (ui.maPage - 1) * ui.maSize + 1 : 0;
+    const end = Math.min(list.length, ui.maPage * ui.maSize);
+    return `<div class="page">${hero(title, desc)}<div class="card ma-panel"><div class="ma-bar us-bar"><label class="search us-search">${icon("search", 18)}<input placeholder="Cari aplikasi" value="${esc(ui.maQ)}" data-input="maQ"></label>
+      <div class="segs" role="group" aria-label="Filter aplikasi">${segs.map((s) => `<a class="${filter === s[0] ? "seg on" : "seg"}" href="#/${s[3]}" aria-pressed="${filter === s[0]}">${icon(s[2], 15)}${s[1]}</a>`).join("")}</div>
+      <div class="seg-select"><select aria-label="Semua Kategori" data-input="maCat"><option value="">Semua Kategori</option>${cats.map((c) => `<option ${c === ui.maCat ? "selected" : ""}>${esc(c)}</option>`).join("")}</select></div>
+      ${viewToggle("ma", ui.maView)}<button class="icon-sq" type="button" aria-label="Atur ulang filter" title="Atur ulang filter" data-act="reset-ma">${icon("rotate", 18)}</button></div>
+      <div class="${ui.maView === "list" ? "ma-grid is-list" : "ma-grid"}">${rows.length ? rows.map(card).join("") : empty(kw || ui.maCat ? "Tidak ada hasil" : filter === "favorites" ? "Belum ada favorit" : "Belum ada aplikasi", kw || ui.maCat ? "Coba ubah kata kunci atau kategori." : filter === "favorites" ? "Klik ikon bintang pada aplikasi untuk menambahkannya ke favorit." : "Aplikasi yang Anda buka akan muncul di sini.")}</div>
+      ${pager(list.length, start, end, pages, ui.maPage, "ma", list.length ? stack(list, `${list.length} aplikasi`) : "", [9, 18, 36], ui.maSize, "aplikasi")}</div></div>`;
+  }
+
+  function pager(total, start, end, pages, current, key, summary, sizes, size, unit) {
+    const nums = Array.from({ length: pages }, (_, i) => i + 1);
+    return `<div class="pager">${summary || `<span class="muted">${total ? `Menampilkan ${start}–${end} dari ${total} ${unit}` : "Tidak ada data"}</span>`}<div class="pager-r">${summary && total ? `<span class="muted">${start}–${end} dari ${total}</span>` : ""}
+      <div class="seg-select"><select aria-label="Jumlah per halaman" data-size="${key}">${sizes.map((s) => `<option value="${s}" ${s === size ? "selected" : ""}>${s} / halaman</option>`).join("")}</select></div>
+      <nav class="pages" aria-label="Halaman"><button type="button" aria-label="Sebelumnya" ${current === 1 ? "disabled" : ""} data-page="${key}:${current - 1}">${icon("chevronLeft", 16)}</button>${nums.map((n) => `<button type="button" class="${n === current ? "on" : ""}" ${n === current ? 'aria-current="page"' : ""} data-page="${key}:${n}">${n}</button>`).join("")}<button type="button" aria-label="Berikutnya" ${current === pages ? "disabled" : ""} data-page="${key}:${current + 1}">${icon("chevronRight", 16)}</button></nav></div></div>`;
+  }
+
+  const sortTh = (label, cls = "") => `<th class="${cls}"><button class="sort-th" type="button" title="Urutkan ${esc(label)}">${esc(label)}${icon("chevronsUpDown", 13)}</button></th>`;
+  const rowAct = (label) => `<div class="row-acts"><button class="row-act" type="button" aria-label="${esc(label)}" title="Aksi lainnya" data-toast="Di demo ini, aksi ubah dan hapus tidak tersedia. Coba di aplikasi asli.">${icon("ellipsis", 17)}</button></div>`;
+  const tablePage = (title, desc, btn, toolbar, head, rows, total, unit) => `<div class="page">${hero(title, desc, btn ? `<button class="btn" type="button" data-toast="Form ${esc(btn.toLowerCase())} tersedia di aplikasi asli.">${esc(btn)}${icon("plus", 18)}</button>` : "")}<div class="card ma-panel">${toolbar}<div class="table-wrap"><table class="dt ut demo-table"><thead><tr>${head}</tr></thead><tbody>${rows}</tbody></table></div>${pager(total, total ? 1 : 0, total, 1, 1, "x", "", [10, 25, 50], 10, unit)}</div></div>`;
+
+  function pageUsers() {
+    const kw = ui.userQ.trim().toLowerCase();
+    const list = db.users.filter((u) => (!ui.userStatus || (ui.userStatus === "active") === u.active) && (!kw || `${u.name} ${u.email} ${u.nik} ${u.department}`.toLowerCase().includes(kw)));
+    const counts = { all: db.users.length, active: db.users.filter((u) => u.active).length, inactive: db.users.filter((u) => !u.active).length };
+    const toolbar = `<div class="ma-bar us-bar"><label class="search us-search">${icon("search", 18)}<input placeholder="Cari nama, NIK, email, atau departemen" value="${esc(ui.userQ)}" data-input="userQ"></label><div class="segs" role="group" aria-label="Status">${[["", "Semua", counts.all], ["active", "Aktif", counts.active], ["inactive", "Nonaktif", counts.inactive]].map((s) => `<button class="${ui.userStatus === s[0] ? "seg on" : "seg"}" type="button" data-ustatus="${s[0]}">${s[1]} <b>${s[2]}</b></button>`).join("")}</div></div>`;
+    const head = `<th class="ta-c">No</th>${sortTh("Nama")}${sortTh("NIK", "hs")}${sortTh("Email", "hs")}${sortTh("Departemen", "hs")}<th class="hs">Grup</th>${sortTh("Status")}<th class="ta-r">Aksi</th>`;
+    const rows = list.length ? list.map((u, i) => `<tr class="${u.active ? "" : "row-danger"}"><td class="ta-c"><span class="row-no">${i + 1}</span></td><td><div class="who"><span class="av ${avatarClass(u.name)}">${initials(u.name)}</span><div><span class="who-line"><b>${esc(u.name)}</b></span><small>${esc(u.job)}</small></div></div></td><td class="mono hs">${esc(u.nik)}</td><td class="muted hs">${esc(u.email)}</td><td class="hs">${esc(u.department)} (${esc(u.code)})</td><td class="hs">${u.groups.length ? `<span class="grp-tags">${statusBadge("purple", "usersRound", u.groups[0])}</span>` : statusBadge("off", "circleDashed", "Belum ada")}</td><td>${u.active ? statusBadge("on", "circleCheck", "Aktif") : statusBadge("danger", "circleX", "Nonaktif")}</td><td class="ta-r">${rowAct(`Aksi untuk ${u.name}`)}</td></tr>`).join("") : `<tr><td colspan="8">${empty("Pengguna tidak ditemukan", "Coba ubah kata kunci atau filter.")}</td></tr>`;
+    return tablePage("Manajemen Pengguna", "Kelola pengguna yang bisa masuk ke SSO Launcher.", "Tambah Pengguna", toolbar, head, rows, list.length, "pengguna");
+  }
+
+  function pageGroups() {
+    const head = `<th class="ta-c">No</th>${sortTh("Nama Grup")}${sortTh("Departemen", "hs")}<th>Anggota</th><th class="hs">Aplikasi</th><th class="hs">Menu</th>${sortTh("Status")}<th class="ta-r">Aksi</th>`;
+    const rows = db.groups.map((g, i) => `<tr><td class="ta-c"><span class="row-no">${i + 1}</span></td><td><div class="who"><span class="av ${avatarClass(g.name)}">${initials(g.name)}</span><div><span class="who-line"><b>${esc(g.name)}</b></span><small>${esc(g.department)}</small></div></div></td><td class="hs">${esc(g.department)}</td><td>${statusBadge("purple", "usersRound", `${g.members} anggota`)}</td><td class="hs">${statusBadge("info", "window", `${g.apps} aplikasi`)}</td><td class="hs">${statusBadge("teal", "list", `${g.menus} menu`)}</td><td>${statusBadge("on", "circleCheck", "Aktif")}</td><td class="ta-r">${rowAct(`Aksi untuk ${g.name}`)}</td></tr>`).join("");
+    return tablePage("Manajemen Grup & Akses", "Atur anggota, akses aplikasi, dan akses menu setiap grup.", "Tambah Grup", "", head, rows, db.groups.length, "grup");
+  }
+
+  function pageApplications() {
+    const head = `<th class="ta-c">No</th>${sortTh("Aplikasi")}${sortTh("Kategori", "hs")}<th class="hs">Slug</th><th>SSO</th>${sortTh("Status")}<th class="ta-r">Aksi</th>`;
+    const rows = db.apps.map((a, i) => `<tr><td class="ta-c"><span class="row-no">${i + 1}</span></td><td><div class="who"><span class="av ${a.color}">${icon(a.icon, 18)}</span><div><span class="who-line"><b>${esc(a.name)}</b></span><small>${esc(a.description)}</small></div></div></td><td class="hs">${esc(a.category)}</td><td class="mono hs">${esc(a.slug)}</td><td>${a.usesSso ? statusBadge("on", "shieldCheck", "Terhubung") : statusBadge("off", "external", "Tanpa SSO")}</td><td>${a.status === "maintenance" ? statusBadge("warn", "wrench", "Maintenance") : statusBadge("on", "circleCheck", "Aktif")}</td><td class="ta-r">${rowAct(`Aksi untuk ${a.name}`)}</td></tr>`).join("");
+    return tablePage("Manajemen Aplikasi", "Daftarkan aplikasi, atur status, dan kelola kredensial SSO.", "Tambah Aplikasi", "", head, rows, db.apps.length, "aplikasi");
+  }
+
+  function pageMenus() {
+    const head = `<th class="ta-c">No</th><th>Menu</th><th>Bagian</th><th class="hs">Tujuan</th><th>Status</th>`;
+    let n = 0;
+    const rows = MENUS.flatMap((s) => s.items.map((m) => `<tr><td class="ta-c"><span class="row-no">${++n}</span></td><td><div class="who"><span class="av app-gy">${icon(m.icon, 18)}</span><div><span class="who-line"><b>${esc(m.label)}</b></span></div></div></td><td>${esc(s.section)}</td><td class="mono hs">/${m.key}</td><td>${statusBadge("on", "circleCheck", "Aktif")}</td></tr>`)).join("");
+    return tablePage("Manajemen Menu", "Atur menu sidebar portal, urutan, dan mode perbaikan.", "", "", head, rows, n, "menu");
+  }
+
+  function pageAudit() {
+    const head = `<th class="ta-c">No</th>${sortTh("Waktu")}${sortTh("Pengguna")}<th>Aksi</th><th class="hs">Data</th><th class="hs">Ringkasan</th>`;
+    const rows = db.audit.map((x, i) => `<tr><td class="ta-c"><span class="row-no">${i + 1}</span></td><td class="mono">${esc(stamp(x.at))}</td><td><div class="who"><span class="av ${avatarClass(x.actor)}">${initials(x.actor)}</span><div><span class="who-line"><b>${esc(x.actor)}</b></span></div></div></td><td>${statusBadge(x.tone, x.tone === "danger" ? "circleX" : "circleCheck", x.action)}</td><td class="hs"><b>${esc(x.name)}</b><br><small class="muted">${esc(x.target)}</small></td><td class="muted hs">${esc(x.summary)}</td></tr>`).join("");
+    return tablePage("Riwayat Aktivitas", "Semua login, perubahan data, dan aplikasi yang dibuka. Coba login dengan password salah, lalu lihat catatannya di sini.", "", "", head, rows, db.audit.length, "aktivitas");
+  }
+
+  function sidebar(route) {
+    const sections = MENUS.filter((s) => !s.admin || me.admin);
+    return `<aside class="sb" id="sidebar"><div class="sb-brand"><a class="brand brand-link" href="#/overview" aria-label="SSO Launcher, ke Beranda"><img class="brand-logo" src="${LOGO}" alt=""><span class="brand-text"><b>SSO<span>LAUNCHER</span></b><small>Portal akses aplikasi</small></span></a></div>
+      <button class="sb-toggle" type="button" aria-label="Buka/tutup sidebar" data-act="collapse">${icon("chevronLeft", 14)}</button>
+      <nav class="sb-nav" id="sbNav" aria-label="Navigasi utama">${sections.map((s) => `<div class="sb-section"><span class="sb-section-title">${s.section}</span>${s.items.map((m) => `<div class="sb-tree"><div class="sb-parent-row"><a class="nav${route === m.key ? " active" : ""}" href="#/${m.key}" ${route === m.key ? 'aria-current="page"' : ""} data-label="${m.label}">${icon(m.icon)}<span>${m.label}</span></a></div></div>`).join("")}</div>`).join("")}</nav>
+      <div class="sb-foot"><small class="full">SSO Launcher + Access Control <i>·</i> v${VERSION}</small><small class="mini">v${VERSION}</small></div></aside>`;
+  }
+
+  function topbar() {
+    const role = me.admin ? "Administrator" : me.department;
+    return `<header class="tb"><div class="tb-brand"><a class="brand brand-link" href="#/overview" aria-label="SSO Launcher, ke Beranda"><img class="tb-logo" src="${LOGO}" alt=""><span class="tb-divider" aria-hidden="true"></span><span class="tb-brand-text"><b>SSO<span>LAUNCHER</span></b><small>Portal akses aplikasi</small></span></a></div>
+      <div class="gs-wrap"><label class="search">${icon("search", 18)}<input id="globalSearch" placeholder="Cari aplikasi atau menu" autocomplete="off" data-input="global"><span class="gs-kbd" aria-hidden="true">Ctrl K</span></label></div>
+      <div class="tb-right"><button class="icon-btn" type="button" aria-label="Notifikasi" data-pop="notif">${icon("bell", 22)}<i class="dot"></i></button>
+      <button class="acct" type="button" aria-label="Menu akun" data-pop="account"><span class="av js-av ${avatarClass(me.name)}">${initials(me.name)}</span><span class="who-txt"><b class="js-name">${esc(me.name)}</b><small class="js-dept">${esc(role)}</small></span>${icon("chevronDown", 18)}</button></div></header>`;
+  }
+
+  function popover() {
+    if (!ui.pop) return "";
+    const btn = document.querySelector(`[data-pop="${ui.pop}"]`);
+    const r = btn ? btn.getBoundingClientRect() : { bottom: 70, right: window.innerWidth - 20 };
+    const width = ui.pop === "notif" ? 360 : 260;
+    const style = `top:${r.bottom + 8}px;left:${Math.max(12, r.right - width)}px`;
+    if (ui.pop === "account") {
+      return `<div class="menu-pop" role="menu" style="${style}"><header class="acct-head"><span class="av ${avatarClass(me.name)}">${initials(me.name)}</span><div><b class="js-name">${esc(me.name)}</b><small class="js-email">${esc(me.email)}</small></div></header>
+        <button class="mi" type="button" data-toast="Halaman Profil tersedia di aplikasi asli.">${icon("circleUser", 18)}Profil Saya</button><button class="mi" type="button" data-act="theme">${icon("settings", 18)}Ganti Tema</button><button class="mi danger" type="button" data-act="logout">${icon("logOut", 18)}Keluar</button></div>`;
+    }
+    return `<div class="menu-pop is-notifications" role="dialog" aria-label="Notifikasi" style="${style}"><header class="notif-head"><div><b>Notifikasi</b><small>1 belum dibaca</small></div></header><div style="padding:14px 16px;display:flex;gap:12px;align-items:flex-start"><span class="status info" style="flex:none">${icon("shieldCheck", 13)}Keamanan</span><div><b style="display:block;font-size:13px">Login dari perangkat baru</b><small class="muted">Chrome di Windows · ${rel(new Date(Date.now() - 2 * 60000).toISOString())}</small></div></div></div>`;
+  }
+
+  function loginView() {
+    const points = [["usersRound", "Satu akun untuk semua aplikasi kerja"], ["shieldCheck", "Akses sesuai grup dan jabatan"], ["clock", "Sesi aman, keluar otomatis saat tidak aktif"]];
+    return `<section class="lp" id="login"><div class="lp-visual"><div class="la"><div class="la-glow" aria-hidden="true"></div>${rings("la-rings")}<div class="la-stage"><div class="la-copy"><h2>Satu Akses untuk Semua Aplikasi.</h2><p>Masuk sekali, lalu buka aplikasi kerja Anda tanpa login ulang. Aman dan terpusat di SSO Launcher.</p><ul class="la-points">${points.map((p) => `<li><span>${icon(p[0], 17)}</span>${p[1]}</li>`).join("")}</ul><div class="la-brand"><img class="la-logo" src="${LOGO}" alt="Logo SSO Launcher"><span class="la-divider" aria-hidden="true"></span><div><b>SSO <span>LAUNCHER</span></b><small>PORTAL AKSES APLIKASI</small></div></div></div><div class="lb-art" aria-hidden="true">${SCENE}</div></div></div></div>
+      <div class="lp-panel"><div class="lp-form"><span class="brand lp-logo"><img class="lp-logo-img" src="${LOGO}" alt="Logo SSO Launcher"><span class="lp-brand-text"><b>SSO<span>LAUNCHER</span></b><small>Portal akses aplikasi</small></span></span>
+      <form class="lp-step" id="login-form" autocomplete="on" novalidate><h1 class="lp-title">Selamat Datang</h1><p class="lp-sub">Masuk dengan akun SSO Launcher Anda.</p>
+      <label class="lp-label" for="email">Email</label><div class="lp-input${ui.loginError ? " has-error" : ""}"><svg viewBox="0 0 24 24" fill="none"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg><input id="email" name="email" type="email" inputmode="email" autocomplete="email" placeholder="Masukkan email"></div>
+      <label class="lp-label" for="password">Password</label><div class="lp-input${ui.loginError ? " has-error" : ""}"><svg viewBox="0 0 24 24" fill="none"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg><input id="password" name="password" type="password" autocomplete="current-password" placeholder="Masukkan password"><button type="button" class="lp-eye" aria-label="Tampilkan password" data-act="eye"><svg viewBox="0 0 24 24" fill="none"><path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"/><circle cx="12" cy="12" r="3"/></svg></button></div>
+      ${ui.loginError ? `<p class="lp-msg">${esc(ui.loginError)}</p>` : ""}
+      <div class="lp-row"><label class="lp-check"><input id="remember" type="checkbox"><span class="lp-box"><svg viewBox="0 0 24 24" fill="none"><path d="M20 6 9 17l-5-5"/></svg></span>Ingat saya</label><a class="lp-forgot" href="#" data-toast="Hubungi Administrator Sistem untuk mengatur ulang password.">Lupa password?</a></div>
+      <button type="submit" class="lp-submit">Masuk<svg viewBox="0 0 24 24" fill="none"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg></button></form>
+      <div class="demo-accounts"><h2>Akun demo · password ${PASSWORD}</h2>${db.users.filter((u) => u.id <= 2).map((u) => `<button type="button" class="demo-account" data-fill="${u.email}"><span><b>${u.admin ? "Administrator" : "Pengguna biasa"}</b><small>${esc(u.email)}</small></span><small>Isi otomatis</small></button>`).join("")}</div>
+      <p class="lp-help">Butuh bantuan? Hubungi <a href="#" data-toast="Hubungi Administrator Sistem untuk bantuan akun.">Administrator Sistem</a></p></div><p class="lp-foot">© ${new Date().getFullYear()} Fedy Fs. Gerana · v${VERSION}</p></div></section>`;
+  }
+
+  function demoAppView(app, viaSso) {
+    const payload = { userId: me.id, name: me.name, email: me.email, employeeNumber: me.nik, department: me.department, departemenCode: me.code, jobTitle: me.job, applicationSlug: app.slug, groups: me.groups, directAccess: false };
+    return `<div class="demo-app"><div class="demo-app-bar ${app.color}"><div class="demo-app-brand"><span>${icon(app.icon, 20)}</span><div><b>${esc(app.name)}</b><br><small>Aplikasi contoh yang terhubung ke SSO Launcher</small></div></div><button type="button" data-act="app-logout">${icon("logOut", 16)}Keluar</button></div>
+      <div class="demo-app-body"><section class="card"><h1>${viaSso ? `Halo, ${esc(me.name)}` : esc(app.name)}</h1><p>${viaSso ? `Anda masuk otomatis lewat SSO Launcher, tanpa mengisi email dan password lagi.` : "Aplikasi ini tidak memakai SSO, jadi di aplikasi asli Anda login dengan akun miliknya sendiri."}</p>
+      ${viaSso ? `<ol class="demo-steps"><li>Portal menerbitkan <code>sso_token</code> (60 detik, sekali pakai) lalu mengalihkan browser ke <code>/sso/callback</code>.</li><li>Server aplikasi meminta token layanan dengan Client ID dan Client Secret.</li><li>Server aplikasi memvalidasi <code>sso_token</code> ke <code>POST /api/sso/validate</code> dan menerima data di bawah.</li><li>Aplikasi membuat sesinya sendiri. Logout di portal ikut mengakhiri sesi ini pada cek sesi berikutnya.</li></ol>` : ""}</section>
+      ${viaSso ? `<section class="card"><h1 style="font-size:16px">Respons <code>POST /api/sso/validate</code></h1><p>Data pengguna yang diterima server aplikasi:</p><pre>${esc(JSON.stringify(payload, null, 2))}</pre></section>` : ""}</div></div>`;
+  }
+
+  function launch(app) {
+    if (app.status !== "active") return toast(`${app.name} sedang maintenance.`, "warning");
+    const stages = app.usesSso ? [
+      ["Tahap 1 · Periksa akses", `Memeriksa akses ke ${app.name}`, "SSO Launcher memastikan akun Anda aktif dan berhak membuka aplikasi ini.", "GET /api/sso/launch → memeriksa sesi dan akses grup"],
+      ["Tahap 2 · Terbitkan token", `Menyiapkan token untuk ${app.name}`, "Token dibuat khusus untuk aplikasi ini, berlaku 60 detik dan hanya sekali pakai.", "token: { berlaku 60 detik, sekali pakai }"],
+      ["Tahap 3 · Kirim token", `Mengirim token ke ${app.name}`, "Aplikasi memvalidasi token ke SSO Launcher dari sisi server, tanpa perlu login ulang.", "POST /api/sso/validate → identitas pengguna"],
+    ] : [
+      ["Tahap 1 · Periksa akses", `Memeriksa akses ke ${app.name}`, "SSO Launcher memastikan akun Anda aktif dan berhak membuka aplikasi ini.", "GET /api/sso/launch → memeriksa sesi dan akses grup"],
+      ["Tahap 2 · Tanpa SSO", `${app.name} tidak memakai SSO`, "Tidak ada token yang dikirim. Aplikasi ini memakai login miliknya sendiri.", "sso: tidak dipakai"],
+      ["Tahap 3 · Buka aplikasi", `Membuka ${app.name}`, "Jika diminta, masuk dengan akun yang terdaftar di aplikasi tersebut.", "tab baru → halaman aplikasi"],
+    ];
+    overlay(stages, () => {
+      const target = db.apps.find((a) => a.id === app.id);
+      target.lastOpenedAt = new Date().toISOString();
+      audit("Buka", "purple", "Aplikasi", app.name, app.usesSso ? "Membuka aplikasi lewat SSO" : "Membuka aplikasi tanpa SSO");
+      location.hash = `#/app/${app.slug}`;
+    });
+  }
+
+  function overlay(stages, done) {
+    let step = 0;
+    const paint = () => {
+      const s = stages[step];
+      layer.innerHTML = `<div class="launch show"><div class="launch-card"><div class="spin"></div><small>${esc(s[0])}</small><h3>${esc(s[1])}</h3><p>${esc(s[2])}</p><code>${esc(s[3])}</code></div></div>`;
+    };
+    paint();
+    const tick = () => { step += 1; if (step < stages.length) { paint(); setTimeout(tick, 830); } else { layer.innerHTML = ""; done(); } };
+    setTimeout(tick, 830);
+  }
+
+  function route() {
+    const raw = (location.hash.replace(/^#\/?/, "") || "overview").split("?")[0];
+    const parts = raw.split("/");
+    return { page: parts[0], arg: parts[1] };
+  }
+
+  function syncBar() { document.documentElement.style.setProperty("--demo-bar-h", `${document.querySelector(".demo-bar").offsetHeight}px`); }
+  window.addEventListener("resize", syncBar);
+  syncBar();
+
+  function render(animate = false) {
+    document.body.classList.toggle("demo-still", !animate);
+    const root = document.getElementById("root");
+    if (!me) { root.innerHTML = loginView(); document.title = "Masuk — SSO Launcher (demo)"; document.getElementById("email")?.focus(); return; }
+    const r = route();
+    if (r.page === "app") {
+      const app = db.apps.find((a) => a.slug === r.arg);
+      if (app) { root.innerHTML = demoAppView(app, app.usesSso); document.title = `${app.name} — Aplikasi contoh`; return; }
+    }
+    const adminPages = ["users", "groups", "applications", "menus", "audit"];
+    let page = r.page;
+    if (adminPages.includes(page) && !me.admin) page = "overview";
+    const views = { overview: pageOverview, "my-apps": () => pageMyApps("all"), favorites: () => pageMyApps("favorites"), recent: () => pageMyApps("recent"), users: pageUsers, groups: pageGroups, applications: pageApplications, menus: pageMenus, audit: pageAudit };
+    if (!views[page]) page = "overview";
+    root.innerHTML = `<div class="shell is-ready${ui.collapsed ? " is-collapsed" : ""}" id="shell">${sidebar(page)}<main class="main">${topbar()}<div id="page-slot"></div></main></div>`;
+    document.getElementById("page-slot").outerHTML = views[page]();
+    layer.innerHTML = popover();
+    const label = MENUS.flatMap((s) => s.items).find((m) => m.key === page)?.label || "Beranda";
+    document.title = `${label} — SSO Launcher (demo)`;
+  }
+
+  function rerenderFocus(selector) {
+    const el = document.activeElement;
+    const pos = el?.selectionStart;
+    render();
+    const next = document.querySelector(selector);
+    if (next) { next.focus(); if (pos != null) next.setSelectionRange(pos, pos); }
+  }
+
+  document.addEventListener("submit", (e) => {
+    if (e.target.id !== "login-form") return;
+    e.preventDefault();
+    const email = document.getElementById("email").value.trim().toLowerCase();
+    const password = document.getElementById("password").value;
+    const user = db.users.find((u) => u.email === email);
+    if (!email || !password) { ui.loginError = "Isi email dan password."; return render(); }
+    if (!user || password !== PASSWORD) { db.audit.unshift({ at: new Date().toISOString(), actor: user ? user.name : email, action: "Login gagal", tone: "danger", target: "Login", name: email, summary: user ? "Password salah" : "Email tidak terdaftar" }); save(); ui.loginError = "Email atau password salah."; return render(); }
+    if (!user.active) { ui.loginError = "Akun dinonaktifkan. Hubungi Administrator Sistem."; return render(); }
+    me = user; ui.loginError = "";
+    sessionStorage.setItem(SESSION, String(user.id));
+    audit("Login", "on", "Login", user.email, "Login berhasil");
+    if (location.hash === "#/overview") render(true); else location.hash = "#/overview";
+  });
+
+  document.addEventListener("click", (e) => {
+    const el = e.target.closest("button, a");
+    if (!el) { if (ui.pop && !e.target.closest(".menu-pop")) { ui.pop = null; layer.innerHTML = ""; } return; }
+    const d = el.dataset;
+    if (d.act === "toast-close") { el.closest(".toast")?.classList.remove("show", "to-interactive"); return; }
+    if (d.toast) { e.preventDefault(); ui.pop = null; layer.innerHTML = ""; return toast(d.toast); }
+    if (d.act === "theme") { const dark = document.documentElement.dataset.theme !== "dark"; if (dark) document.documentElement.dataset.theme = "dark"; else delete document.documentElement.dataset.theme; try { localStorage.setItem("sso-demo-theme", dark ? "dark" : "light"); } catch {} ui.pop = null; layer.innerHTML = ""; return; }
+    if (d.act === "reset") { db = seed(); save(); me = null; sessionStorage.removeItem(SESSION); ui.pop = null; location.hash = "#/overview"; render(); return toast("Data demo dikembalikan seperti semula."); }
+    if (d.fill) { document.getElementById("email").value = d.fill; document.getElementById("password").value = PASSWORD; document.getElementById("password").focus(); return; }
+    if (d.act === "eye") { const p = document.getElementById("password"); p.type = p.type === "password" ? "text" : "password"; return; }
+    if (!me) return;
+    if (d.pop) { ui.pop = ui.pop === d.pop ? null : d.pop; layer.innerHTML = popover(); return; }
+    if (ui.pop && !el.closest(".menu-pop")) { ui.pop = null; layer.innerHTML = ""; }
+    if (d.act === "logout") { audit("Logout", "off", "Login", me.email, "Keluar dari portal"); me = null; sessionStorage.removeItem(SESSION); ui.pop = null; layer.innerHTML = ""; location.hash = "#/overview"; return render(); }
+    if (d.act === "collapse") { ui.collapsed = !ui.collapsed; return render(); }
+    if (d.act === "app-logout") {
+      return overlay([
+        ["Tahap 1 · Keluar dari aplikasi", "Mengakhiri sesi aplikasi", "Sesi di aplikasi sudah ditutup. SSO Launcher mencatat bahwa Anda keluar.", "POST /api/sso/sign-out → catat keluar"],
+        ["Tahap 2 · Periksa sesi portal", "Memeriksa sesi SSO Launcher", "Sesi portal Anda masih aktif, jadi tidak perlu login ulang.", "POST /api/sso/session → aktif"],
+        ["Tahap 3 · Kembali ke portal", "Kembali ke Beranda", "Anda kembali ke SSO Launcher.", "redirect → /overview"],
+      ], () => { location.hash = "#/overview"; });
+    }
+    if (d.open) { const app = myApps().find((a) => a.id === Number(d.open)) || db.apps.find((a) => a.id === Number(d.open)); return launch(app); }
+    if (d.fav) { const id = Number(d.fav); const on = me.favorites.includes(id); me.favorites = on ? me.favorites.filter((x) => x !== id) : [...me.favorites, id]; save(); render(); return toast(on ? "Dihapus dari favorit" : "Ditambahkan ke favorit"); }
+    if (d.view) { const [k, v] = d.view.split(":"); if (k === "ma") ui.maView = v; else { ui.views[k] = v; ui.pages[k] = 0; } return render(); }
+    if (d.tpage) { const [k, delta] = d.tpage.split(":"); ui.pages[k] += Number(delta); return render(); }
+    if (d.page) { const [k, n] = d.page.split(":"); if (k === "ma") { ui.maPage = Number(n); render(); } return; }
+    if (d.act === "reset-filter") { ui.q = ""; ui.cat = ""; render(); return toast("Filter diatur ulang"); }
+    if (d.act === "reset-ma") { ui.maQ = ""; ui.maCat = ""; ui.maPage = 1; render(); return toast("Filter diatur ulang"); }
+    if (d.ustatus !== undefined) { ui.userStatus = d.ustatus; return render(); }
+  });
+
+  document.addEventListener("input", (e) => {
+    const k = e.target.dataset?.input;
+    if (!k || k === "global" || k === "cat" || k === "maCat") return;
+    ui[k] = e.target.value;
+    if (k === "q") ui.pages.apps = 0;
+    if (k === "maQ") ui.maPage = 1;
+    rerenderFocus(`[data-input="${k}"]`);
+  });
+  document.addEventListener("change", (e) => {
+    const k = e.target.dataset?.input;
+    if (k === "cat" || k === "maCat") { ui[k] = e.target.value; ui.pages.apps = 0; ui.maPage = 1; render(); }
+    if (e.target.dataset?.size === "ma") { ui.maSize = Number(e.target.value); ui.maPage = 1; render(); }
+  });
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && ui.pop) { ui.pop = null; layer.innerHTML = ""; }
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k") { e.preventDefault(); document.getElementById("globalSearch")?.focus(); }
+    if (e.key === "Enter" && e.target.id === "globalSearch") {
+      const kw = e.target.value.trim().toLowerCase();
+      const app = me && myApps().find((a) => a.name.toLowerCase().includes(kw));
+      if (kw && app) launch(app); else if (kw) toast("Tidak ada aplikasi yang cocok.", "warning");
+    }
+  });
+  window.addEventListener("hashchange", () => { ui.pop = null; layer.innerHTML = ""; render(true); window.scrollTo({ top: 0 }); });
+  let resizeTimer;
+  window.addEventListener("resize", () => { clearTimeout(resizeTimer); resizeTimer = setTimeout(() => { if (me && route().page === "overview") render(); }, 150); });
+
+  me = db.users.find((u) => u.id === Number(sessionStorage.getItem(SESSION))) || null;
+  render(true);
+})();
+</script>
+</body>
+</html>

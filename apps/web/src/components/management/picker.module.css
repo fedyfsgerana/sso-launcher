@@ -1,0 +1,52 @@
+.picker>* {
+  max-width: calc(50% - 10px)
+}
+
+button.trigger:global(.open)>svg {
+  transform: none
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 8px
+}
+
+.row>button.trigger {
+  flex: 1;
+  min-width: 0
+}
+
+.row>button:global(.btn) {
+  flex: none
+}
+
+:global(.ts-list) li.item {
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 2px
+}
+
+:global(.ts-list) li.item em {
+  font-size: var(--fs-xs);
+  line-height: 1.4
+}
+
+:global(.ts-list) li.taken {
+  opacity: .55;
+  cursor: not-allowed
+}
+
+:global(.ts-list) li.note {
+  justify-content: center;
+  color: var(--muted);
+  font-size: var(--fs-xs);
+  cursor: default
+}
+
+@media (max-width:760px) {
+  .picker>* {
+    max-width: none
+  }
+}

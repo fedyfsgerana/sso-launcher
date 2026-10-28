@@ -1,0 +1,11 @@
+{
+    "name": "sso-launcher",
+    "private": true,
+    "scripts": {
+        "demo:build": "node scripts/build-demo.mjs"
+    },
+    "packageManager": "pnpm@10.17.1",
+    "engines": {
+        "node": ">=24.19.0 <25"
+    }
+}
