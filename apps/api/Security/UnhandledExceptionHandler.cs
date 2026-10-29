@@ -25,8 +25,8 @@ public sealed class UnhandledExceptionHandler(
         logger.LogError(
             exception,
             "Error tidak tertangani pada {Method} {Path} dengan nomor referensi {Reference}",
-            httpContext.Request.Method,
-            httpContext.Request.Path,
+            ForLog(httpContext.Request.Method),
+            ForLog(httpContext.Request.Path.Value),
             reference
         );
 
@@ -45,6 +45,13 @@ public sealed class UnhandledExceptionHandler(
                 Extensions = { ["referenceId"] = reference }
             }
         });
+    }
+
+    private static string ForLog(string? value)
+    {
+        return (value ?? string.Empty)
+            .Replace("\r", string.Empty, StringComparison.Ordinal)
+            .Replace("\n", string.Empty, StringComparison.Ordinal);
     }
 
     private static string ReferenceOf(HttpContext httpContext)

@@ -83,8 +83,7 @@ public sealed class PortalBootstrapper(
         await dbContext.SaveChangesAsync(cancellationToken);
 
         logger.LogInformation(
-            "Akun administrator pertama dibuat dengan email {Email}. Segera ganti passwordnya setelah login.",
-            email
+            "Akun administrator pertama dibuat dari pengaturan Bootstrap. Segera ganti passwordnya setelah login."
         );
     }
 
