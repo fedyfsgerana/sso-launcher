@@ -23,6 +23,7 @@ updates:
     directories:
       - "/apps/api"
       - "/apps/api/src/*"
+      - "/apps/api/tests/*"
     schedule:
       interval: weekly
       day: monday
