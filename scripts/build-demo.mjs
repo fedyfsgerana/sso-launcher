@@ -10,6 +10,8 @@ const modules = [
   ["as", "components/portal/app-stack.module.css"],
   ["gs", "components/layout/global-search.module.css"],
   ["to", "components/portal/toast.module.css"],
+  ["st", "components/portal/scroll-top.module.css"],
+  ["nl", "components/layout/notification-list.module.css"],
 ];
 
 function scopeModule(css, prefix) {
@@ -52,7 +54,7 @@ if (!template.includes("/* APP_CSS */")) {
 const html = template
   .replace("/* APP_CSS */", () => `${globalCss}\n${moduleCss}`)
   .replaceAll("{{LOGO}}", () => `data:image/webp;base64,${logo}`)
-  .replace("{{SCENE}}", () => JSON.stringify(scene));
+  .replace('"{{SCENE}}"', () => JSON.stringify(scene));
 
 await writeFile(`${root}demo/index.html`, html);
 console.log(`demo/index.html dibuat dari ${styleFiles.length} file CSS dan ${modules.length} CSS module aplikasi.`);
