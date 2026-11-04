@@ -245,7 +245,7 @@
 
     <script>
       (() => {
-        const STORE = "sso-demo-v3";
+        const STORE = "sso-demo-v4";
         const SESSION = "sso-demo-session";
         const PASSWORD = "demo1234";
         const LOGO = "{{LOGO}}";
@@ -342,6 +342,12 @@
           cornerDownRight:
             '<polyline points="15 10 20 15 15 20"/><path d="M4 4v7a4 4 0 0 0 4 4h12"/>',
           arrowUp: '<path d="m5 12 7-7 7 7"/><path d="M12 19V5"/>',
+          ban: '<circle cx="12" cy="12" r="10"/><path d="m4.9 4.9 14.2 14.2"/>',
+          keyRound:
+            '<path d="M2.586 17.414A2 2 0 0 0 2 18.828V21a1 1 0 0 0 1 1h3a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h1a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h.172a2 2 0 0 0 1.414-.586l.814-.814a6.5 6.5 0 1 0-4-4z"/><circle cx="16.5" cy="7.5" r=".5" fill="currentColor"/>',
+          squareMenu:
+            '<rect width="18" height="18" x="3" y="3" rx="2"/><path d="M7 8h10"/><path d="M7 12h10"/><path d="M7 16h10"/>',
+          copy: '<rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/>',
           arrowDown: '<path d="M12 5v14"/><path d="m19 12-7 7-7-7"/>',
           squareOut:
             '<path d="M21 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h6"/><path d="m21 3-9 9"/><path d="M15 3h6v6"/>',
@@ -790,6 +796,7 @@
                 id: 1,
                 name: "Administrator",
                 department: "Information Technology",
+                description: "Akses penuh ke seluruh menu dan aplikasi portal",
                 members: 1,
                 apps: 12,
                 menus: 9,
@@ -799,6 +806,7 @@
                 id: 2,
                 name: "Staf HR",
                 department: "Human Resources",
+                description: "Akses aplikasi kepegawaian dan administrasi umum",
                 members: 1,
                 apps: 7,
                 menus: 4,
@@ -808,6 +816,7 @@
                 id: 3,
                 name: "Staf Operasional",
                 department: "Operations",
+                description: "Akses aplikasi gudang, ERP, dan work order",
                 members: 1,
                 apps: 5,
                 menus: 4,
@@ -817,6 +826,7 @@
                 id: 4,
                 name: "Staf Keuangan",
                 department: "Finance",
+                description: "Akses aplikasi keuangan dan penggajian",
                 members: 1,
                 apps: 4,
                 menus: 4,
@@ -891,6 +901,25 @@
             sel: [],
           },
           tbl: { page: 1, size: 10 },
+          us: {
+            q: "",
+            status: "",
+            dept: "",
+            group: "",
+            page: 1,
+            size: 10,
+            sort: null,
+            sel: [],
+          },
+          gr: {
+            q: "",
+            dept: "",
+            status: "",
+            page: 1,
+            size: 10,
+            sort: null,
+            sel: [],
+          },
         });
         const ui = {
           collapsed: false,
@@ -1155,6 +1184,11 @@
           return `<div class="pager">${summary || `<span class="muted">${total === 0 ? "Tidak ada data" : `Menampilkan ${start}–${end} dari ${total} ${unit}`}</span>`}<div class="pager-r">${summary && total > 0 ? `<span class="muted">${start}–${end} dari ${total}</span>` : ""}${sizeSelect}<nav class="pages" aria-label="Halaman"><button type="button" aria-label="Sebelumnya" ${current === 1 ? "disabled" : ""} data-page="${key}:${current - 1}">${icon("chevronLeft", 16)}</button>${numbers.map((n) => (n === "gap" ? "<span>…</span>" : `<button type="button" class="${n === current ? "on" : ""}" ${n === current ? 'aria-current="page"' : ""} data-page="${key}:${n}">${n}</button>`)).join("")}<button type="button" aria-label="Berikutnya" ${current === pages ? "disabled" : ""} data-page="${key}:${current + 1}">${icon("chevronRight", 16)}</button></nav></div></div>`;
         }
         function setPage(key, patch) {
+          if (
+            (key === "us" || key === "gr") &&
+            ("page" in patch || "size" in patch)
+          )
+            ui[key].sel = [];
           Object.assign(ui[key], patch);
           render();
         }
@@ -1592,6 +1626,8 @@
         const ROW_MENUS = {};
         function rowMenuItems(ref) {
           const [kind, id] = ref.split(":");
+          if (kind === "us" || kind === "gr")
+            return managementMenu(kind, Number(id));
           if (kind !== "rc") return [];
           const x = myActivities().find((item) => item.id === Number(id));
           if (!x) return [];
@@ -1785,70 +1821,540 @@
         ) =>
           `<div class="page">${hero(title, desc, btn ? `<button class="btn" type="button" data-toast="Form ${esc(btn.toLowerCase())} tersedia di aplikasi asli.">${esc(btn)}${icon("plus", 18)}</button>` : "")}<div class="card ma-panel">${toolbar}<div class="table-wrap"><table class="dt ut demo-table"><thead><tr>${head}</tr></thead><tbody>${rows}</tbody></table></div>${dataPager("tbl", total, 1, 10, [10, 20, 50, 100], unit)}</div></div>`;
 
-        function pageUsers() {
-          const kw = ui.userQ.trim().toLowerCase();
-          const list = db.users.filter(
+        const DEPT_CODES = {
+          "Information Technology": "IT",
+          "Human Resources": "HR",
+          Operations: "OPS",
+          Finance: "FIN",
+          Marketing: "MKT",
+          "General Affairs": "GA",
+          Production: "PRD",
+        };
+        const departmentLabel = (name, code) =>
+          !name ? code || "-" : code ? `${name} (${code})` : name;
+        const activeBadge = (active) =>
+          active
+            ? statusBadge("on", "circleCheck", "Aktif")
+            : statusBadge("danger", "ban", "Nonaktif");
+        const emptyBadge = (label = "Belum ada") =>
+          statusBadge("off", "circleDashed", label);
+        const countBadge = (count, unit, ic, tone) =>
+          count > 0 ? statusBadge(tone, ic, `${count} ${unit}`) : emptyBadge();
+        const liveUsers = () => db.users.filter((u) => !u.deleted);
+        const liveGroups = () => db.groups.filter((g) => !g.deleted);
+        const memberCount = (g) =>
+          liveUsers().filter((u) => u.groups.includes(g.name)).length;
+        const departments = () =>
+          sortCategories([
+            ...liveUsers().map((u) => u.department),
+            ...liveGroups().map((g) => g.department),
+          ]).map((d) => ({ value: d, label: d }));
+
+        function toggleSort(state, key) {
+          const current = state.sort;
+          state.sort =
+            !current || current.key !== key
+              ? { key, direction: "asc" }
+              : current.direction === "asc"
+                ? { key, direction: "desc" }
+                : null;
+          state.page = 1;
+        }
+        function sortRows(list, state, getters) {
+          if (!state.sort || !getters[state.sort.key]) return list;
+          const get = getters[state.sort.key];
+          return [...list].sort((l, r) => {
+            const a = get(l),
+              b = get(r);
+            const c =
+              typeof a === "string" ? a.localeCompare(b, "id-ID") : a - b;
+            return state.sort.direction === "asc" ? c : -c;
+          });
+        }
+        function sortHeader(scope, key, label, cls = "") {
+          const sort = ui[scope].sort;
+          const active = sort?.key === key ? sort.direction : null;
+          return `<th class="${cls}" aria-sort="${active === "asc" ? "ascending" : active === "desc" ? "descending" : "none"}"><button class="${active ? "sort-th is-active" : "sort-th"}" type="button" title="${active === "asc" ? `Urutkan ${label} dari besar ke kecil` : active === "desc" ? "Kembalikan urutan bawaan" : `Urutkan ${label} dari kecil ke besar`}" data-msort="${scope}:${key}">${esc(label)}${icon(active === "asc" ? "arrowUp" : active === "desc" ? "arrowDown" : "chevronsUpDown", 13)}</button></th>`;
+        }
+        function selectionState(scope, ids) {
+          const state = ui[scope];
+          state.sel = state.sel.filter(
+            (id) => ids.includes(id) || state.selKeep?.includes(id),
+          );
+          const all =
+            ids.length > 0 && ids.every((id) => state.sel.includes(id));
+          const some = ids.some((id) => state.sel.includes(id));
+          return { all, some, has: (id) => state.sel.includes(id) };
+        }
+        const bulkBar = (scope, noun) => {
+          const count = ui[scope].sel.length;
+          return count
+            ? `<div class="bulk"><span>${count} ${noun} dipilih</span><button class="ac-btn success" type="button" data-bulk="${scope}:activate">Aktifkan${icon("circleCheck", 15)}</button><button class="ac-btn danger" type="button" data-bulk="${scope}:deactivate">Nonaktifkan${icon("ban", 15)}</button><button class="ac-btn danger" type="button" data-bulk="${scope}:delete">Hapus${icon("trash", 15)}</button></div>`
+            : "";
+        };
+        const statusOptions = (list) => [
+          { value: "", label: `Semua Status (${list.length})` },
+          {
+            value: "on",
+            label: `Aktif (${list.filter((x) => x.active).length})`,
+          },
+          {
+            value: "off",
+            label: `Nonaktif (${list.filter((x) => !x.active).length})`,
+          },
+        ];
+        const managementPage = (
+          title,
+          description,
+          createLabel,
+          toolbar,
+          extra,
+          table,
+          pager,
+        ) =>
+          `<div class="page">${hero(title, description, `<button class="btn" type="button" data-toast="Form ${esc(createLabel.toLowerCase())} tersedia di aplikasi asli.">${esc(createLabel)}${icon("plus", 18)}</button>`)}<div class="card ma-panel">${toolbar}${extra}<div class="table-wrap"><table class="dt ut">${table}</table></div>${pager}</div></div>`;
+        const tableEmpty = (cols, title, description) =>
+          `<tr><td colspan="${cols}">${empty(title, description, { searching: true })}</td></tr>`;
+
+        function userList() {
+          const state = ui.us;
+          const kw = state.q.trim().toLowerCase();
+          const list = liveUsers().filter(
             (u) =>
-              (!ui.userStatus || (ui.userStatus === "active") === u.active) &&
+              (!state.status || (state.status === "on") === u.active) &&
+              (!state.dept || u.department === state.dept) &&
+              (!state.group || u.groups.includes(state.group)) &&
               (!kw ||
-                `${u.name} ${u.email} ${u.nik} ${u.department}`
+                `${u.name} ${u.email} ${u.nik} ${u.department} ${u.job}`
                   .toLowerCase()
                   .includes(kw)),
           );
-          const counts = {
-            all: db.users.length,
-            active: db.users.filter((u) => u.active).length,
-            inactive: db.users.filter((u) => !u.active).length,
+          return sortRows(list, state, {
+            name: (u) => u.name,
+            employeeNumber: (u) => u.nik,
+            email: (u) => u.email,
+            department: (u) => u.department,
+            status: (u) => (u.active ? 0 : 1),
+          });
+        }
+
+        function pageUsers() {
+          const state = ui.us;
+          const users = liveUsers();
+          const list = userList();
+          const rows = pageSlice(list, state);
+          const pick = selectionState(
+            "us",
+            rows.map((u) => u.id),
+          );
+          const groupOptions = liveGroups()
+            .map((g) => ({ value: g.name, label: g.name }))
+            .sort((l, r) => l.label.localeCompare(r.label, "id-ID"));
+          const toolbar = `<div class="ma-bar us-bar">${searchBox("us.q", state.q, "Cari pengguna")}
+      ${tsel("us-status", state.status, statusOptions(users), "Semua Status", (v) => setPage("us", { status: v, page: 1 }))}
+      ${tsel("us-dept", state.dept, [{ value: "", label: "Semua Departemen" }, ...departments()], "Semua Departemen", (v) => setPage("us", { dept: v, page: 1 }))}
+      ${tsel("us-group", state.group, [{ value: "", label: "Semua Grup" }, ...groupOptions], "Semua Grup", (v) => setPage("us", { group: v, page: 1 }))}${resetButton("us")}</div>`;
+          const groupTags = (u) => {
+            const groups = u.groups.filter((name) =>
+              liveGroups().some((g) => g.name === name),
+            );
+            if (!groups.length) return emptyBadge();
+            return `<span class="grp-tags">${statusBadge("purple", "usersRound", groups[0])}${groups.length > 1 ? `<span title="${esc(groups.slice(1).join(", "))}">${statusBadge("purple", "usersRound", `+${groups.length - 1}`)}</span>` : ""}</span>`;
           };
-          const toolbar = `<div class="ma-bar us-bar"><label class="search us-search">${icon("search", 18)}<input placeholder="Cari nama, NIK, email, atau departemen" value="${esc(ui.userQ)}" data-input="userQ"></label><div class="segs" role="group" aria-label="Status">${[
-            ["", "Semua", counts.all],
-            ["active", "Aktif", counts.active],
-            ["inactive", "Nonaktif", counts.inactive],
-          ]
-            .map(
-              (s) =>
-                `<button class="${ui.userStatus === s[0] ? "seg on" : "seg"}" type="button" data-ustatus="${s[0]}">${s[1]} <b>${s[2]}</b></button>`,
-            )
-            .join("")}</div></div>`;
-          const head = `<th class="ta-c">No</th>${sortTh("Nama")}${sortTh("NIK", "hs")}${sortTh("Email", "hs")}${sortTh("Departemen", "hs")}<th class="hs">Grup</th>${sortTh("Status")}<th class="ta-r">Aksi</th>`;
-          const rows = list.length
-            ? list
+          const head = `<thead><tr><th class="ck">${pickCheck(pick.all, "Pilih semua di halaman ini", 'data-pickall="us"', pick.some)}</th><th class="ta-c">No</th>${sortHeader("us", "name", "Nama")}${sortHeader("us", "employeeNumber", "NIK", "hs")}${sortHeader("us", "email", "Email", "hs")}${sortHeader("us", "department", "Departemen", "hs")}<th class="hs">Grup</th>${sortHeader("us", "status", "Status")}<th class="ta-r">Aksi</th></tr></thead>`;
+          const body = rows.length
+            ? rows
                 .map(
-                  (u, i) =>
-                    `<tr class="${u.active ? "" : "row-danger"}"><td class="ta-c"><span class="row-no">${i + 1}</span></td><td><div class="who"><span class="av ${avatarClass(u.name)}">${initials(u.name)}</span><div><span class="who-line"><b>${esc(u.name)}</b></span><small>${esc(u.job)}</small></div></div></td><td class="mono hs">${esc(u.nik)}</td><td class="muted hs">${esc(u.email)}</td><td class="hs">${esc(u.department)} (${esc(u.code)})</td><td class="hs">${u.groups.length ? `<span class="grp-tags">${statusBadge("purple", "usersRound", u.groups[0])}</span>` : statusBadge("off", "circleDashed", "Belum ada")}</td><td>${u.active ? statusBadge("on", "circleCheck", "Aktif") : statusBadge("danger", "circleX", "Nonaktif")}</td><td class="ta-r">${rowAct(`Aksi untuk ${u.name}`)}</td></tr>`,
+                  (
+                    u,
+                    index,
+                  ) => `<tr class="${[pick.has(u.id) ? "sel" : "", u.active ? "" : "row-danger"].filter(Boolean).join(" ")}"><td class="ck">${pickCheck(pick.has(u.id), `Pilih ${u.name}`, `data-pick="us:${u.id}"`)}</td><td class="ta-c"><span class="row-no">${(state.page - 1) * state.size + index + 1}</span></td>
+      <td><div class="who"><span class="av ${avatarClass(u.name)}">${initials(u.name)}</span><div><span class="who-line"><b>${esc(u.name)}</b></span><small>${esc(u.job || "-")}<span class="sm-only">${u.code || u.department ? ` · ${esc(u.code || u.department)}` : ""}</span></small></div></div></td>
+      <td class="mono hs">${esc(u.nik || "-")}</td><td class="muted hs">${esc(u.email)}</td><td class="hs">${esc(departmentLabel(u.department, u.code))}</td><td class="hs">${groupTags(u)}</td><td>${activeBadge(u.active)}</td>
+      <td class="ta-r"><div class="row-acts"><button class="row-act" type="button" aria-label="Aksi untuk ${esc(u.name)}" aria-haspopup="menu" aria-expanded="false" title="Aksi lainnya" data-rowmenu="us:${u.id}">${icon("ellipsis", 17)}</button></div></td></tr>`,
                 )
                 .join("")
-            : `<tr><td colspan="8">${empty("Pengguna tidak ditemukan", "Coba ubah kata kunci atau filter.")}</td></tr>`;
-          return tablePage(
+            : tableEmpty(
+                9,
+                "Pengguna tidak ditemukan",
+                "Coba ubah kata kunci atau filter.",
+              );
+          return managementPage(
             "Manajemen Pengguna",
             "Kelola pengguna yang bisa masuk ke SSO Launcher.",
             "Tambah Pengguna",
             toolbar,
-            head,
-            rows,
-            list.length,
-            "pengguna",
+            bulkBar("us", "pengguna"),
+            head + `<tbody>${body}</tbody>`,
+            dataPager(
+              "us",
+              list.length,
+              state.page,
+              state.size,
+              [10, 20, 50, 100],
+              "pengguna",
+            ),
           );
         }
 
-        function pageGroups() {
-          const head = `<th class="ta-c">No</th>${sortTh("Nama Grup")}${sortTh("Departemen", "hs")}<th>Anggota</th><th class="hs">Aplikasi</th><th class="hs">Menu</th>${sortTh("Status")}<th class="ta-r">Aksi</th>`;
-          const rows = db.groups
-            .map(
-              (g, i) =>
-                `<tr><td class="ta-c"><span class="row-no">${i + 1}</span></td><td><div class="who"><span class="av ${avatarClass(g.name)}">${initials(g.name)}</span><div><span class="who-line"><b>${esc(g.name)}</b></span><small>${esc(g.department)}</small></div></div></td><td class="hs">${esc(g.department)}</td><td>${statusBadge("purple", "usersRound", `${g.members} anggota`)}</td><td class="hs">${statusBadge("info", "window", `${g.apps} aplikasi`)}</td><td class="hs">${statusBadge("teal", "list", `${g.menus} menu`)}</td><td>${statusBadge("on", "circleCheck", "Aktif")}</td><td class="ta-r">${rowAct(`Aksi untuk ${g.name}`)}</td></tr>`,
-            )
-            .join("");
-          return tablePage(
-            "Manajemen Grup & Akses",
-            "Atur anggota, akses aplikasi, dan akses menu setiap grup.",
-            "Tambah Grup",
-            "",
-            head,
-            rows,
-            db.groups.length,
-            "grup",
+        function groupList() {
+          const state = ui.gr;
+          const kw = state.q.trim().toLowerCase();
+          const list = liveGroups().filter(
+            (g) =>
+              (!state.status || (state.status === "on") === g.active) &&
+              (!state.dept || g.department === state.dept) &&
+              (!kw ||
+                `${g.name} ${g.department} ${g.description}`
+                  .toLowerCase()
+                  .includes(kw)),
           );
+          return sortRows(list, state, {
+            name: (g) => g.name,
+            department: (g) => g.department,
+            members: memberCount,
+            applications: (g) => g.apps,
+            menus: (g) => g.menus,
+            status: (g) => (g.active ? 0 : 1),
+          });
+        }
+
+        function pageGroups() {
+          const state = ui.gr;
+          const groups = liveGroups();
+          const list = groupList();
+          const rows = pageSlice(list, state);
+          const pick = selectionState(
+            "gr",
+            rows.map((g) => g.id),
+          );
+          const filtered = Boolean(
+            state.q.trim() || state.dept || state.status,
+          );
+          const toolbar = `<div class="ma-bar us-bar">${searchBox("gr.q", state.q, "Cari grup")}
+      ${tsel("gr-dept", state.dept, [{ value: "", label: "Semua Departemen" }, ...departments()], "Semua Departemen", (v) => setPage("gr", { dept: v, page: 1 }))}
+      ${tsel("gr-status", state.status, statusOptions(groups), "Semua Status", (v) => setPage("gr", { status: v, page: 1 }))}${resetButton("gr")}</div>`;
+          const head = `<thead><tr><th class="ck">${pickCheck(pick.all, "Pilih semua di halaman ini", 'data-pickall="gr"', pick.some)}</th><th class="ta-c">No</th>${sortHeader("gr", "name", "Grup")}${sortHeader("gr", "department", "Departemen", "hs")}<th class="hs">Keterangan</th>${sortHeader("gr", "members", "Pengguna", "hs")}${sortHeader("gr", "applications", "Aplikasi", "hs")}${sortHeader("gr", "menus", "Menu", "hs")}${sortHeader("gr", "status", "Status")}<th class="ta-r">Aksi</th></tr></thead>`;
+          const body = rows.length
+            ? rows
+                .map((g, index) => {
+                  const code = DEPT_CODES[g.department];
+                  const members = memberCount(g);
+                  return `<tr class="${[pick.has(g.id) ? "sel" : "", g.active ? "" : "row-danger"].filter(Boolean).join(" ")}"><td class="ck">${pickCheck(pick.has(g.id), `Pilih ${g.name}`, `data-pick="gr:${g.id}"`)}</td><td class="ta-c"><span class="row-no">${(state.page - 1) * state.size + index + 1}</span></td>
+      <td><div class="who"><span class="rc-ic ${avatarClass(g.name)}">${icon("usersRound")}</span><div><b>${esc(g.name)}</b><small class="sm-only">${code ? `${code} · ` : ""}${members} pengguna</small></div></div></td>
+      <td class="muted hs">${esc(departmentLabel(g.department, code))}</td><td class="muted hs">${esc(g.description || "-")}</td><td class="hs">${countBadge(members, "pengguna", "users", "slate")}</td><td class="hs">${countBadge(g.apps, "aplikasi", "window", "info")}</td><td class="hs">${countBadge(g.menus, "menu", "squareMenu", "orange")}</td><td>${activeBadge(g.active)}</td>
+      <td class="ta-r"><div class="row-acts"><button class="row-act" type="button" aria-label="Aksi untuk ${esc(g.name)}" aria-haspopup="menu" aria-expanded="false" title="Aksi lainnya" data-rowmenu="gr:${g.id}">${icon("ellipsis", 17)}</button></div></td></tr>`;
+                })
+                .join("")
+            : `<tr><td colspan="10">${empty(filtered ? "Grup tidak ditemukan" : "Belum ada grup", filtered ? "Coba ubah kata kunci atau filter." : "Tambahkan grup untuk mengelompokkan pengguna.", { searching: filtered })}</td></tr>`;
+          return managementPage(
+            "Manajemen Grup & Akses",
+            "Kelompokkan pengguna, lalu atur akses mereka.",
+            "Tambah Grup",
+            toolbar,
+            bulkBar("gr", "grup"),
+            head + `<tbody>${body}</tbody>`,
+            dataPager(
+              "gr",
+              list.length,
+              state.page,
+              state.size,
+              [10, 20, 50, 100],
+              "grup",
+            ),
+          );
+        }
+
+        const USER_DELETE_EFFECT =
+          "Akunnya langsung dinonaktifkan, seluruh sesinya dicabut, dan aksesnya ke semua aplikasi berakhir.";
+        const GROUP_ACCESS_LOSS =
+          "langsung kehilangan menu dan aplikasi yang diberikan lewat grup ini.";
+        const REASON = {
+          withReason: true,
+          reasonLabel: "Alasan penghapusan",
+          reasonPlaceholder: "Masukkan alasan penghapusan",
+        };
+
+        function setUserActive(user, active) {
+          user.active = active;
+          audit(
+            "update",
+            "user",
+            user.name,
+            `Status diubah dari ${active ? "Nonaktif ke Aktif" : "Aktif ke Nonaktif"}`,
+          );
+        }
+        function deleteUser(user, reason) {
+          if (user.id === me.id) return false;
+          user.deleted = true;
+          user.active = false;
+          audit(
+            "delete",
+            "user",
+            user.name,
+            `Dipindahkan ke tempat sampah. Alasan: ${reason}`,
+          );
+          return true;
+        }
+        function setGroupActive(group, active) {
+          group.active = active;
+          audit(
+            "update",
+            "user_group",
+            group.name,
+            `Status diubah dari ${active ? "Nonaktif ke Aktif" : "Aktif ke Nonaktif"}`,
+          );
+        }
+        function deleteGroup(group, reason) {
+          group.deleted = true;
+          audit(
+            "delete",
+            "user_group",
+            group.name,
+            `Grup dipindahkan ke tempat sampah beserta ${memberCount(group)} anggota. Alasan: ${reason}`,
+          );
+          return true;
+        }
+
+        async function toggleUser(user) {
+          const ok = await ask({
+            title: user.active ? "Nonaktifkan pengguna?" : "Aktifkan pengguna?",
+            message: user.active
+              ? `${user.name} tidak akan bisa masuk sampai diaktifkan kembali.`
+              : `${user.name} akan bisa masuk kembali ke SSO Launcher.`,
+            confirmLabel: user.active ? "Nonaktifkan" : "Aktifkan",
+            danger: user.active,
+            icon: user.active ? "ban" : "circleCheck",
+            tone: user.active ? "danger" : "success",
+          });
+          if (!ok) return;
+          if (user.id === me.id && user.active) {
+            render();
+            return toast(
+              "Akun yang sedang Anda pakai tidak bisa dinonaktifkan.",
+              "error",
+            );
+          }
+          const wasActive = user.active;
+          setUserActive(user, !wasActive);
+          render();
+          toast(`${user.name} ${wasActive ? "dinonaktifkan" : "diaktifkan"}`);
+        }
+        async function removeUser(user) {
+          const reason = await ask({
+            title: "Hapus pengguna?",
+            message: `${user.name} (${user.nik || user.email}) akan dihapus. ${USER_DELETE_EFFECT}`,
+            confirmLabel: "Hapus",
+            danger: true,
+            icon: "trash",
+            tone: "danger",
+            ...REASON,
+          });
+          if (reason === null) return;
+          const done = deleteUser(user, reason);
+          ui.us.sel = ui.us.sel.filter((id) => id !== user.id);
+          render();
+          toast(
+            done
+              ? `${user.name} dihapus`
+              : "Akun yang sedang Anda pakai tidak bisa dihapus.",
+            done ? "success" : "error",
+          );
+        }
+        async function toggleGroup(group) {
+          const next = !group.active;
+          const ok = await ask({
+            title: next ? "Aktifkan grup?" : "Nonaktifkan grup?",
+            message: next
+              ? `Pengguna dalam grup "${group.name}" akan kembali mendapat akses dari grup ini.`
+              : `Pengguna dalam grup "${group.name}" akan kehilangan menu dan aplikasi yang diberikan lewat grup ini.`,
+            confirmLabel: next ? "Aktifkan" : "Nonaktifkan",
+            danger: !next,
+            icon: next ? "circleCheck" : "ban",
+            tone: next ? "success" : "danger",
+          });
+          if (!ok) return;
+          setGroupActive(group, next);
+          render();
+          toast(`Grup ${group.name} ${next ? "diaktifkan" : "dinonaktifkan"}`);
+        }
+        async function removeGroup(group) {
+          const reason = await ask({
+            title: "Hapus grup?",
+            message: `Grup "${group.name}" akan dihapus. Pengguna di dalamnya ${GROUP_ACCESS_LOSS}`,
+            confirmLabel: "Hapus",
+            danger: true,
+            icon: "trash",
+            tone: "danger",
+            ...REASON,
+          });
+          if (reason === null) return;
+          deleteGroup(group, reason);
+          ui.gr.sel = ui.gr.sel.filter((id) => id !== group.id);
+          render();
+          toast(`Grup ${group.name} dihapus`);
+        }
+
+        async function runBulk(scope, action) {
+          const isUser = scope === "us";
+          const noun = isUser ? "pengguna" : "grup";
+          const source = isUser ? liveUsers() : liveGroups();
+          const targets = source.filter((x) => ui[scope].sel.includes(x.id));
+          if (!targets.length) return;
+          const count = targets.length;
+          let reason = "";
+          if (action === "delete") {
+            reason = await ask({
+              title: `Hapus ${count} ${noun}?`,
+              message: isUser
+                ? `Pengguna terpilih akan dihapus. ${USER_DELETE_EFFECT}`
+                : `Grup terpilih akan dihapus. Pengguna di dalamnya ${GROUP_ACCESS_LOSS}`,
+              confirmLabel: "Hapus",
+              danger: true,
+              icon: "trash",
+              tone: "danger",
+              ...REASON,
+            });
+            if (reason === null) return;
+          } else {
+            const activate = action === "activate";
+            const ok = await ask({
+              title: `${activate ? "Aktifkan" : "Nonaktifkan"} ${count} ${noun}?`,
+              message: isUser
+                ? activate
+                  ? "Pengguna terpilih akan bisa masuk kembali."
+                  : "Pengguna terpilih tidak akan bisa masuk sampai diaktifkan kembali."
+                : activate
+                  ? "Pengguna dalam grup terpilih akan kembali mendapat akses dari grup itu."
+                  : "Pengguna dalam grup terpilih akan kehilangan menu dan aplikasi yang diberikan lewat grup itu.",
+              confirmLabel: activate ? "Aktifkan" : "Nonaktifkan",
+              danger: !activate,
+              icon: activate ? "circleCheck" : "ban",
+              tone: activate ? "success" : "danger",
+            });
+            if (!ok) return;
+          }
+          let done = 0;
+          for (const target of targets) {
+            if (action === "delete") {
+              if (
+                isUser
+                  ? deleteUser(target, reason)
+                  : deleteGroup(target, reason)
+              )
+                done += 1;
+              continue;
+            }
+            const active = action === "activate";
+            if (isUser && target.id === me.id && !active) continue;
+            if (target.active !== active)
+              (isUser ? setUserActive : setGroupActive)(target, active);
+            done += 1;
+          }
+          ui[scope].sel = [];
+          render();
+          const verb =
+            action === "delete"
+              ? "dihapus"
+              : action === "activate"
+                ? "diaktifkan"
+                : "dinonaktifkan";
+          if (done === count) toast(`${count} ${noun} ${verb}`);
+          else
+            toast(
+              `${done} dari ${count} ${noun} ${verb}. Akun yang sedang Anda pakai dilewati.`,
+              "warning",
+            );
+        }
+
+        function managementMenu(kind, id) {
+          const later = (label) => () =>
+            toast(`${label} tersedia di aplikasi asli.`);
+          if (kind === "us") {
+            const u = liveUsers().find((x) => x.id === id);
+            if (!u) return [];
+            return [
+              {
+                label: "Ubah",
+                icon: "pencil",
+                tone: "primary",
+                run: later("Form ubah pengguna"),
+              },
+              {
+                label: "Keamanan",
+                icon: "keyRound",
+                tone: "warn",
+                run: later("Halaman keamanan pengguna"),
+              },
+              {
+                label: "Riwayat",
+                icon: "history",
+                tone: "info",
+                run: later("Riwayat pengguna"),
+              },
+              {
+                label: u.active ? "Nonaktifkan" : "Aktifkan",
+                icon: u.active ? "ban" : "circleCheck",
+                tone: u.active ? "danger" : "success",
+                run: () => toggleUser(u),
+              },
+              {
+                label: "Hapus",
+                icon: "trash",
+                tone: "danger",
+                run: () => removeUser(u),
+              },
+            ];
+          }
+          if (kind === "gr") {
+            const g = liveGroups().find((x) => x.id === id);
+            if (!g) return [];
+            return [
+              {
+                label: "Ubah",
+                icon: "pencil",
+                tone: "primary",
+                run: later("Form ubah grup"),
+              },
+              {
+                label: "Kelola Pengguna",
+                icon: "users",
+                tone: "info",
+                run: later("Pengelolaan anggota grup"),
+              },
+              {
+                label: "Akses Aplikasi",
+                icon: "window",
+                tone: "info",
+                run: later("Pengaturan akses aplikasi grup"),
+              },
+              {
+                label: "Akses Menu",
+                icon: "squareMenu",
+                tone: "info",
+                run: later("Pengaturan akses menu grup"),
+              },
+              {
+                label: "Duplikat Grup",
+                icon: "copy",
+                tone: "success",
+                run: later("Duplikat grup"),
+              },
+              {
+                label: g.active ? "Nonaktifkan" : "Aktifkan",
+                icon: g.active ? "ban" : "circleCheck",
+                tone: g.active ? "danger" : "success",
+                run: () => toggleGroup(g),
+              },
+              {
+                label: "Hapus",
+                icon: "trash",
+                tone: "danger",
+                run: () => removeGroup(g),
+              },
+            ];
+          }
+          return [];
         }
 
         function pageApplications() {
@@ -2200,18 +2706,32 @@
           icon: ic = "circleCheck",
           tone = "primary",
           danger = false,
+          withReason = false,
+          reasonLabel = "Alasan",
+          reasonPlaceholder = "Masukkan alasan",
         }) {
           return new Promise((resolve) => {
             const host = document.createElement("div");
-            host.innerHTML = `<div class="modal ask show" role="alertdialog" aria-modal="true" aria-labelledby="askTitle" aria-describedby="askMsg"><div class="modal-card ask-card${danger ? " is-danger" : ""} tone-${tone}"><button class="icon-btn ask-close" type="button" aria-label="Tutup" data-ask="0">${icon("x", 18)}</button><div class="ask-ic">${icon(ic, 24)}</div><h3 id="askTitle">${esc(title)}</h3><p id="askMsg">${esc(message)}</p><div class="ask-btns"><button class="btn btn-ghost" type="button" data-ask="0">Batal${icon("circleX", 18)}</button><button class="btn ask-ok tone-${tone}" type="button" data-ask="1">${esc(confirmLabel)}${icon(ic, 18)}</button></div></div></div>`;
+            const reasonField = withReason
+              ? `<label class="cp-reason"><span>${esc(reasonLabel)}</span><textarea maxlength="500" placeholder="${esc(reasonPlaceholder)}" data-ask-reason></textarea><em>Wajib diisi. Alasan tersimpan di riwayat aktivitas.</em></label>`
+              : "";
+            host.innerHTML = `<div class="modal ask show" role="alertdialog" aria-modal="true" aria-labelledby="askTitle" aria-describedby="askMsg"><div class="modal-card ask-card${danger ? " is-danger" : ""} tone-${tone}"><button class="icon-btn ask-close" type="button" aria-label="Tutup" data-ask="0">${icon("x", 18)}</button><div class="ask-ic">${icon(ic, 24)}</div><h3 id="askTitle">${esc(title)}</h3><p id="askMsg">${esc(message)}</p>${reasonField}<div class="ask-btns"><button class="btn btn-ghost" type="button" data-ask="0">Batal${icon("circleX", 18)}</button><button class="btn ask-ok tone-${tone}" type="button" data-ask="1" ${withReason ? "disabled" : ""}>${esc(confirmLabel)}${icon(ic, 18)}</button></div></div></div>`;
             const modal = host.firstElementChild;
+            const reasonInput = modal.querySelector("[data-ask-reason]");
+            const okButton = modal.querySelector('[data-ask="1"]');
             document.body.appendChild(modal);
             document.body.classList.add("has-ask");
-            const finish = (value) => {
+            const finish = (approved) => {
               document.removeEventListener("keydown", onKey, true);
               document.body.classList.remove("has-ask");
               modal.remove();
-              resolve(value);
+              resolve(
+                withReason
+                  ? approved
+                    ? reasonInput.value.trim()
+                    : null
+                  : approved,
+              );
             };
             const onKey = (event) => {
               if (event.key === "Escape") {
@@ -2221,17 +2741,21 @@
               }
             };
             document.addEventListener("keydown", onKey, true);
+            reasonInput?.addEventListener("input", (event) => {
+              event.stopPropagation();
+              okButton.disabled = reasonInput.value.trim() === "";
+            });
             modal.addEventListener("mousedown", (event) => {
               if (event.target === modal) finish(false);
             });
             modal.addEventListener("click", (event) => {
               const b = event.target.closest("[data-ask]");
-              if (b) {
+              if (b && !b.disabled) {
                 event.stopPropagation();
                 finish(b.dataset.ask === "1");
               }
             });
-            modal.querySelector('[data-ask="1"]').focus();
+            (reasonInput || okButton).focus();
           });
         }
 
@@ -2731,6 +3255,15 @@
             Object.assign(ui.ma, { seg: d.seg, page: 1 });
             return render();
           }
+          if (d.msort) {
+            const [scope, key] = d.msort.split(":");
+            toggleSort(ui[scope], key);
+            return render();
+          }
+          if (d.bulk) {
+            const [scope, action] = d.bulk.split(":");
+            return void runBulk(scope, action);
+          }
           if (d.sort) {
             const current = ui.rc.sort;
             ui.rc.sort =
@@ -2779,6 +3312,25 @@
           rerenderFocus(`[data-input="${k}"]`);
         });
         document.addEventListener("change", (e) => {
+          if (e.target.matches("[data-pick]")) {
+            const [scope, raw] = e.target.dataset.pick.split(":");
+            const id = Number(raw);
+            ui[scope].sel = e.target.checked
+              ? [...ui[scope].sel, id]
+              : ui[scope].sel.filter((x) => x !== id);
+            return render();
+          }
+          if (e.target.matches("[data-pickall]")) {
+            const scope = e.target.dataset.pickall;
+            const ids = pageSlice(
+              scope === "us" ? userList() : groupList(),
+              ui[scope],
+            ).map((x) => x.id);
+            ui[scope].sel = e.target.checked
+              ? [...new Set([...ui[scope].sel, ...ids])]
+              : ui[scope].sel.filter((x) => !ids.includes(x));
+            return render();
+          }
           if (e.target.matches("[data-rc-pick]")) {
             const id = Number(e.target.dataset.rcPick);
             ui.rc.sel = e.target.checked

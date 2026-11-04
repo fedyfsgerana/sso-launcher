@@ -9170,6 +9170,48 @@ html[data-theme="dark"] .ei-lensHandle {
   }
 }
 
+.cp-reason {
+  width: 100%;
+  margin: -6px 0 18px;
+  text-align: left
+}
+
+.cp-reason span {
+  display: block;
+  margin-bottom: 6px;
+  font-size: var(--fs-sm);
+  font-weight: 500;
+  color: var(--ink)
+}
+
+.cp-reason textarea {
+  width: 100%;
+  min-height: 84px;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-ctl);
+  background: var(--card);
+  color: var(--ink);
+  font: inherit;
+  font-size: var(--fs-md);
+  line-height: 1.5;
+  resize: vertical;
+  outline: 0
+}
+
+.cp-reason textarea:focus {
+  border-color: var(--g600);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--g700) 12%, transparent)
+}
+
+.cp-reason em {
+  display: block;
+  margin-top: 6px;
+  color: var(--muted);
+  font-size: var(--fs-xs);
+  font-style: normal
+}
+
       .demo-bar {
         position: relative;
         z-index: 45;
@@ -9383,7 +9425,7 @@ html[data-theme="dark"] .ei-lensHandle {
 
     <script>
       (() => {
-        const STORE = "sso-demo-v3";
+        const STORE = "sso-demo-v4";
         const SESSION = "sso-demo-session";
         const PASSWORD = "demo1234";
         const LOGO = "data:image/webp;base64,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";
@@ -9480,6 +9522,12 @@ html[data-theme="dark"] .ei-lensHandle {
           cornerDownRight:
             '<polyline points="15 10 20 15 15 20"/><path d="M4 4v7a4 4 0 0 0 4 4h12"/>',
           arrowUp: '<path d="m5 12 7-7 7 7"/><path d="M12 19V5"/>',
+          ban: '<circle cx="12" cy="12" r="10"/><path d="m4.9 4.9 14.2 14.2"/>',
+          keyRound:
+            '<path d="M2.586 17.414A2 2 0 0 0 2 18.828V21a1 1 0 0 0 1 1h3a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h1a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h.172a2 2 0 0 0 1.414-.586l.814-.814a6.5 6.5 0 1 0-4-4z"/><circle cx="16.5" cy="7.5" r=".5" fill="currentColor"/>',
+          squareMenu:
+            '<rect width="18" height="18" x="3" y="3" rx="2"/><path d="M7 8h10"/><path d="M7 12h10"/><path d="M7 16h10"/>',
+          copy: '<rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/>',
           arrowDown: '<path d="M12 5v14"/><path d="m19 12-7 7-7-7"/>',
           squareOut:
             '<path d="M21 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h6"/><path d="m21 3-9 9"/><path d="M15 3h6v6"/>',
@@ -9928,6 +9976,7 @@ html[data-theme="dark"] .ei-lensHandle {
                 id: 1,
                 name: "Administrator",
                 department: "Information Technology",
+                description: "Akses penuh ke seluruh menu dan aplikasi portal",
                 members: 1,
                 apps: 12,
                 menus: 9,
@@ -9937,6 +9986,7 @@ html[data-theme="dark"] .ei-lensHandle {
                 id: 2,
                 name: "Staf HR",
                 department: "Human Resources",
+                description: "Akses aplikasi kepegawaian dan administrasi umum",
                 members: 1,
                 apps: 7,
                 menus: 4,
@@ -9946,6 +9996,7 @@ html[data-theme="dark"] .ei-lensHandle {
                 id: 3,
                 name: "Staf Operasional",
                 department: "Operations",
+                description: "Akses aplikasi gudang, ERP, dan work order",
                 members: 1,
                 apps: 5,
                 menus: 4,
@@ -9955,6 +10006,7 @@ html[data-theme="dark"] .ei-lensHandle {
                 id: 4,
                 name: "Staf Keuangan",
                 department: "Finance",
+                description: "Akses aplikasi keuangan dan penggajian",
                 members: 1,
                 apps: 4,
                 menus: 4,
@@ -10029,6 +10081,25 @@ html[data-theme="dark"] .ei-lensHandle {
             sel: [],
           },
           tbl: { page: 1, size: 10 },
+          us: {
+            q: "",
+            status: "",
+            dept: "",
+            group: "",
+            page: 1,
+            size: 10,
+            sort: null,
+            sel: [],
+          },
+          gr: {
+            q: "",
+            dept: "",
+            status: "",
+            page: 1,
+            size: 10,
+            sort: null,
+            sel: [],
+          },
         });
         const ui = {
           collapsed: false,
@@ -10293,6 +10364,11 @@ html[data-theme="dark"] .ei-lensHandle {
           return `<div class="pager">${summary || `<span class="muted">${total === 0 ? "Tidak ada data" : `Menampilkan ${start}–${end} dari ${total} ${unit}`}</span>`}<div class="pager-r">${summary && total > 0 ? `<span class="muted">${start}–${end} dari ${total}</span>` : ""}${sizeSelect}<nav class="pages" aria-label="Halaman"><button type="button" aria-label="Sebelumnya" ${current === 1 ? "disabled" : ""} data-page="${key}:${current - 1}">${icon("chevronLeft", 16)}</button>${numbers.map((n) => (n === "gap" ? "<span>…</span>" : `<button type="button" class="${n === current ? "on" : ""}" ${n === current ? 'aria-current="page"' : ""} data-page="${key}:${n}">${n}</button>`)).join("")}<button type="button" aria-label="Berikutnya" ${current === pages ? "disabled" : ""} data-page="${key}:${current + 1}">${icon("chevronRight", 16)}</button></nav></div></div>`;
         }
         function setPage(key, patch) {
+          if (
+            (key === "us" || key === "gr") &&
+            ("page" in patch || "size" in patch)
+          )
+            ui[key].sel = [];
           Object.assign(ui[key], patch);
           render();
         }
@@ -10730,6 +10806,8 @@ html[data-theme="dark"] .ei-lensHandle {
         const ROW_MENUS = {};
         function rowMenuItems(ref) {
           const [kind, id] = ref.split(":");
+          if (kind === "us" || kind === "gr")
+            return managementMenu(kind, Number(id));
           if (kind !== "rc") return [];
           const x = myActivities().find((item) => item.id === Number(id));
           if (!x) return [];
@@ -10923,70 +11001,540 @@ html[data-theme="dark"] .ei-lensHandle {
         ) =>
           `<div class="page">${hero(title, desc, btn ? `<button class="btn" type="button" data-toast="Form ${esc(btn.toLowerCase())} tersedia di aplikasi asli.">${esc(btn)}${icon("plus", 18)}</button>` : "")}<div class="card ma-panel">${toolbar}<div class="table-wrap"><table class="dt ut demo-table"><thead><tr>${head}</tr></thead><tbody>${rows}</tbody></table></div>${dataPager("tbl", total, 1, 10, [10, 20, 50, 100], unit)}</div></div>`;
 
-        function pageUsers() {
-          const kw = ui.userQ.trim().toLowerCase();
-          const list = db.users.filter(
+        const DEPT_CODES = {
+          "Information Technology": "IT",
+          "Human Resources": "HR",
+          Operations: "OPS",
+          Finance: "FIN",
+          Marketing: "MKT",
+          "General Affairs": "GA",
+          Production: "PRD",
+        };
+        const departmentLabel = (name, code) =>
+          !name ? code || "-" : code ? `${name} (${code})` : name;
+        const activeBadge = (active) =>
+          active
+            ? statusBadge("on", "circleCheck", "Aktif")
+            : statusBadge("danger", "ban", "Nonaktif");
+        const emptyBadge = (label = "Belum ada") =>
+          statusBadge("off", "circleDashed", label);
+        const countBadge = (count, unit, ic, tone) =>
+          count > 0 ? statusBadge(tone, ic, `${count} ${unit}`) : emptyBadge();
+        const liveUsers = () => db.users.filter((u) => !u.deleted);
+        const liveGroups = () => db.groups.filter((g) => !g.deleted);
+        const memberCount = (g) =>
+          liveUsers().filter((u) => u.groups.includes(g.name)).length;
+        const departments = () =>
+          sortCategories([
+            ...liveUsers().map((u) => u.department),
+            ...liveGroups().map((g) => g.department),
+          ]).map((d) => ({ value: d, label: d }));
+
+        function toggleSort(state, key) {
+          const current = state.sort;
+          state.sort =
+            !current || current.key !== key
+              ? { key, direction: "asc" }
+              : current.direction === "asc"
+                ? { key, direction: "desc" }
+                : null;
+          state.page = 1;
+        }
+        function sortRows(list, state, getters) {
+          if (!state.sort || !getters[state.sort.key]) return list;
+          const get = getters[state.sort.key];
+          return [...list].sort((l, r) => {
+            const a = get(l),
+              b = get(r);
+            const c =
+              typeof a === "string" ? a.localeCompare(b, "id-ID") : a - b;
+            return state.sort.direction === "asc" ? c : -c;
+          });
+        }
+        function sortHeader(scope, key, label, cls = "") {
+          const sort = ui[scope].sort;
+          const active = sort?.key === key ? sort.direction : null;
+          return `<th class="${cls}" aria-sort="${active === "asc" ? "ascending" : active === "desc" ? "descending" : "none"}"><button class="${active ? "sort-th is-active" : "sort-th"}" type="button" title="${active === "asc" ? `Urutkan ${label} dari besar ke kecil` : active === "desc" ? "Kembalikan urutan bawaan" : `Urutkan ${label} dari kecil ke besar`}" data-msort="${scope}:${key}">${esc(label)}${icon(active === "asc" ? "arrowUp" : active === "desc" ? "arrowDown" : "chevronsUpDown", 13)}</button></th>`;
+        }
+        function selectionState(scope, ids) {
+          const state = ui[scope];
+          state.sel = state.sel.filter(
+            (id) => ids.includes(id) || state.selKeep?.includes(id),
+          );
+          const all =
+            ids.length > 0 && ids.every((id) => state.sel.includes(id));
+          const some = ids.some((id) => state.sel.includes(id));
+          return { all, some, has: (id) => state.sel.includes(id) };
+        }
+        const bulkBar = (scope, noun) => {
+          const count = ui[scope].sel.length;
+          return count
+            ? `<div class="bulk"><span>${count} ${noun} dipilih</span><button class="ac-btn success" type="button" data-bulk="${scope}:activate">Aktifkan${icon("circleCheck", 15)}</button><button class="ac-btn danger" type="button" data-bulk="${scope}:deactivate">Nonaktifkan${icon("ban", 15)}</button><button class="ac-btn danger" type="button" data-bulk="${scope}:delete">Hapus${icon("trash", 15)}</button></div>`
+            : "";
+        };
+        const statusOptions = (list) => [
+          { value: "", label: `Semua Status (${list.length})` },
+          {
+            value: "on",
+            label: `Aktif (${list.filter((x) => x.active).length})`,
+          },
+          {
+            value: "off",
+            label: `Nonaktif (${list.filter((x) => !x.active).length})`,
+          },
+        ];
+        const managementPage = (
+          title,
+          description,
+          createLabel,
+          toolbar,
+          extra,
+          table,
+          pager,
+        ) =>
+          `<div class="page">${hero(title, description, `<button class="btn" type="button" data-toast="Form ${esc(createLabel.toLowerCase())} tersedia di aplikasi asli.">${esc(createLabel)}${icon("plus", 18)}</button>`)}<div class="card ma-panel">${toolbar}${extra}<div class="table-wrap"><table class="dt ut">${table}</table></div>${pager}</div></div>`;
+        const tableEmpty = (cols, title, description) =>
+          `<tr><td colspan="${cols}">${empty(title, description, { searching: true })}</td></tr>`;
+
+        function userList() {
+          const state = ui.us;
+          const kw = state.q.trim().toLowerCase();
+          const list = liveUsers().filter(
             (u) =>
-              (!ui.userStatus || (ui.userStatus === "active") === u.active) &&
+              (!state.status || (state.status === "on") === u.active) &&
+              (!state.dept || u.department === state.dept) &&
+              (!state.group || u.groups.includes(state.group)) &&
               (!kw ||
-                `${u.name} ${u.email} ${u.nik} ${u.department}`
+                `${u.name} ${u.email} ${u.nik} ${u.department} ${u.job}`
                   .toLowerCase()
                   .includes(kw)),
           );
-          const counts = {
-            all: db.users.length,
-            active: db.users.filter((u) => u.active).length,
-            inactive: db.users.filter((u) => !u.active).length,
+          return sortRows(list, state, {
+            name: (u) => u.name,
+            employeeNumber: (u) => u.nik,
+            email: (u) => u.email,
+            department: (u) => u.department,
+            status: (u) => (u.active ? 0 : 1),
+          });
+        }
+
+        function pageUsers() {
+          const state = ui.us;
+          const users = liveUsers();
+          const list = userList();
+          const rows = pageSlice(list, state);
+          const pick = selectionState(
+            "us",
+            rows.map((u) => u.id),
+          );
+          const groupOptions = liveGroups()
+            .map((g) => ({ value: g.name, label: g.name }))
+            .sort((l, r) => l.label.localeCompare(r.label, "id-ID"));
+          const toolbar = `<div class="ma-bar us-bar">${searchBox("us.q", state.q, "Cari pengguna")}
+      ${tsel("us-status", state.status, statusOptions(users), "Semua Status", (v) => setPage("us", { status: v, page: 1 }))}
+      ${tsel("us-dept", state.dept, [{ value: "", label: "Semua Departemen" }, ...departments()], "Semua Departemen", (v) => setPage("us", { dept: v, page: 1 }))}
+      ${tsel("us-group", state.group, [{ value: "", label: "Semua Grup" }, ...groupOptions], "Semua Grup", (v) => setPage("us", { group: v, page: 1 }))}${resetButton("us")}</div>`;
+          const groupTags = (u) => {
+            const groups = u.groups.filter((name) =>
+              liveGroups().some((g) => g.name === name),
+            );
+            if (!groups.length) return emptyBadge();
+            return `<span class="grp-tags">${statusBadge("purple", "usersRound", groups[0])}${groups.length > 1 ? `<span title="${esc(groups.slice(1).join(", "))}">${statusBadge("purple", "usersRound", `+${groups.length - 1}`)}</span>` : ""}</span>`;
           };
-          const toolbar = `<div class="ma-bar us-bar"><label class="search us-search">${icon("search", 18)}<input placeholder="Cari nama, NIK, email, atau departemen" value="${esc(ui.userQ)}" data-input="userQ"></label><div class="segs" role="group" aria-label="Status">${[
-            ["", "Semua", counts.all],
-            ["active", "Aktif", counts.active],
-            ["inactive", "Nonaktif", counts.inactive],
-          ]
-            .map(
-              (s) =>
-                `<button class="${ui.userStatus === s[0] ? "seg on" : "seg"}" type="button" data-ustatus="${s[0]}">${s[1]} <b>${s[2]}</b></button>`,
-            )
-            .join("")}</div></div>`;
-          const head = `<th class="ta-c">No</th>${sortTh("Nama")}${sortTh("NIK", "hs")}${sortTh("Email", "hs")}${sortTh("Departemen", "hs")}<th class="hs">Grup</th>${sortTh("Status")}<th class="ta-r">Aksi</th>`;
-          const rows = list.length
-            ? list
+          const head = `<thead><tr><th class="ck">${pickCheck(pick.all, "Pilih semua di halaman ini", 'data-pickall="us"', pick.some)}</th><th class="ta-c">No</th>${sortHeader("us", "name", "Nama")}${sortHeader("us", "employeeNumber", "NIK", "hs")}${sortHeader("us", "email", "Email", "hs")}${sortHeader("us", "department", "Departemen", "hs")}<th class="hs">Grup</th>${sortHeader("us", "status", "Status")}<th class="ta-r">Aksi</th></tr></thead>`;
+          const body = rows.length
+            ? rows
                 .map(
-                  (u, i) =>
-                    `<tr class="${u.active ? "" : "row-danger"}"><td class="ta-c"><span class="row-no">${i + 1}</span></td><td><div class="who"><span class="av ${avatarClass(u.name)}">${initials(u.name)}</span><div><span class="who-line"><b>${esc(u.name)}</b></span><small>${esc(u.job)}</small></div></div></td><td class="mono hs">${esc(u.nik)}</td><td class="muted hs">${esc(u.email)}</td><td class="hs">${esc(u.department)} (${esc(u.code)})</td><td class="hs">${u.groups.length ? `<span class="grp-tags">${statusBadge("purple", "usersRound", u.groups[0])}</span>` : statusBadge("off", "circleDashed", "Belum ada")}</td><td>${u.active ? statusBadge("on", "circleCheck", "Aktif") : statusBadge("danger", "circleX", "Nonaktif")}</td><td class="ta-r">${rowAct(`Aksi untuk ${u.name}`)}</td></tr>`,
+                  (
+                    u,
+                    index,
+                  ) => `<tr class="${[pick.has(u.id) ? "sel" : "", u.active ? "" : "row-danger"].filter(Boolean).join(" ")}"><td class="ck">${pickCheck(pick.has(u.id), `Pilih ${u.name}`, `data-pick="us:${u.id}"`)}</td><td class="ta-c"><span class="row-no">${(state.page - 1) * state.size + index + 1}</span></td>
+      <td><div class="who"><span class="av ${avatarClass(u.name)}">${initials(u.name)}</span><div><span class="who-line"><b>${esc(u.name)}</b></span><small>${esc(u.job || "-")}<span class="sm-only">${u.code || u.department ? ` · ${esc(u.code || u.department)}` : ""}</span></small></div></div></td>
+      <td class="mono hs">${esc(u.nik || "-")}</td><td class="muted hs">${esc(u.email)}</td><td class="hs">${esc(departmentLabel(u.department, u.code))}</td><td class="hs">${groupTags(u)}</td><td>${activeBadge(u.active)}</td>
+      <td class="ta-r"><div class="row-acts"><button class="row-act" type="button" aria-label="Aksi untuk ${esc(u.name)}" aria-haspopup="menu" aria-expanded="false" title="Aksi lainnya" data-rowmenu="us:${u.id}">${icon("ellipsis", 17)}</button></div></td></tr>`,
                 )
                 .join("")
-            : `<tr><td colspan="8">${empty("Pengguna tidak ditemukan", "Coba ubah kata kunci atau filter.")}</td></tr>`;
-          return tablePage(
+            : tableEmpty(
+                9,
+                "Pengguna tidak ditemukan",
+                "Coba ubah kata kunci atau filter.",
+              );
+          return managementPage(
             "Manajemen Pengguna",
             "Kelola pengguna yang bisa masuk ke SSO Launcher.",
             "Tambah Pengguna",
             toolbar,
-            head,
-            rows,
-            list.length,
-            "pengguna",
+            bulkBar("us", "pengguna"),
+            head + `<tbody>${body}</tbody>`,
+            dataPager(
+              "us",
+              list.length,
+              state.page,
+              state.size,
+              [10, 20, 50, 100],
+              "pengguna",
+            ),
           );
         }
 
-        function pageGroups() {
-          const head = `<th class="ta-c">No</th>${sortTh("Nama Grup")}${sortTh("Departemen", "hs")}<th>Anggota</th><th class="hs">Aplikasi</th><th class="hs">Menu</th>${sortTh("Status")}<th class="ta-r">Aksi</th>`;
-          const rows = db.groups
-            .map(
-              (g, i) =>
-                `<tr><td class="ta-c"><span class="row-no">${i + 1}</span></td><td><div class="who"><span class="av ${avatarClass(g.name)}">${initials(g.name)}</span><div><span class="who-line"><b>${esc(g.name)}</b></span><small>${esc(g.department)}</small></div></div></td><td class="hs">${esc(g.department)}</td><td>${statusBadge("purple", "usersRound", `${g.members} anggota`)}</td><td class="hs">${statusBadge("info", "window", `${g.apps} aplikasi`)}</td><td class="hs">${statusBadge("teal", "list", `${g.menus} menu`)}</td><td>${statusBadge("on", "circleCheck", "Aktif")}</td><td class="ta-r">${rowAct(`Aksi untuk ${g.name}`)}</td></tr>`,
-            )
-            .join("");
-          return tablePage(
-            "Manajemen Grup & Akses",
-            "Atur anggota, akses aplikasi, dan akses menu setiap grup.",
-            "Tambah Grup",
-            "",
-            head,
-            rows,
-            db.groups.length,
-            "grup",
+        function groupList() {
+          const state = ui.gr;
+          const kw = state.q.trim().toLowerCase();
+          const list = liveGroups().filter(
+            (g) =>
+              (!state.status || (state.status === "on") === g.active) &&
+              (!state.dept || g.department === state.dept) &&
+              (!kw ||
+                `${g.name} ${g.department} ${g.description}`
+                  .toLowerCase()
+                  .includes(kw)),
           );
+          return sortRows(list, state, {
+            name: (g) => g.name,
+            department: (g) => g.department,
+            members: memberCount,
+            applications: (g) => g.apps,
+            menus: (g) => g.menus,
+            status: (g) => (g.active ? 0 : 1),
+          });
+        }
+
+        function pageGroups() {
+          const state = ui.gr;
+          const groups = liveGroups();
+          const list = groupList();
+          const rows = pageSlice(list, state);
+          const pick = selectionState(
+            "gr",
+            rows.map((g) => g.id),
+          );
+          const filtered = Boolean(
+            state.q.trim() || state.dept || state.status,
+          );
+          const toolbar = `<div class="ma-bar us-bar">${searchBox("gr.q", state.q, "Cari grup")}
+      ${tsel("gr-dept", state.dept, [{ value: "", label: "Semua Departemen" }, ...departments()], "Semua Departemen", (v) => setPage("gr", { dept: v, page: 1 }))}
+      ${tsel("gr-status", state.status, statusOptions(groups), "Semua Status", (v) => setPage("gr", { status: v, page: 1 }))}${resetButton("gr")}</div>`;
+          const head = `<thead><tr><th class="ck">${pickCheck(pick.all, "Pilih semua di halaman ini", 'data-pickall="gr"', pick.some)}</th><th class="ta-c">No</th>${sortHeader("gr", "name", "Grup")}${sortHeader("gr", "department", "Departemen", "hs")}<th class="hs">Keterangan</th>${sortHeader("gr", "members", "Pengguna", "hs")}${sortHeader("gr", "applications", "Aplikasi", "hs")}${sortHeader("gr", "menus", "Menu", "hs")}${sortHeader("gr", "status", "Status")}<th class="ta-r">Aksi</th></tr></thead>`;
+          const body = rows.length
+            ? rows
+                .map((g, index) => {
+                  const code = DEPT_CODES[g.department];
+                  const members = memberCount(g);
+                  return `<tr class="${[pick.has(g.id) ? "sel" : "", g.active ? "" : "row-danger"].filter(Boolean).join(" ")}"><td class="ck">${pickCheck(pick.has(g.id), `Pilih ${g.name}`, `data-pick="gr:${g.id}"`)}</td><td class="ta-c"><span class="row-no">${(state.page - 1) * state.size + index + 1}</span></td>
+      <td><div class="who"><span class="rc-ic ${avatarClass(g.name)}">${icon("usersRound")}</span><div><b>${esc(g.name)}</b><small class="sm-only">${code ? `${code} · ` : ""}${members} pengguna</small></div></div></td>
+      <td class="muted hs">${esc(departmentLabel(g.department, code))}</td><td class="muted hs">${esc(g.description || "-")}</td><td class="hs">${countBadge(members, "pengguna", "users", "slate")}</td><td class="hs">${countBadge(g.apps, "aplikasi", "window", "info")}</td><td class="hs">${countBadge(g.menus, "menu", "squareMenu", "orange")}</td><td>${activeBadge(g.active)}</td>
+      <td class="ta-r"><div class="row-acts"><button class="row-act" type="button" aria-label="Aksi untuk ${esc(g.name)}" aria-haspopup="menu" aria-expanded="false" title="Aksi lainnya" data-rowmenu="gr:${g.id}">${icon("ellipsis", 17)}</button></div></td></tr>`;
+                })
+                .join("")
+            : `<tr><td colspan="10">${empty(filtered ? "Grup tidak ditemukan" : "Belum ada grup", filtered ? "Coba ubah kata kunci atau filter." : "Tambahkan grup untuk mengelompokkan pengguna.", { searching: filtered })}</td></tr>`;
+          return managementPage(
+            "Manajemen Grup & Akses",
+            "Kelompokkan pengguna, lalu atur akses mereka.",
+            "Tambah Grup",
+            toolbar,
+            bulkBar("gr", "grup"),
+            head + `<tbody>${body}</tbody>`,
+            dataPager(
+              "gr",
+              list.length,
+              state.page,
+              state.size,
+              [10, 20, 50, 100],
+              "grup",
+            ),
+          );
+        }
+
+        const USER_DELETE_EFFECT =
+          "Akunnya langsung dinonaktifkan, seluruh sesinya dicabut, dan aksesnya ke semua aplikasi berakhir.";
+        const GROUP_ACCESS_LOSS =
+          "langsung kehilangan menu dan aplikasi yang diberikan lewat grup ini.";
+        const REASON = {
+          withReason: true,
+          reasonLabel: "Alasan penghapusan",
+          reasonPlaceholder: "Masukkan alasan penghapusan",
+        };
+
+        function setUserActive(user, active) {
+          user.active = active;
+          audit(
+            "update",
+            "user",
+            user.name,
+            `Status diubah dari ${active ? "Nonaktif ke Aktif" : "Aktif ke Nonaktif"}`,
+          );
+        }
+        function deleteUser(user, reason) {
+          if (user.id === me.id) return false;
+          user.deleted = true;
+          user.active = false;
+          audit(
+            "delete",
+            "user",
+            user.name,
+            `Dipindahkan ke tempat sampah. Alasan: ${reason}`,
+          );
+          return true;
+        }
+        function setGroupActive(group, active) {
+          group.active = active;
+          audit(
+            "update",
+            "user_group",
+            group.name,
+            `Status diubah dari ${active ? "Nonaktif ke Aktif" : "Aktif ke Nonaktif"}`,
+          );
+        }
+        function deleteGroup(group, reason) {
+          group.deleted = true;
+          audit(
+            "delete",
+            "user_group",
+            group.name,
+            `Grup dipindahkan ke tempat sampah beserta ${memberCount(group)} anggota. Alasan: ${reason}`,
+          );
+          return true;
+        }
+
+        async function toggleUser(user) {
+          const ok = await ask({
+            title: user.active ? "Nonaktifkan pengguna?" : "Aktifkan pengguna?",
+            message: user.active
+              ? `${user.name} tidak akan bisa masuk sampai diaktifkan kembali.`
+              : `${user.name} akan bisa masuk kembali ke SSO Launcher.`,
+            confirmLabel: user.active ? "Nonaktifkan" : "Aktifkan",
+            danger: user.active,
+            icon: user.active ? "ban" : "circleCheck",
+            tone: user.active ? "danger" : "success",
+          });
+          if (!ok) return;
+          if (user.id === me.id && user.active) {
+            render();
+            return toast(
+              "Akun yang sedang Anda pakai tidak bisa dinonaktifkan.",
+              "error",
+            );
+          }
+          const wasActive = user.active;
+          setUserActive(user, !wasActive);
+          render();
+          toast(`${user.name} ${wasActive ? "dinonaktifkan" : "diaktifkan"}`);
+        }
+        async function removeUser(user) {
+          const reason = await ask({
+            title: "Hapus pengguna?",
+            message: `${user.name} (${user.nik || user.email}) akan dihapus. ${USER_DELETE_EFFECT}`,
+            confirmLabel: "Hapus",
+            danger: true,
+            icon: "trash",
+            tone: "danger",
+            ...REASON,
+          });
+          if (reason === null) return;
+          const done = deleteUser(user, reason);
+          ui.us.sel = ui.us.sel.filter((id) => id !== user.id);
+          render();
+          toast(
+            done
+              ? `${user.name} dihapus`
+              : "Akun yang sedang Anda pakai tidak bisa dihapus.",
+            done ? "success" : "error",
+          );
+        }
+        async function toggleGroup(group) {
+          const next = !group.active;
+          const ok = await ask({
+            title: next ? "Aktifkan grup?" : "Nonaktifkan grup?",
+            message: next
+              ? `Pengguna dalam grup "${group.name}" akan kembali mendapat akses dari grup ini.`
+              : `Pengguna dalam grup "${group.name}" akan kehilangan menu dan aplikasi yang diberikan lewat grup ini.`,
+            confirmLabel: next ? "Aktifkan" : "Nonaktifkan",
+            danger: !next,
+            icon: next ? "circleCheck" : "ban",
+            tone: next ? "success" : "danger",
+          });
+          if (!ok) return;
+          setGroupActive(group, next);
+          render();
+          toast(`Grup ${group.name} ${next ? "diaktifkan" : "dinonaktifkan"}`);
+        }
+        async function removeGroup(group) {
+          const reason = await ask({
+            title: "Hapus grup?",
+            message: `Grup "${group.name}" akan dihapus. Pengguna di dalamnya ${GROUP_ACCESS_LOSS}`,
+            confirmLabel: "Hapus",
+            danger: true,
+            icon: "trash",
+            tone: "danger",
+            ...REASON,
+          });
+          if (reason === null) return;
+          deleteGroup(group, reason);
+          ui.gr.sel = ui.gr.sel.filter((id) => id !== group.id);
+          render();
+          toast(`Grup ${group.name} dihapus`);
+        }
+
+        async function runBulk(scope, action) {
+          const isUser = scope === "us";
+          const noun = isUser ? "pengguna" : "grup";
+          const source = isUser ? liveUsers() : liveGroups();
+          const targets = source.filter((x) => ui[scope].sel.includes(x.id));
+          if (!targets.length) return;
+          const count = targets.length;
+          let reason = "";
+          if (action === "delete") {
+            reason = await ask({
+              title: `Hapus ${count} ${noun}?`,
+              message: isUser
+                ? `Pengguna terpilih akan dihapus. ${USER_DELETE_EFFECT}`
+                : `Grup terpilih akan dihapus. Pengguna di dalamnya ${GROUP_ACCESS_LOSS}`,
+              confirmLabel: "Hapus",
+              danger: true,
+              icon: "trash",
+              tone: "danger",
+              ...REASON,
+            });
+            if (reason === null) return;
+          } else {
+            const activate = action === "activate";
+            const ok = await ask({
+              title: `${activate ? "Aktifkan" : "Nonaktifkan"} ${count} ${noun}?`,
+              message: isUser
+                ? activate
+                  ? "Pengguna terpilih akan bisa masuk kembali."
+                  : "Pengguna terpilih tidak akan bisa masuk sampai diaktifkan kembali."
+                : activate
+                  ? "Pengguna dalam grup terpilih akan kembali mendapat akses dari grup itu."
+                  : "Pengguna dalam grup terpilih akan kehilangan menu dan aplikasi yang diberikan lewat grup itu.",
+              confirmLabel: activate ? "Aktifkan" : "Nonaktifkan",
+              danger: !activate,
+              icon: activate ? "circleCheck" : "ban",
+              tone: activate ? "success" : "danger",
+            });
+            if (!ok) return;
+          }
+          let done = 0;
+          for (const target of targets) {
+            if (action === "delete") {
+              if (
+                isUser
+                  ? deleteUser(target, reason)
+                  : deleteGroup(target, reason)
+              )
+                done += 1;
+              continue;
+            }
+            const active = action === "activate";
+            if (isUser && target.id === me.id && !active) continue;
+            if (target.active !== active)
+              (isUser ? setUserActive : setGroupActive)(target, active);
+            done += 1;
+          }
+          ui[scope].sel = [];
+          render();
+          const verb =
+            action === "delete"
+              ? "dihapus"
+              : action === "activate"
+                ? "diaktifkan"
+                : "dinonaktifkan";
+          if (done === count) toast(`${count} ${noun} ${verb}`);
+          else
+            toast(
+              `${done} dari ${count} ${noun} ${verb}. Akun yang sedang Anda pakai dilewati.`,
+              "warning",
+            );
+        }
+
+        function managementMenu(kind, id) {
+          const later = (label) => () =>
+            toast(`${label} tersedia di aplikasi asli.`);
+          if (kind === "us") {
+            const u = liveUsers().find((x) => x.id === id);
+            if (!u) return [];
+            return [
+              {
+                label: "Ubah",
+                icon: "pencil",
+                tone: "primary",
+                run: later("Form ubah pengguna"),
+              },
+              {
+                label: "Keamanan",
+                icon: "keyRound",
+                tone: "warn",
+                run: later("Halaman keamanan pengguna"),
+              },
+              {
+                label: "Riwayat",
+                icon: "history",
+                tone: "info",
+                run: later("Riwayat pengguna"),
+              },
+              {
+                label: u.active ? "Nonaktifkan" : "Aktifkan",
+                icon: u.active ? "ban" : "circleCheck",
+                tone: u.active ? "danger" : "success",
+                run: () => toggleUser(u),
+              },
+              {
+                label: "Hapus",
+                icon: "trash",
+                tone: "danger",
+                run: () => removeUser(u),
+              },
+            ];
+          }
+          if (kind === "gr") {
+            const g = liveGroups().find((x) => x.id === id);
+            if (!g) return [];
+            return [
+              {
+                label: "Ubah",
+                icon: "pencil",
+                tone: "primary",
+                run: later("Form ubah grup"),
+              },
+              {
+                label: "Kelola Pengguna",
+                icon: "users",
+                tone: "info",
+                run: later("Pengelolaan anggota grup"),
+              },
+              {
+                label: "Akses Aplikasi",
+                icon: "window",
+                tone: "info",
+                run: later("Pengaturan akses aplikasi grup"),
+              },
+              {
+                label: "Akses Menu",
+                icon: "squareMenu",
+                tone: "info",
+                run: later("Pengaturan akses menu grup"),
+              },
+              {
+                label: "Duplikat Grup",
+                icon: "copy",
+                tone: "success",
+                run: later("Duplikat grup"),
+              },
+              {
+                label: g.active ? "Nonaktifkan" : "Aktifkan",
+                icon: g.active ? "ban" : "circleCheck",
+                tone: g.active ? "danger" : "success",
+                run: () => toggleGroup(g),
+              },
+              {
+                label: "Hapus",
+                icon: "trash",
+                tone: "danger",
+                run: () => removeGroup(g),
+              },
+            ];
+          }
+          return [];
         }
 
         function pageApplications() {
@@ -11338,18 +11886,32 @@ html[data-theme="dark"] .ei-lensHandle {
           icon: ic = "circleCheck",
           tone = "primary",
           danger = false,
+          withReason = false,
+          reasonLabel = "Alasan",
+          reasonPlaceholder = "Masukkan alasan",
         }) {
           return new Promise((resolve) => {
             const host = document.createElement("div");
-            host.innerHTML = `<div class="modal ask show" role="alertdialog" aria-modal="true" aria-labelledby="askTitle" aria-describedby="askMsg"><div class="modal-card ask-card${danger ? " is-danger" : ""} tone-${tone}"><button class="icon-btn ask-close" type="button" aria-label="Tutup" data-ask="0">${icon("x", 18)}</button><div class="ask-ic">${icon(ic, 24)}</div><h3 id="askTitle">${esc(title)}</h3><p id="askMsg">${esc(message)}</p><div class="ask-btns"><button class="btn btn-ghost" type="button" data-ask="0">Batal${icon("circleX", 18)}</button><button class="btn ask-ok tone-${tone}" type="button" data-ask="1">${esc(confirmLabel)}${icon(ic, 18)}</button></div></div></div>`;
+            const reasonField = withReason
+              ? `<label class="cp-reason"><span>${esc(reasonLabel)}</span><textarea maxlength="500" placeholder="${esc(reasonPlaceholder)}" data-ask-reason></textarea><em>Wajib diisi. Alasan tersimpan di riwayat aktivitas.</em></label>`
+              : "";
+            host.innerHTML = `<div class="modal ask show" role="alertdialog" aria-modal="true" aria-labelledby="askTitle" aria-describedby="askMsg"><div class="modal-card ask-card${danger ? " is-danger" : ""} tone-${tone}"><button class="icon-btn ask-close" type="button" aria-label="Tutup" data-ask="0">${icon("x", 18)}</button><div class="ask-ic">${icon(ic, 24)}</div><h3 id="askTitle">${esc(title)}</h3><p id="askMsg">${esc(message)}</p>${reasonField}<div class="ask-btns"><button class="btn btn-ghost" type="button" data-ask="0">Batal${icon("circleX", 18)}</button><button class="btn ask-ok tone-${tone}" type="button" data-ask="1" ${withReason ? "disabled" : ""}>${esc(confirmLabel)}${icon(ic, 18)}</button></div></div></div>`;
             const modal = host.firstElementChild;
+            const reasonInput = modal.querySelector("[data-ask-reason]");
+            const okButton = modal.querySelector('[data-ask="1"]');
             document.body.appendChild(modal);
             document.body.classList.add("has-ask");
-            const finish = (value) => {
+            const finish = (approved) => {
               document.removeEventListener("keydown", onKey, true);
               document.body.classList.remove("has-ask");
               modal.remove();
-              resolve(value);
+              resolve(
+                withReason
+                  ? approved
+                    ? reasonInput.value.trim()
+                    : null
+                  : approved,
+              );
             };
             const onKey = (event) => {
               if (event.key === "Escape") {
@@ -11359,17 +11921,21 @@ html[data-theme="dark"] .ei-lensHandle {
               }
             };
             document.addEventListener("keydown", onKey, true);
+            reasonInput?.addEventListener("input", (event) => {
+              event.stopPropagation();
+              okButton.disabled = reasonInput.value.trim() === "";
+            });
             modal.addEventListener("mousedown", (event) => {
               if (event.target === modal) finish(false);
             });
             modal.addEventListener("click", (event) => {
               const b = event.target.closest("[data-ask]");
-              if (b) {
+              if (b && !b.disabled) {
                 event.stopPropagation();
                 finish(b.dataset.ask === "1");
               }
             });
-            modal.querySelector('[data-ask="1"]').focus();
+            (reasonInput || okButton).focus();
           });
         }
 
@@ -11869,6 +12435,15 @@ html[data-theme="dark"] .ei-lensHandle {
             Object.assign(ui.ma, { seg: d.seg, page: 1 });
             return render();
           }
+          if (d.msort) {
+            const [scope, key] = d.msort.split(":");
+            toggleSort(ui[scope], key);
+            return render();
+          }
+          if (d.bulk) {
+            const [scope, action] = d.bulk.split(":");
+            return void runBulk(scope, action);
+          }
           if (d.sort) {
             const current = ui.rc.sort;
             ui.rc.sort =
@@ -11917,6 +12492,25 @@ html[data-theme="dark"] .ei-lensHandle {
           rerenderFocus(`[data-input="${k}"]`);
         });
         document.addEventListener("change", (e) => {
+          if (e.target.matches("[data-pick]")) {
+            const [scope, raw] = e.target.dataset.pick.split(":");
+            const id = Number(raw);
+            ui[scope].sel = e.target.checked
+              ? [...ui[scope].sel, id]
+              : ui[scope].sel.filter((x) => x !== id);
+            return render();
+          }
+          if (e.target.matches("[data-pickall]")) {
+            const scope = e.target.dataset.pickall;
+            const ids = pageSlice(
+              scope === "us" ? userList() : groupList(),
+              ui[scope],
+            ).map((x) => x.id);
+            ui[scope].sel = e.target.checked
+              ? [...new Set([...ui[scope].sel, ...ids])]
+              : ui[scope].sel.filter((x) => !ids.includes(x));
+            return render();
+          }
           if (e.target.matches("[data-rc-pick]")) {
             const id = Number(e.target.dataset.rcPick);
             ui.rc.sel = e.target.checked

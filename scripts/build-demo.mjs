@@ -13,6 +13,7 @@ const modules = [
   ["st", "components/portal/scroll-top.module.css"],
   ["nl", "components/layout/notification-list.module.css"],
   ["ei", "components/portal/empty-illustration.module.css"],
+  ["cp", "components/portal/confirm-provider.module.css"],
 ];
 
 function scopeModule(css, prefix) {
