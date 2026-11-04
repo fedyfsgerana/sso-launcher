@@ -21,7 +21,12 @@
     <script>
       (() => {
         try {
-          if (localStorage.getItem("sso-demo-theme") === "dark")
+          const theme = localStorage.getItem("sso-demo-theme");
+          if (
+            theme === "dark" ||
+            (theme !== "light" &&
+              window.matchMedia("(prefers-color-scheme: dark)").matches)
+          )
             document.documentElement.dataset.theme = "dark";
         } catch {}
       })();
@@ -248,6 +253,7 @@
         const STORE = "sso-demo-v6";
         const SESSION = "sso-demo-session";
         const PASSWORD = "demo1234";
+        const ERROR_ARTS = "{{ERROR_ARTS}}";
         const LOGO = "{{LOGO}}";
         const SCENE = "{{SCENE}}";
         const VERSION = "1.0.0";
@@ -354,6 +360,22 @@
             '<path d="M22 12h-2.48a2 2 0 0 0-1.93 1.46l-2.35 8.36a.25.25 0 0 1-.48 0L9.24 2.18a.25.25 0 0 0-.48 0l-2.35 8.36A2 2 0 0 1 4.49 12H2"/>',
           download:
             '<path d="M12 15V3"/><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/>',
+          eyeOff:
+            '<path d="M10.733 5.076a10.744 10.744 0 0 1 11.205 6.575 1 1 0 0 1 0 .696 10.747 10.747 0 0 1-1.444 2.49"/><path d="M14.084 14.158a3 3 0 0 1-4.242-4.242"/><path d="M17.479 17.499a10.75 10.75 0 0 1-15.417-5.151 1 1 0 0 1 0-.696 10.75 10.75 0 0 1 4.446-5.143"/><path d="m2 2 20 20"/>',
+          circle: '<circle cx="12" cy="12" r="10"/>',
+          briefcase:
+            '<path d="M16 20V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/><rect width="20" height="14" x="2" y="6" rx="2"/>',
+          sun: '<circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/>',
+          moon: '<path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>',
+          monitor:
+            '<rect width="20" height="14" x="2" y="3" rx="2"/><line x1="8" x2="16" y1="21" y2="21"/><line x1="12" x2="12" y1="17" y2="21"/>',
+          monitorCheck:
+            '<path d="m9 10 2 2 4-4"/><rect width="20" height="14" x="2" y="3" rx="2"/><path d="M12 17v4"/><path d="M8 21h8"/>',
+          palette:
+            '<circle cx="13.5" cy="6.5" r=".5" fill="currentColor"/><circle cx="17.5" cy="10.5" r=".5" fill="currentColor"/><circle cx="8.5" cy="7.5" r=".5" fill="currentColor"/><circle cx="6.5" cy="12.5" r=".5" fill="currentColor"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"/>',
+          smartphone:
+            '<rect width="14" height="20" x="5" y="2" rx="2" ry="2"/><path d="M12 18h.01"/>',
+          arrowLeft: '<path d="m12 19-7-7 7-7"/><path d="M19 12H5"/>',
           arrowDown: '<path d="M12 5v14"/><path d="m19 12-7 7-7-7"/>',
           squareOut:
             '<path d="M21 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h6"/><path d="m21 3-9 9"/><path d="M15 3h6v6"/>',
@@ -970,6 +992,7 @@
             sel: [],
           },
           mn: { q: "", status: "" },
+          pf: { current: "", next: "", repeat: "", errors: {}, show: {} },
           au: {
             tab: "activity",
             q: "",
@@ -3162,6 +3185,309 @@
       </tbody></table></div>${dataPager("au.trash", items.length, state.trash.page, state.trash.size, [10, 20, 50, 100], "data")}</div>`;
         }
 
+        const THEME_KEY = "sso-demo-theme";
+        const themeChoice = () => {
+          try {
+            const v = localStorage.getItem(THEME_KEY);
+            return v === "light" || v === "dark" ? v : "system";
+          } catch {
+            return "system";
+          }
+        };
+        function applyTheme() {
+          const choice = themeChoice();
+          const dark =
+            choice === "dark" ||
+            (choice === "system" &&
+              window.matchMedia("(prefers-color-scheme: dark)").matches);
+          if (dark) document.documentElement.dataset.theme = "dark";
+          else delete document.documentElement.dataset.theme;
+        }
+        function setTheme(value) {
+          try {
+            localStorage.setItem(THEME_KEY, value);
+          } catch {}
+          applyTheme();
+        }
+        window
+          .matchMedia("(prefers-color-scheme: dark)")
+          .addEventListener("change", () => {
+            if (themeChoice() === "system") applyTheme();
+          });
+
+        const passwordChecks = (value) => [
+          ["Minimal 12 karakter", value.length >= 12],
+          ["Huruf besar", /\p{Lu}/u.test(value)],
+          ["Huruf kecil", /\p{Ll}/u.test(value)],
+          ["Angka", /\p{Nd}/u.test(value)],
+          ["Simbol, misalnya ! @ # $", /[^\p{L}\p{Nd}\s]/u.test(value)],
+        ];
+        function passwordError(value) {
+          if (!value.trim()) return "Wajib diisi";
+          if (value.length < 12) return "Minimal 12 karakter";
+          return passwordChecks(value).every((c) => c[1])
+            ? ""
+            : "Harus memuat huruf besar, huruf kecil, angka, dan simbol";
+        }
+        function profileErrors() {
+          const f = ui.pf;
+          return {
+            current: f.current.trim() ? "" : "Wajib diisi",
+            next: passwordError(f.next),
+            repeat:
+              f.repeat === f.next
+                ? f.repeat.trim()
+                  ? ""
+                  : "Wajib diisi"
+                : "Konfirmasi password belum sama",
+          };
+        }
+        function passwordField(key, label, placeholder, hint, extra = "") {
+          const f = ui.pf;
+          const error = f.errors[key];
+          const visible = f.show[key];
+          return `<label class="${error ? "fld has-error" : "fld"}"><span>${label}</span><div class="pi-field"><input type="${visible ? "text" : "password"}" value="${esc(f[key])}" autocomplete="${key === "current" ? "current-password" : "new-password"}" placeholder="${placeholder}" ${error ? 'aria-invalid="true"' : ""} data-input="pf.${key}" data-pf-blur="${key}"><button class="pi-eye" type="button" aria-label="${visible ? "Sembunyikan password" : "Tampilkan password"}" title="${visible ? "Sembunyikan password" : "Tampilkan password"}" data-pf-eye="${key}">${icon(visible ? "eyeOff" : "eye", 16)}</button></div>${extra}${error ? `<em class="fld-msg">${esc(error)}</em>` : hint ? `<em class="fld-hint">${hint}</em>` : ""}</label>`;
+        }
+
+        function pageProfile() {
+          const f = ui.pf;
+          const count = Object.values(f.errors).filter(Boolean).length;
+          const tiles = [
+            ["Email", me.email, "mail", "app-hr"],
+            [
+              "Departemen",
+              me.department || me.code
+                ? departmentLabel(me.department, me.code)
+                : "",
+              "building",
+              "app-wh",
+            ],
+            ["Jabatan", me.job, "briefcase", "app-br"],
+          ];
+          const checklist = `<span class="pc-list" aria-live="polite">${passwordChecks(
+            f.next,
+          )
+            .map(
+              ([label, ok]) =>
+                `<span class="${ok ? "pc-item pc-ok" : "pc-item"}">${icon(ok ? "circleCheck" : "circle", 14)}${label}</span>`,
+            )
+            .join("")}</span>`;
+          return `<div class="page">${hero("Profil Saya", "Lihat data akun Anda dan ubah password secara berkala.")}<div class="pf-grid"><div class="pf-column"><section class="card pf-card"><header class="pf-head"><i class="ch-ic">${icon("circleUser", 18)}</i><div><h3>Data Akun</h3><small>Identitas Anda di SSO Launcher</small></div></header><div class="pf-body">
+      <div class="pf-profileHead"><span class="av pf-avatar ${avatarClass(me.name)}">${initials(me.name)}</span><div><b>${esc(me.name)}</b><small>${esc(roleTag(me) || me.email)}</small><div class="pf-badges">${statusBadge("on", "circleCheck", "Akun aktif")}</div></div></div>
+      <div class="pf-tiles">${tiles.map((t) => `<div class="pf-tile"><span class="rc-ic sm ${t[3]}">${icon(t[2], 17)}</span><div><small>${t[0]}</small><b class="${t[1] ? "" : "pf-empty"}">${esc(t[1] || "Belum diisi")}</b></div></div>`).join("")}</div>
+      <p class="note-box pf-note"><span>Data ini dikelola oleh Administrator Sistem. Hubungi admin kalau ada yang perlu diubah.</span></p></div></section></div>
+      <section class="card pf-card"><header class="pf-head"><i class="ch-ic ic-warn">${icon("keyRound", 18)}</i><div><h3>Ubah Password</h3><small>Ganti password secara berkala untuk menjaga keamanan akun</small></div></header>
+      <form id="password-form" novalidate><div class="pf-body pf-form">${count >= 2 ? `<p class="note-box danger form-summary" role="alert"><span><b>${count} isian belum benar</b>Periksa kolom yang ditandai merah, lalu simpan lagi.</span></p>` : ""}
+      ${passwordField("current", "Password Lama", "Masukkan password saat ini", "Password yang Anda pakai untuk masuk saat ini.")}
+      ${passwordField("next", "Password Baru", "Masukkan password baru", "", checklist)}
+      ${passwordField("repeat", "Ulangi Password Baru", "Masukkan ulang password baru", "Ketik ulang persis sama dengan password baru.")}
+      <p class="note-box warn"><span><b>Perangkat lain akan dikeluarkan</b>Setelah password diubah, Anda tetap masuk di perangkat ini, tapi perangkat lain harus login ulang.</span></p>
+      <div class="pf-actions"><button class="btn tone-warn" type="submit">Ubah Password${icon("keyRound", 18)}</button></div></div></form></section></div></div>`;
+        }
+
+        async function submitPassword() {
+          ui.pf.errors = profileErrors();
+          if (Object.values(ui.pf.errors).some(Boolean)) return render();
+          const ok = await ask({
+            title: "Ubah password?",
+            message:
+              "Password baru langsung berlaku. Anda tetap masuk di perangkat ini, sedangkan sesi di perangkat lain akan dikeluarkan. Perubahan ini tercatat di riwayat aktivitas.",
+            confirmLabel: "Ya, Ubah",
+            icon: "keyRound",
+            tone: "warn",
+          });
+          if (!ok) return;
+          if ((me.password || PASSWORD) !== ui.pf.current)
+            return toast("Password lama salah atau belum memenuhi syarat.");
+          me.password = ui.pf.next;
+          me.sessions = (me.sessions || defaultSessions()).filter(
+            (s) => s.current,
+          );
+          audit(
+            "update",
+            "password",
+            me.name,
+            "Password diubah sendiri dari halaman Profil Saya",
+          );
+          Object.assign(ui.pf, freshPageState().pf);
+          render();
+          toast(
+            "Password berhasil diubah. Sesi di perangkat lain sudah dikeluarkan.",
+          );
+        }
+
+        const defaultSessions = () => [
+          {
+            id: 1,
+            current: true,
+            mobile: false,
+            device: "Chrome 131 di Windows 11",
+            where: `${DEVICE.ip} · Aktif sekarang`,
+          },
+          {
+            id: 2,
+            current: false,
+            mobile: true,
+            device: "Chrome Mobile 131 di Android 14",
+            where: "10.20.4.88 · Terakhir aktif 3 jam lalu",
+          },
+          {
+            id: 3,
+            current: false,
+            mobile: false,
+            device: "Edge 130 di Windows 10",
+            where: "10.20.2.41 · Terakhir aktif kemarin",
+          },
+        ];
+        const settingsCard = (
+          tone,
+          title,
+          ic,
+          subtitle,
+          body,
+          action = "",
+          cls = "",
+        ) =>
+          `<section class="card stg-card ${cls}"><header class="stg-head"><div class="stg-headTitle"><i class="ch-ic ${tone}">${icon(ic, 18)}</i><div><h3>${title}</h3><small>${subtitle}</small></div></div>${action}</header><div class="stg-body">${body}</div></section>`;
+        const themeMock = (mode) =>
+          `<span class="${mode === "dark" ? "stg-mock stg-mockDark" : "stg-mock"}"><span class="stg-mockSide"><i></i><i></i><i></i></span><span class="stg-mockMain"><i class="stg-mockBar"></i><span class="stg-mockCards"><i></i><i></i></span><i class="stg-mockRow"></i></span></span>`;
+
+        function pageSettings() {
+          if (!me.sessions) me.sessions = defaultSessions();
+          if (!me.prefs)
+            me.prefs = { accessChanges: true, applicationStatus: true };
+          const theme = themeChoice();
+          const themes = [
+            ["light", "Terang", "sun"],
+            ["dark", "Gelap", "moon"],
+            ["system", "Ikuti Sistem", "monitor"],
+          ];
+          const themeCard = settingsCard(
+            "app-pj",
+            "Tampilan",
+            "palette",
+            "Tema warna portal di perangkat ini",
+            `<div class="stg-themes" role="radiogroup" aria-label="Tema">${themes.map((t) => `<button class="stg-theme" type="button" role="radio" aria-checked="${theme === t[0]}" data-theme-choice="${t[0]}"><span class="stg-preview" aria-hidden="true">${t[0] === "system" ? themeMock("light") + themeMock("dark") : themeMock(t[0])}</span><span class="stg-themeLabel">${icon(t[2], 16)}${t[1]}</span></button>`).join("")}</div>`,
+          );
+          const options = [
+            [
+              "accessChanges",
+              "Perubahan akses aplikasi",
+              "Saat Anda mendapat atau kehilangan akses ke sebuah aplikasi.",
+            ],
+            [
+              "applicationStatus",
+              "Status aplikasi",
+              "Saat aplikasi Anda masuk atau selesai maintenance.",
+            ],
+          ];
+          const notificationCard = settingsCard(
+            "app-fn",
+            "Notifikasi",
+            "bell",
+            "Pilih pemberitahuan yang ingin Anda terima",
+            `<div class="stg-options">${options.map((o) => `<div class="stg-option"><div><b>${o[1]}</b><small>${o[2]}</small></div><button class="stg-switch" type="button" role="switch" aria-checked="${me.prefs[o[0]]}" aria-label="${o[1]}" data-pref="${o[0]}"></button></div>`).join("")}<div class="stg-option"><div><b>Keamanan akun</b><small>Login dari perangkat baru, password direset, dan akun dikunci. Selalu dikirim untuk melindungi akun Anda.</small></div>${statusBadge("on", "shieldCheck", "Selalu aktif")}</div></div>`,
+          );
+          const others = me.sessions.filter((s) => !s.current).length;
+          const sessionCard = settingsCard(
+            "app-as",
+            "Sesi & Perangkat",
+            "laptop",
+            "Perangkat yang sedang masuk ke akun Anda",
+            `<ul class="stg-sessions">${me.sessions.map((s) => `<li class="stg-session"><span class="rc-ic sm app-as">${icon(s.mobile ? "smartphone" : "laptop", 18)}</span><span class="stg-sessionText"><b>${esc(s.device)}${s.current ? statusBadge("on", "monitorCheck", "Perangkat ini") : ""}</b><small>${esc(s.where)}</small></span>${s.current ? "" : `<button class="sm-btn danger" type="button" data-session="${s.id}">${icon("logOut", 14)}Keluarkan</button>`}</li>`).join("")}</ul><p class="note-box stg-note"><span>Untuk mengganti password, buka <a href="#/profile">Profil Saya</a>.</span></p>`,
+            others
+              ? `<button class="ac-btn danger" type="button" data-act="sessions-others">${icon("logOut", 15)}Keluar dari perangkat lain</button>`
+              : "",
+          );
+          const facts = [
+            [
+              "clock",
+              "app-as",
+              "Sesi tidak aktif",
+              "Otomatis keluar bila tidak ada aktivitas.",
+              "15 menit",
+            ],
+            [
+              "shieldCheck",
+              "app-nv",
+              "Batas sesi",
+              "Harus login ulang setelah batas waktu ini.",
+              "8 jam",
+            ],
+            [
+              "lock",
+              "app-nv",
+              "Kunci login",
+              "Dikunci setelah 5 kali password salah.",
+              "15 menit",
+            ],
+            [
+              "keyRound",
+              "app-pr",
+              "Syarat password",
+              "Memuat huruf besar, huruf kecil, angka, dan simbol.",
+              "min. 12 karakter",
+            ],
+          ];
+          const securityCard = settingsCard(
+            "app-nv",
+            "Informasi Keamanan",
+            "shieldCheck",
+            "Aturan yang berlaku untuk semua akun SSO Launcher",
+            `<div class="stg-facts">${facts.map((f) => `<div class="stg-fact"><span class="rc-ic sm ${f[1]}">${icon(f[0], 17)}</span><div class="stg-factText"><b>${f[2]}</b><small>${f[3]}</small></div><span class="tag">${f[4]}</span></div>`).join("")}</div>`,
+            "",
+            "stg-full",
+          );
+          return `<div class="page">${hero("Pengaturan", "Atur tampilan, notifikasi, dan perangkat yang terhubung ke akun Anda.")}<div class="stg-grid"><div class="stg-column">${themeCard}${notificationCard}</div><div class="stg-column">${sessionCard}</div></div>${securityCard}</div>`;
+        }
+
+        async function signOutSession(id) {
+          const session = me.sessions.find((s) => s.id === id);
+          const ok = await ask({
+            title: "Keluarkan perangkat ini?",
+            message: `${session.device} harus login ulang untuk masuk lagi.`,
+            confirmLabel: "Ya, Keluarkan",
+            danger: true,
+            icon: "logOut",
+            tone: "danger",
+          });
+          if (!ok) return;
+          me.sessions = me.sessions.filter((s) => s.id !== id);
+          audit(
+            "logout",
+            "session",
+            me.email,
+            "Sesi di perangkat lain dikeluarkan dari halaman Pengaturan",
+          );
+          render();
+          toast("Perangkat dikeluarkan");
+        }
+        async function signOutOthers() {
+          const count = me.sessions.filter((s) => !s.current).length;
+          const ok = await ask({
+            title: "Keluar dari perangkat lain?",
+            message: `${count} perangkat lain harus login ulang. Perangkat ini tetap masuk.`,
+            confirmLabel: "Ya, Keluarkan",
+            danger: true,
+            icon: "logOut",
+            tone: "danger",
+          });
+          if (!ok) return;
+          me.sessions = me.sessions.filter((s) => s.current);
+          audit(
+            "logout",
+            "session",
+            me.email,
+            `Keluar dari ${count} perangkat lain dari halaman Pengaturan`,
+          );
+          render();
+          toast(`${count} perangkat lain dikeluarkan`);
+        }
+
+        function errorView(kind, code, label, title, description) {
+          return `<div class="page"><div class="ev-inline"><section class="hero ev-panel" aria-labelledby="error-title"><div class="hero-copy ev-copy"><div class="eyebrow"><i class="rule"></i>${esc(label)}</div><span class="ev-code" aria-hidden="true">${code}</span><h1 id="error-title">${esc(title)}</h1><p>${esc(description)}</p><div class="hero-actions"><a class="btn" href="#/overview">${icon("home", 17)}Kembali ke Beranda</a><button class="btn btn-ghost" type="button" data-act="history-back">${icon("arrowLeft", 17)}Halaman Sebelumnya</button></div></div><div class="ev-art" aria-hidden="true">${ERROR_ARTS[kind] || ""}</div></section></div></div>`;
+        }
+
         function pageAudit() {
           const state = ui.au;
           const now = Date.now();
@@ -3419,7 +3745,7 @@
           const style = `top:${r.bottom + 8}px;left:${Math.max(12, Math.min(r.right - width, window.innerWidth - width - 12))}px`;
           if (ui.pop === "account") {
             return `<div class="menu-pop" role="menu" style="${style}"><header class="acct-head"><span class="av ${avatarClass(me.name)}">${initials(me.name)}</span><div><b class="js-name">${esc(me.name)}</b><small class="js-email">${esc(roleTag(me))}</small></div></header>
-        <a class="mi" href="#/profile" data-toast="Halaman Profil Saya tersedia di aplikasi asli.">${icon("circleUser", 18)}Profil Saya</a><a class="mi" href="#/settings" data-toast="Halaman Pengaturan tersedia di aplikasi asli.">${icon("settings", 18)}Pengaturan</a><button class="mi danger" type="button" data-act="logout">${icon("logOut", 18)}Keluar</button></div>`;
+        <a class="mi" href="#/profile">${icon("circleUser", 18)}Profil Saya</a><a class="mi" href="#/settings">${icon("settings", 18)}Pengaturan</a><button class="mi danger" type="button" data-act="logout">${icon("logOut", 18)}Keluar</button></div>`;
           }
           const items = myNotices();
           const unread = items.filter((n) => !n.read).length;
@@ -3875,14 +4201,26 @@
             "audit",
           ];
           let page = r.page;
-          if (adminPages.includes(page) && !me.admin) page = "overview";
-          if (!leafMenus().some((m) => m.key === page)) page = "overview";
+          const accountPages = ["profile", "settings"];
+          let denied = null;
+          const menu = db.menus.find((m) => m.key === page && !m.deleted);
+          if (!accountPages.includes(page)) {
+            if (!menu && page !== "overview") page = "overview";
+            else if (
+              (adminPages.includes(page) && !me.admin) ||
+              (menu && !leafMenus().some((m) => m.key === page))
+            )
+              denied = "forbidden";
+            else if (menu?.maintenance) denied = "maintenance";
+          }
           const views = {
             overview: pageOverview,
             "my-apps": pageMyApps,
             favorites: () =>
               pageFavorites() + (ui.fv.modal ? favoriteModal() : ""),
             recent: pageRecent,
+            profile: pageProfile,
+            settings: pageSettings,
             users: pageUsers,
             groups: pageGroups,
             applications: pageApplications,
@@ -3899,7 +4237,27 @@
           [...main.children].forEach((child) => {
             if (!child.classList.contains("tb")) child.remove();
           });
-          main.insertAdjacentHTML("beforeend", views[page]());
+          main.insertAdjacentHTML(
+            "beforeend",
+            denied === "forbidden"
+              ? errorView(
+                  "forbidden",
+                  "403",
+                  "Error 403",
+                  "Akses ditolak",
+                  "Anda tidak memiliki akses ke halaman ini. Kalau Anda membutuhkannya untuk pekerjaan, hubungi Administrator Sistem agar menu ini ditambahkan ke grup Anda.",
+                )
+              : denied === "maintenance"
+                ? errorView(
+                    "maintenance",
+                    "503",
+                    "Sedang Dalam Perbaikan",
+                    "Halaman sedang dalam perbaikan",
+                    menu.maintenanceMessage ||
+                      "Halaman ini sementara tidak bisa dibuka. Silakan coba lagi nanti.",
+                  )
+                : views[page](),
+          );
           syncShell(page);
           document.querySelectorAll("[data-indeterminate]").forEach((el) => {
             el.indeterminate = true;
@@ -3908,7 +4266,11 @@
           if (animate) countUp();
           layer.innerHTML = popover();
           const label =
-            leafMenus().find((m) => m.key === page)?.label || "Beranda";
+            denied === "forbidden"
+              ? "Akses ditolak"
+              : { profile: "Profil Saya", settings: "Pengaturan" }[page] ||
+                leafMenus().find((m) => m.key === page)?.label ||
+                "Beranda";
           document.title = `${label} — SSO Launcher (demo)`;
         }
 
@@ -3924,6 +4286,10 @@
         }
 
         document.addEventListener("submit", (e) => {
+          if (e.target.id === "password-form") {
+            e.preventDefault();
+            return void submitPassword();
+          }
           if (e.target.id !== "login-form") return;
           e.preventDefault();
           const email = document
@@ -3937,7 +4303,7 @@
             ui.loginError = "Isi email dan password.";
             return render();
           }
-          if (!user || password !== PASSWORD) {
+          if (!user || password !== (user.password || PASSWORD)) {
             audit(
               "login_failed",
               "session",
@@ -4018,14 +4384,12 @@
             return toast(d.toast);
           }
           if (d.act === "theme") {
-            const dark = document.documentElement.dataset.theme !== "dark";
-            if (dark) document.documentElement.dataset.theme = "dark";
-            else delete document.documentElement.dataset.theme;
-            try {
-              localStorage.setItem("sso-demo-theme", dark ? "dark" : "light");
-            } catch {}
-            ui.pop = null;
-            layer.innerHTML = "";
+            setTheme(
+              document.documentElement.dataset.theme === "dark"
+                ? "light"
+                : "dark",
+            );
+            if (currentPage === "settings" && me) render();
             return;
           }
           if (d.act === "reset") {
@@ -4199,6 +4563,23 @@
             return render();
           }
           if (d.appbulk) return void bulkApps(d.appbulk);
+          if (d.act === "history-back") return history.back();
+          if (d.themeChoice) {
+            setTheme(d.themeChoice);
+            return render();
+          }
+          if (d.pref) {
+            me.prefs[d.pref] = !me.prefs[d.pref];
+            save();
+            render();
+            return toast("Preferensi notifikasi disimpan");
+          }
+          if (d.session) return void signOutSession(Number(d.session));
+          if (d.act === "sessions-others") return void signOutOthers();
+          if (d.pfEye) {
+            ui.pf.show[d.pfEye] = !ui.pf.show[d.pfEye];
+            return render();
+          }
           if (d.autab) {
             Object.assign(ui.au, { tab: d.autab });
             return render();
@@ -4255,7 +4636,9 @@
           if (k.includes(".")) {
             const [key, field] = k.split(".");
             ui[key][field] = e.target.value;
-            if (key === "ov") ui.ov.appPage = 0;
+            if (key === "pf") {
+              ui.pf.errors[field] = "";
+            } else if (key === "ov") ui.ov.appPage = 0;
             else if (key === "au" && field === "trashQ") ui.au.trash.page = 1;
             else ui[key].page = 1;
           } else ui[k] = e.target.value;
@@ -4390,6 +4773,17 @@
           if (e.target.id === "globalSearch") paintSearch();
         });
         document.addEventListener("focusout", (e) => {
+          const blurKey = e.target.dataset?.pfBlur;
+          if (blurKey && !e.relatedTarget?.closest?.("[data-pf-eye]")) {
+            const err = profileErrors()[blurKey];
+            if (
+              ui.pf.errors[blurKey] !== err &&
+              (ui.pf[blurKey] || err !== "Wajib diisi")
+            ) {
+              ui.pf.errors[blurKey] = err;
+              setTimeout(() => render(), 0);
+            }
+          }
           if (e.target.id === "globalSearch") setTimeout(paintSearch, 0);
         });
         document.addEventListener("mousedown", (e) => {

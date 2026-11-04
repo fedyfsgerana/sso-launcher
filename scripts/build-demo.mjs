@@ -17,6 +17,11 @@ const modules = [
   ["mb", "components/management/menu-board/menu-board.module.css"],
   ["at", "components/management/audit-table/audit-toolbar.module.css"],
   ["ad", "components/management/audit-detail-modal.module.css"],
+  ["pf", "app/(portal)/profile/profile.module.css"],
+  ["stg", "components/portal/settings/settings.module.css"],
+  ["pi", "components/ui/password-input.module.css"],
+  ["pc", "components/ui/password-checklist.module.css"],
+  ["ev", "components/portal/error-view.module.css"],
 ];
 
 function scopeModule(css, prefix) {
@@ -65,6 +70,22 @@ if (!scene) {
   throw new Error("Ilustrasi login tidak ditemukan di login-art.tsx");
 }
 
+const errorArtSource = await readFile(
+  `${web}components/portal/error-art.tsx`,
+  "utf8",
+);
+const errorArts = Object.fromEntries(
+  [
+    ...errorArtSource.matchAll(
+      /^\s+"?([a-z-]+)"?:\s*\n\s*'(<svg[\s\S]*?<\/svg>)'/gm,
+    ),
+  ].map((match) => [match[1], match[2]]),
+);
+
+if (!errorArts.forbidden || !errorArts.maintenance) {
+  throw new Error("Ilustrasi error tidak ditemukan di error-art.tsx");
+}
+
 const template = await readFile(`${root}demo/template.html`, "utf8");
 
 if (!template.includes("/* APP_CSS */")) {
@@ -76,7 +97,8 @@ if (!template.includes("/* APP_CSS */")) {
 const html = template
   .replace("/* APP_CSS */", () => `${globalCss}\n${moduleCss}`)
   .replaceAll("{{LOGO}}", () => `data:image/webp;base64,${logo}`)
-  .replace('"{{SCENE}}"', () => JSON.stringify(scene));
+  .replace('"{{SCENE}}"', () => JSON.stringify(scene))
+  .replace('"{{ERROR_ARTS}}"', () => JSON.stringify(errorArts));
 
 await writeFile(`${root}demo/index.html`, html);
 console.log(

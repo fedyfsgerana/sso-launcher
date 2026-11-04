@@ -21,7 +21,12 @@
     <script>
       (() => {
         try {
-          if (localStorage.getItem("sso-demo-theme") === "dark")
+          const theme = localStorage.getItem("sso-demo-theme");
+          if (
+            theme === "dark" ||
+            (theme !== "light" &&
+              window.matchMedia("(prefers-color-scheme: dark)").matches)
+          )
             document.documentElement.dataset.theme = "dark";
         } catch {}
       })();
@@ -9683,6 +9688,720 @@ html[data-theme="dark"] .at-dateRange input {
   font-size: var(--fs-sm)
 }
 
+.pf-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 16px;
+  margin-top: 16px;
+  align-items: start
+}
+
+.pf-column {
+  display: grid;
+  gap: 16px;
+  align-content: start;
+  min-width: 0
+}
+
+.pf-card {
+  overflow: hidden
+}
+
+.pf-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 58px;
+  padding: 12px 18px;
+  border-bottom: 1px solid var(--line)
+}
+
+.pf-head h3 {
+  margin: 0;
+  color: var(--ink);
+  font-size: 15.5px;
+  font-weight: 600
+}
+
+.pf-head small {
+  display: block;
+  margin-top: 2px;
+  color: var(--muted);
+  font-size: 12.5px
+}
+
+.pf-body {
+  padding: 18px
+}
+
+.pf-profileHead {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 18px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid var(--line)
+}
+
+.pf-profileHead b {
+  display: block;
+  color: var(--ink);
+  font-size: 17px;
+  font-weight: 600
+}
+
+.pf-profileHead small {
+  display: block;
+  margin-top: 3px;
+  color: var(--muted);
+  font-size: 13px
+}
+
+.pf-tile .pf-empty {
+  color: var(--muted);
+  font-style: italic;
+  font-weight: 400
+}
+
+.pf-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px
+}
+
+.pf-tiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 10px
+}
+
+.pf-tile {
+  display: grid;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-ctl);
+  background: var(--card)
+}
+
+.pf-tile small {
+  display: block;
+  color: var(--muted);
+  font-size: 12px
+}
+
+.pf-tile b {
+  display: block;
+  margin-top: 2px;
+  color: var(--ink);
+  font-size: 14px;
+  font-weight: 600;
+  overflow-wrap: anywhere
+}
+
+.pf-note {
+  margin-top: 16px
+}
+
+.pf-actions {
+  display: flex;
+  justify-content: flex-end
+}
+
+.pf-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px
+}
+
+.pf-form input::placeholder {
+  color: var(--muted)
+}
+
+.pf-avatar {
+  width: 60px;
+  height: 60px;
+  font-size: 18px
+}
+
+@media (max-width: 1000px) {
+  .pf-grid {
+    grid-template-columns: minmax(0, 1fr)
+  }
+}
+
+.stg-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 16px;
+  margin-top: 16px;
+  align-items: start
+}
+
+.stg-column {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0
+}
+
+.stg-card {
+  overflow: hidden
+}
+
+.stg-full {
+  margin-top: 16px
+}
+
+.stg-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 58px;
+  padding: 12px 18px;
+  border-bottom: 1px solid var(--line)
+}
+
+.stg-headTitle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0
+}
+
+.stg-head h3 {
+  margin: 0;
+  color: var(--ink);
+  font-size: 15.5px;
+  font-weight: 600
+}
+
+.stg-head small {
+  display: block;
+  margin-top: 2px;
+  color: var(--muted);
+  font-size: 12.5px
+}
+
+.stg-body {
+  padding: 16px 18px 18px
+}
+
+.stg-themes {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px
+}
+
+.stg-theme {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 8px 8px 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-ctl);
+  background: var(--card);
+  color: var(--body);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color .15s, box-shadow .15s
+}
+
+.stg-theme:hover {
+  border-color: var(--g300)
+}
+
+.stg-theme[aria-checked="true"] {
+  border-color: var(--g600);
+  box-shadow: 0 0 0 3px var(--g100);
+  color: var(--ink)
+}
+
+.stg-preview {
+  display: flex;
+  overflow: hidden;
+  height: 88px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm)
+}
+
+.stg-mock {
+  display: flex;
+  flex: 1;
+  gap: 5px;
+  padding: 6px;
+  background: #f6f8f5
+}
+
+.stg-mockDark {
+  background: #111214
+}
+
+.stg-mockSide {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 26%;
+  padding: 5px 4px;
+  border-radius: 5px;
+  background: #fff
+}
+
+.stg-mockSide i {
+  height: 4px;
+  border-radius: 2px;
+  background: #dfe6e1
+}
+
+.stg-mockSide i:first-child {
+  background: #1f6b45
+}
+
+.stg-mockMain {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 5px;
+  min-width: 0
+}
+
+.stg-mockBar {
+  height: 9px;
+  border-radius: 3px;
+  background: #fff
+}
+
+.stg-mockCards {
+  display: flex;
+  flex: 1;
+  gap: 5px
+}
+
+.stg-mockCards i {
+  flex: 1;
+  border-radius: 5px;
+  background: #fff
+}
+
+.stg-mockRow {
+  height: 8px;
+  width: 70%;
+  border-radius: 3px;
+  background: #dfe6e1
+}
+
+.stg-mockDark .stg-mockSide,
+.stg-mockDark .stg-mockBar,
+.stg-mockDark .stg-mockCards i {
+  background: #1a1b1e
+}
+
+.stg-mockDark .stg-mockSide i,
+.stg-mockDark .stg-mockRow {
+  background: #2c2e32
+}
+
+.stg-mockDark .stg-mockSide i:first-child {
+  background: #7bb795
+}
+
+.stg-themeLabel {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 4px;
+  color: var(--ink);
+  font-size: var(--fs-sm);
+  font-weight: 600
+}
+
+.stg-themeLabel svg {
+  color: var(--muted)
+}
+
+.stg-theme[aria-checked="true"] .stg-options {
+  display: flex;
+  flex-direction: column
+}
+
+.stg-option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 0
+}
+
+.stg-option+.stg-option {
+  border-top: 1px solid var(--line)
+}
+
+.stg-option b {
+  display: block;
+  color: var(--ink);
+  font-size: 13.5px;
+  font-weight: 600
+}
+
+.stg-option small {
+  display: block;
+  margin-top: 2px;
+  color: var(--muted);
+  font-size: 12.5px;
+  line-height: 1.45
+}
+
+.stg-switch {
+  position: relative;
+  flex: none;
+  width: 42px;
+  height: 24px;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: var(--line);
+  cursor: pointer;
+  transition: background .15s
+}
+
+.stg-switch::after {
+  content: "";
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, .2);
+  transition: transform .15s
+}
+
+.stg-switch[aria-checked="true"] {
+  background: var(--g700)
+}
+
+.stg-switch[aria-checked="true"]::after {
+  transform: translateX(18px)
+}
+
+.stg-switch:disabled {
+  cursor: not-allowed;
+  opacity: .6
+}
+
+.stg-switch:focus-visible {
+  outline: 2px solid var(--g600);
+  outline-offset: 2px
+}
+
+.stg-sessions {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none
+}
+
+.stg-session {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 0
+}
+
+.stg-session+.stg-session {
+  border-top: 1px solid var(--line)
+}
+
+.stg-sessionText {
+  flex: 1;
+  min-width: 0
+}
+
+.stg-sessionText b {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--ink);
+  font-size: 13.5px;
+  font-weight: 600
+}
+
+.stg-sessionText small {
+  display: block;
+  margin-top: 2px;
+  color: var(--muted);
+  font-size: 12.5px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap
+}
+
+.stg-facts {
+  display: flex;
+  flex-direction: column
+}
+
+.stg-fact {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--line)
+}
+
+.stg-fact:first-child {
+  padding-top: 0
+}
+
+.stg-fact:last-child {
+  padding-bottom: 0;
+  border-bottom: 0
+}
+
+.stg-factText {
+  flex: 1;
+  min-width: 0
+}
+
+.stg-fact b {
+  display: block;
+  color: var(--ink);
+  font-size: 13.5px;
+  font-weight: 600
+}
+
+.stg-fact small {
+  display: block;
+  margin-top: 2px;
+  color: var(--muted);
+  font-size: 12.5px;
+  line-height: 1.45
+}
+
+.stg-note {
+  margin-top: 14px
+}
+
+.stg-note a {
+  color: var(--g700);
+  font-weight: 600
+}
+
+.stg-loading {
+  display: grid;
+  place-items: center;
+  padding: 32px 0
+}
+
+@media (max-width: 1100px) {
+  .stg-grid {
+    grid-template-columns: minmax(0, 1fr)
+  }
+}
+
+@media (max-width: 640px) {
+  .stg-themes {
+    grid-template-columns: minmax(0, 1fr)
+  }
+}
+
+.pi-field {
+  position: relative
+}
+
+.pi-field input {
+  padding-right: 44px
+}
+
+.pi-eye {
+  position: absolute;
+  top: 50%;
+  right: 8px;
+  width: 30px;
+  height: 30px;
+  margin-top: -15px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: var(--r-sm);
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer
+}
+
+.pi-eye:hover {
+  background: var(--g50);
+  color: var(--ink)
+}
+
+.pc-list,
+.fld>.pc-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 14px;
+  margin-top: 8px
+}
+
+.pc-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--muted);
+  font-size: var(--fs-xs);
+  transition: color var(--dur-fast) var(--ease-out)
+}
+
+.pc-item.pc-ok {
+  color: var(--g700)
+}
+
+.ev-standalone {
+  position: fixed;
+  inset: 0;
+  z-index: 95;
+  overflow-y: auto;
+  min-height: 100vh;
+  display: grid;
+  grid-template-rows: 1fr auto;
+  gap: 24px;
+  padding: 28px clamp(20px, 5vw, 56px);
+  background: var(--bg)
+}
+
+.ev-center {
+  display: grid;
+  align-items: center;
+  width: min(1040px, 100%);
+  margin: 0 auto
+}
+
+.ev-inline {
+  padding: 8px 0 24px
+}
+
+.ev-panel {
+  min-height: 340px;
+  padding: 36px clamp(24px, 4vw, 48px)
+}
+
+.ev-copy {
+  max-width: 560px
+}
+
+.ev-copy h1 {
+  margin: 0 0 10px;
+  font-size: clamp(22px, 2.4vw, 30px)
+}
+
+.ev-copy p {
+  max-width: 460px;
+  font-size: 14px;
+  line-height: 1.7
+}
+
+.ev-copy .hero-actions {
+  margin: 24px 0 0;
+  padding-left: 0
+}
+
+.ev-code {
+  display: block;
+  margin: 12px 0 10px;
+  font-size: clamp(76px, 11vw, 132px);
+  font-weight: 800;
+  line-height: .95;
+  letter-spacing: -.05em;
+  background: linear-gradient(135deg, var(--g800) 0%, var(--g500) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent
+}
+
+.ev-danger .ev-code {
+  background: linear-gradient(135deg, var(--tone-danger-strong) 0%, color-mix(in srgb, var(--tone-danger) 70%, #fff) 100%);
+  -webkit-background-clip: text;
+  background-clip: text
+}
+
+.ev-danger .rule {
+  background: var(--tone-danger)
+}
+
+.ev-danger .eyebrow {
+  color: var(--tone-danger-ink)
+}
+
+.ev-reference {
+  margin: 12px 0 0;
+  color: var(--muted);
+  font-size: 12.5px
+}
+
+.ev-reference code {
+  padding: 2px 6px;
+  border-radius: var(--r-xs);
+  background: rgba(255, 255, 255, .7);
+  color: var(--ink);
+  font-size: 12px
+}
+
+.ev-footer {
+  margin: 0;
+  color: var(--muted);
+  font-size: 12.5px;
+  text-align: center
+}
+
+@media (max-width: 720px) {
+  .ev-panel {
+    min-height: 0
+  }
+
+  .ev-panel .hero-actions {
+    flex-direction: column;
+    align-items: stretch
+  }
+}
+
+.ev-art {
+  position: absolute;
+  z-index: 1;
+  top: 50%;
+  right: clamp(12px, 3vw, 32px);
+  height: 96%;
+  aspect-ratio: 420 / 330;
+  transform: translateY(-50%);
+  pointer-events: none
+}
+
+.ev-art svg {
+  display: block;
+  width: 100%;
+  height: 100%
+}
+
+html[data-theme="dark"] .ev-art .art-backdrop {
+  opacity: .06
+}
+
+@media (max-width: 900px) {
+  .ev-art {
+    height: 70%;
+    opacity: .35
+  }
+}
+
+@media (max-width: 680px) {
+  .ev-art {
+    display: none
+  }
+}
+
       .demo-bar {
         position: relative;
         z-index: 45;
@@ -9899,6 +10618,7 @@ html[data-theme="dark"] .at-dateRange input {
         const STORE = "sso-demo-v6";
         const SESSION = "sso-demo-session";
         const PASSWORD = "demo1234";
+        const ERROR_ARTS = {"not-found":"<svg viewBox=\"0 0 420 330\"><defs><filter id=\"sh\" x=\"-30%\" y=\"-30%\" width=\"160%\" height=\"160%\"><feDropShadow dx=\"0\" dy=\"10\" stdDeviation=\"12\" flood-color=\"#1f4a35\" flood-opacity=\".18\"/></filter><linearGradient id=\"leaf\" x1=\"0\" y1=\"1\" x2=\"0\" y2=\"0\"><stop offset=\"0\" stop-color=\"#2f7a55\"/><stop offset=\"1\" stop-color=\"#a9c8b4\"/></linearGradient></defs><ellipse cx=\"215\" cy=\"292\" rx=\"150\" ry=\"16\" fill=\"#1f5a3e\" opacity=\".08\"/><circle class=\"art-backdrop\" cx=\"215\" cy=\"160\" r=\"128\" fill=\"#ffffff\" opacity=\".55\"/><g opacity=\".55\"><path d=\"M70 300C64 238 22 206 -4 204C2 236 30 290 70 300Z\" fill=\"url(#leaf)\"/><path d=\"M70 300C84 228 60 168 34 150C24 196 38 272 70 300Z\" fill=\"url(#leaf)\"/><path d=\"M360 300C366 238 408 206 434 204C428 236 400 290 360 300Z\" fill=\"url(#leaf)\"/><path d=\"M360 300C346 228 370 168 396 150C406 196 392 272 360 300Z\" fill=\"url(#leaf)\"/></g><g filter=\"url(#sh)\" transform=\"rotate(-6 200 170)\"><rect x=\"130\" y=\"70\" width=\"150\" height=\"196\" rx=\"16\" fill=\"#ffffff\"/><rect x=\"150\" y=\"92\" width=\"58\" height=\"12\" rx=\"6\" fill=\"#a9c8b4\"/><rect x=\"150\" y=\"120\" width=\"96\" height=\"9\" rx=\"4.5\" fill=\"#cfe0d3\"/><rect x=\"150\" y=\"142\" width=\"80\" height=\"9\" rx=\"4.5\" fill=\"#cfe0d3\"/><rect x=\"150\" y=\"164\" width=\"104\" height=\"9\" rx=\"4.5\" fill=\"#cfe0d3\"/><rect x=\"150\" y=\"186\" width=\"64\" height=\"9\" rx=\"4.5\" fill=\"#cfe0d3\"/><path d=\"M248 70h32v32z\" fill=\"#e8f1ea\"/></g><g filter=\"url(#sh)\"><circle cx=\"262\" cy=\"176\" r=\"52\" fill=\"#e8f1ea\" fill-opacity=\".85\" stroke=\"#2f7a55\" stroke-width=\"12\"/><text x=\"262\" y=\"196\" text-anchor=\"middle\" style=\"font-family:var(--font-sans)\" font-size=\"58\" font-weight=\"800\" fill=\"#2f7a55\">?</text><rect x=\"296\" y=\"214\" width=\"20\" height=\"62\" rx=\"10\" fill=\"#1f5a3e\" transform=\"rotate(-42 306 245)\"/></g><circle cx=\"120\" cy=\"90\" r=\"6\" fill=\"#a9c8b4\"/><circle cx=\"330\" cy=\"98\" r=\"4\" fill=\"#a9c8b4\"/><circle cx=\"342\" cy=\"250\" r=\"5\" fill=\"#a9c8b4\"/></svg>","forbidden":"<svg viewBox=\"0 0 420 330\"><defs><filter id=\"sh\" x=\"-30%\" y=\"-30%\" width=\"160%\" height=\"160%\"><feDropShadow dx=\"0\" dy=\"10\" stdDeviation=\"12\" flood-color=\"#1f4a35\" flood-opacity=\".18\"/></filter><linearGradient id=\"leaf\" x1=\"0\" y1=\"1\" x2=\"0\" y2=\"0\"><stop offset=\"0\" stop-color=\"#2f7a55\"/><stop offset=\"1\" stop-color=\"#a9c8b4\"/></linearGradient></defs><ellipse cx=\"215\" cy=\"292\" rx=\"150\" ry=\"16\" fill=\"#1f5a3e\" opacity=\".08\"/><circle class=\"art-backdrop\" cx=\"215\" cy=\"160\" r=\"128\" fill=\"#ffffff\" opacity=\".55\"/><g opacity=\".55\"><path d=\"M70 300C64 238 22 206 -4 204C2 236 30 290 70 300Z\" fill=\"url(#leaf)\"/><path d=\"M70 300C84 228 60 168 34 150C24 196 38 272 70 300Z\" fill=\"url(#leaf)\"/><path d=\"M360 300C366 238 408 206 434 204C428 236 400 290 360 300Z\" fill=\"url(#leaf)\"/><path d=\"M360 300C346 228 370 168 396 150C406 196 392 272 360 300Z\" fill=\"url(#leaf)\"/></g><g filter=\"url(#sh)\"><path d=\"M215 52l92 34v70c0 64-42 108-92 126-50-18-92-62-92-126V86z\" fill=\"#2f7a55\"/><path d=\"M215 70l74 27v59c0 52-33 88-74 104-41-16-74-52-74-104V97z\" fill=\"#5f9c7a\"/></g><g filter=\"url(#sh)\"><path d=\"M187 160v-20a28 28 0 0 1 56 0v20\" fill=\"none\" stroke=\"#ffffff\" stroke-width=\"12\" stroke-linecap=\"round\"/><rect x=\"172\" y=\"156\" width=\"86\" height=\"68\" rx=\"14\" fill=\"#ffffff\"/><circle cx=\"215\" cy=\"184\" r=\"9\" fill=\"#2f7a55\"/><rect x=\"211\" y=\"186\" width=\"8\" height=\"20\" rx=\"4\" fill=\"#2f7a55\"/></g><g filter=\"url(#sh)\"><circle cx=\"292\" cy=\"232\" r=\"24\" fill=\"#d64545\"/><rect x=\"280\" y=\"228\" width=\"24\" height=\"8\" rx=\"4\" fill=\"#ffffff\"/></g><circle cx=\"120\" cy=\"96\" r=\"6\" fill=\"#a9c8b4\"/><circle cx=\"318\" cy=\"90\" r=\"4\" fill=\"#a9c8b4\"/></svg>","maintenance":"<svg viewBox=\"0 0 420 330\"><defs><filter id=\"sh\" x=\"-30%\" y=\"-30%\" width=\"160%\" height=\"160%\"><feDropShadow dx=\"0\" dy=\"10\" stdDeviation=\"12\" flood-color=\"#1f4a35\" flood-opacity=\".18\"/></filter><linearGradient id=\"leaf\" x1=\"0\" y1=\"1\" x2=\"0\" y2=\"0\"><stop offset=\"0\" stop-color=\"#2f7a55\"/><stop offset=\"1\" stop-color=\"#a9c8b4\"/></linearGradient></defs><ellipse cx=\"215\" cy=\"292\" rx=\"150\" ry=\"16\" fill=\"#1f5a3e\" opacity=\".08\"/><circle class=\"art-backdrop\" cx=\"215\" cy=\"160\" r=\"128\" fill=\"#ffffff\" opacity=\".55\"/><g opacity=\".55\"><path d=\"M70 300C64 238 22 206 -4 204C2 236 30 290 70 300Z\" fill=\"url(#leaf)\"/><path d=\"M70 300C84 228 60 168 34 150C24 196 38 272 70 300Z\" fill=\"url(#leaf)\"/><path d=\"M360 300C366 238 408 206 434 204C428 236 400 290 360 300Z\" fill=\"url(#leaf)\"/><path d=\"M360 300C346 228 370 168 396 150C406 196 392 272 360 300Z\" fill=\"url(#leaf)\"/></g><g filter=\"url(#sh)\"><path d=\"M263.9 146.3 L263.9 153.7 L248.6 165.8 L246.7 171.6 L252.0 190.4 L247.6 196.4 L228.1 197.2 L223.2 200.8 L216.4 219.1 L209.3 221.4 L193.0 210.6 L187.0 210.6 L170.7 221.4 L163.6 219.1 L156.8 200.8 L151.9 197.2 L132.4 196.4 L128.0 190.4 L133.3 171.6 L131.4 165.8 L116.1 153.7 L116.1 146.3 L131.4 134.2 L133.3 128.4 L128.0 109.6 L132.4 103.6 L151.9 102.8 L156.8 99.2 L163.6 80.9 L170.7 78.6 L187.0 89.4 L193.0 89.4 L209.3 78.6 L216.4 80.9 L223.2 99.2 L228.1 102.8 L247.6 103.6 L252.0 109.6 L246.7 128.4 L248.6 134.2Z\" fill=\"#2f7a55\"/><circle cx=\"190\" cy=\"150\" r=\"26.6\" fill=\"#ffffff\"/></g><g filter=\"url(#sh)\"><path d=\"M325.9 211.2 L325.9 216.8 L316.1 225.7 L314.4 229.9 L315.0 243.1 L311.1 247.0 L297.9 246.4 L293.7 248.1 L284.8 257.9 L279.2 257.9 L270.3 248.1 L266.1 246.4 L252.9 247.0 L249.0 243.1 L249.6 229.9 L247.9 225.7 L238.1 216.8 L238.1 211.2 L247.9 202.3 L249.6 198.1 L249.0 184.9 L252.9 181.0 L266.1 181.6 L270.3 179.9 L279.2 170.1 L284.8 170.1 L293.7 179.9 L297.9 181.6 L311.1 181.0 L315.0 184.9 L314.4 198.1 L316.1 202.3Z\" fill=\"#a9c8b4\"/><circle cx=\"282\" cy=\"214\" r=\"15.8\" fill=\"#ffffff\"/></g><g filter=\"url(#sh)\" transform=\"rotate(40 236 150)\"><mask id=\"wrenchCut\"><rect x=\"180\" y=\"20\" width=\"120\" height=\"260\" fill=\"#fff\"/><rect x=\"226\" y=\"34\" width=\"20\" height=\"30\" rx=\"3\" fill=\"#000\"/></mask><g mask=\"url(#wrenchCut)\"><circle cx=\"236\" cy=\"64\" r=\"30\" fill=\"#e09a1f\"/><rect x=\"225\" y=\"80\" width=\"22\" height=\"150\" rx=\"11\" fill=\"#e09a1f\"/></g><circle cx=\"236\" cy=\"206\" r=\"5\" fill=\"#ffffff\" opacity=\".7\"/></g><g filter=\"url(#sh)\"><path d=\"M118 282l22-82h20l22 82z\" fill=\"#e09a1f\"/><path d=\"M131 234h38l5 18h-48z\" fill=\"#ffffff\"/><rect x=\"106\" y=\"278\" width=\"88\" height=\"12\" rx=\"6\" fill=\"#e09a1f\"/></g><circle cx=\"330\" cy=\"96\" r=\"5\" fill=\"#a9c8b4\"/><circle cx=\"104\" cy=\"104\" r=\"6\" fill=\"#a9c8b4\"/></svg>","not-ready":"<svg viewBox=\"0 0 420 330\"><defs><filter id=\"sh\" x=\"-30%\" y=\"-30%\" width=\"160%\" height=\"160%\"><feDropShadow dx=\"0\" dy=\"10\" stdDeviation=\"12\" flood-color=\"#1f4a35\" flood-opacity=\".18\"/></filter><linearGradient id=\"leaf\" x1=\"0\" y1=\"1\" x2=\"0\" y2=\"0\"><stop offset=\"0\" stop-color=\"#2f7a55\"/><stop offset=\"1\" stop-color=\"#a9c8b4\"/></linearGradient></defs><ellipse cx=\"215\" cy=\"292\" rx=\"150\" ry=\"16\" fill=\"#1f5a3e\" opacity=\".08\"/><circle class=\"art-backdrop\" cx=\"215\" cy=\"160\" r=\"128\" fill=\"#ffffff\" opacity=\".55\"/><g opacity=\".55\"><path d=\"M70 300C64 238 22 206 -4 204C2 236 30 290 70 300Z\" fill=\"url(#leaf)\"/><path d=\"M70 300C84 228 60 168 34 150C24 196 38 272 70 300Z\" fill=\"url(#leaf)\"/><path d=\"M360 300C366 238 408 206 434 204C428 236 400 290 360 300Z\" fill=\"url(#leaf)\"/><path d=\"M360 300C346 228 370 168 396 150C406 196 392 272 360 300Z\" fill=\"url(#leaf)\"/></g><path d=\"M20 190c40 0 60-6 96-6\" fill=\"none\" stroke=\"#2f7a55\" stroke-width=\"12\" stroke-linecap=\"round\"/><path d=\"M400 190c-40 0-60 6-96 6\" fill=\"none\" stroke=\"#9aa39e\" stroke-width=\"12\" stroke-linecap=\"round\"/><g filter=\"url(#sh)\"><rect x=\"108\" y=\"158\" width=\"74\" height=\"60\" rx=\"14\" fill=\"#2f7a55\"/><rect x=\"182\" y=\"170\" width=\"24\" height=\"9\" rx=\"3\" fill=\"#1f5a3e\"/><rect x=\"182\" y=\"196\" width=\"24\" height=\"9\" rx=\"3\" fill=\"#1f5a3e\"/></g><g filter=\"url(#sh)\"><rect x=\"236\" y=\"154\" width=\"76\" height=\"68\" rx=\"14\" fill=\"#ffffff\" stroke=\"#cfe0d3\" stroke-width=\"3\"/><rect x=\"254\" y=\"172\" width=\"10\" height=\"9\" rx=\"3\" fill=\"#9aa39e\"/><rect x=\"254\" y=\"196\" width=\"10\" height=\"9\" rx=\"3\" fill=\"#9aa39e\"/></g><g stroke=\"#e09a1f\" stroke-width=\"5\" stroke-linecap=\"round\"><path d=\"M220 150l-6-16\"/><path d=\"M222 226l-6 16\"/><path d=\"M228 188h0\"/></g><g filter=\"url(#sh)\"><circle cx=\"215\" cy=\"92\" r=\"34\" fill=\"#ffffff\"/><path d=\"M215 70l22 8v14c0 15-10 25-22 30-12-5-22-15-22-30V78z\" fill=\"#a9c8b4\"/><text x=\"215\" y=\"104\" text-anchor=\"middle\" style=\"font-family:var(--font-sans)\" font-size=\"26\" font-weight=\"800\" fill=\"#1f5a3e\">?</text></g></svg>","error":"<svg viewBox=\"0 0 420 330\"><defs><filter id=\"sh\" x=\"-30%\" y=\"-30%\" width=\"160%\" height=\"160%\"><feDropShadow dx=\"0\" dy=\"10\" stdDeviation=\"12\" flood-color=\"#1f4a35\" flood-opacity=\".18\"/></filter><linearGradient id=\"leaf\" x1=\"0\" y1=\"1\" x2=\"0\" y2=\"0\"><stop offset=\"0\" stop-color=\"#2f7a55\"/><stop offset=\"1\" stop-color=\"#a9c8b4\"/></linearGradient></defs><ellipse cx=\"215\" cy=\"292\" rx=\"150\" ry=\"16\" fill=\"#1f5a3e\" opacity=\".08\"/><circle class=\"art-backdrop\" cx=\"215\" cy=\"160\" r=\"128\" fill=\"#ffffff\" opacity=\".55\"/><g opacity=\".55\"><path d=\"M70 300C64 238 22 206 -4 204C2 236 30 290 70 300Z\" fill=\"url(#leaf)\"/><path d=\"M70 300C84 228 60 168 34 150C24 196 38 272 70 300Z\" fill=\"url(#leaf)\"/><path d=\"M360 300C366 238 408 206 434 204C428 236 400 290 360 300Z\" fill=\"url(#leaf)\"/><path d=\"M360 300C346 228 370 168 396 150C406 196 392 272 360 300Z\" fill=\"url(#leaf)\"/></g><g filter=\"url(#sh)\"><rect x=\"96\" y=\"70\" width=\"236\" height=\"178\" rx=\"16\" fill=\"#ffffff\"/><path d=\"M96 86a16 16 0 0 1 16-16h204a16 16 0 0 1 16 16v14H96z\" fill=\"#cfe0d3\"/><circle cx=\"116\" cy=\"85\" r=\"5\" fill=\"#d64545\"/><circle cx=\"132\" cy=\"85\" r=\"5\" fill=\"#e09a1f\"/><circle cx=\"148\" cy=\"85\" r=\"5\" fill=\"#5f9c7a\"/><rect x=\"118\" y=\"118\" width=\"88\" height=\"10\" rx=\"5\" fill=\"#cfe0d3\"/><rect x=\"118\" y=\"140\" width=\"150\" height=\"10\" rx=\"5\" fill=\"#e8f1ea\"/><rect x=\"118\" y=\"162\" width=\"120\" height=\"10\" rx=\"5\" fill=\"#e8f1ea\"/><path d=\"M232 100l-16 42 22 14-20 46 10 46\" fill=\"none\" stroke=\"#f2a3a3\" stroke-width=\"5\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/></g><g filter=\"url(#sh)\"><path d=\"M300 184l46 80h-92z\" fill=\"#d64545\" stroke=\"#d64545\" stroke-width=\"14\" stroke-linejoin=\"round\"/><rect x=\"295\" y=\"206\" width=\"10\" height=\"30\" rx=\"5\" fill=\"#ffffff\"/><circle cx=\"300\" cy=\"248\" r=\"6\" fill=\"#ffffff\"/></g><circle cx=\"84\" cy=\"236\" r=\"6\" fill=\"#a9c8b4\"/><circle cx=\"350\" cy=\"100\" r=\"4\" fill=\"#a9c8b4\"/></svg>"};
         const LOGO = "data:image/webp;base64,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";
         const SCENE = "<svg viewBox=\"0 50 760 625\" preserveAspectRatio=\"xMidYMid meet\"><defs><filter id=\"lb-sh\" x=\"-40%\" y=\"-40%\" width=\"180%\" height=\"180%\"><feDropShadow dx=\"0\" dy=\"10\" stdDeviation=\"10\" flood-color=\"#1f4a35\" flood-opacity=\".22\"/></filter></defs><ellipse cx=\"380\" cy=\"604\" rx=\"260\" ry=\"16\" fill=\"#04604f\" opacity=\".07\"/><path class=\"lb-link\" d=\"M380 330Q214 243 48 293\"/><circle class=\"lb-pulse\" r=\"5\"><animateMotion dur=\"2.4s\" begin=\"-0.0s\" repeatCount=\"indefinite\" path=\"M380 330Q214 243 48 293\"/></circle><path class=\"lb-link\" d=\"M380 330Q242 150 105 200\"/><circle class=\"lb-pulse\" r=\"5\"><animateMotion dur=\"2.4s\" begin=\"-0.3s\" repeatCount=\"indefinite\" path=\"M380 330Q242 150 105 200\"/></circle><path class=\"lb-link\" d=\"M380 330Q290 80 199 130\"/><circle class=\"lb-pulse\" r=\"5\"><animateMotion dur=\"2.4s\" begin=\"-0.6s\" repeatCount=\"indefinite\" path=\"M380 330Q290 80 199 130\"/></circle><path class=\"lb-link\" d=\"M380 330Q348 42 317 92\"/><circle class=\"lb-pulse\" r=\"5\"><animateMotion dur=\"2.4s\" begin=\"-0.9s\" repeatCount=\"indefinite\" path=\"M380 330Q348 42 317 92\"/></circle><path class=\"lb-link\" d=\"M380 330Q412 42 443 92\"/><circle class=\"lb-pulse\" r=\"5\"><animateMotion dur=\"2.4s\" begin=\"-1.2s\" repeatCount=\"indefinite\" path=\"M380 330Q412 42 443 92\"/></circle><path class=\"lb-link\" d=\"M380 330Q470 80 561 130\"/><circle class=\"lb-pulse\" r=\"5\"><animateMotion dur=\"2.4s\" begin=\"-1.5s\" repeatCount=\"indefinite\" path=\"M380 330Q470 80 561 130\"/></circle><path class=\"lb-link\" d=\"M380 330Q518 150 655 200\"/><circle class=\"lb-pulse\" r=\"5\"><animateMotion dur=\"2.4s\" begin=\"-1.8s\" repeatCount=\"indefinite\" path=\"M380 330Q518 150 655 200\"/></circle><path class=\"lb-link\" d=\"M380 330Q546 243 712 293\"/><circle class=\"lb-pulse\" r=\"5\"><animateMotion dur=\"2.4s\" begin=\"-2.1s\" repeatCount=\"indefinite\" path=\"M380 330Q546 243 712 293\"/></circle><g class=\"lb-laptop\"><rect x=\"206\" y=\"326\" width=\"348\" height=\"224\" rx=\"18\" fill=\"#04604f\" filter=\"url(#lb-sh)\"/><rect x=\"222\" y=\"342\" width=\"316\" height=\"192\" rx=\"10\" fill=\"#ffffff\"/><rect x=\"296\" y=\"368\" width=\"168\" height=\"140\" rx=\"14\" fill=\"#eef5ee\"/><circle cx=\"380\" cy=\"404\" r=\"18\" fill=\"#a3cb9e\"/><circle cx=\"380\" cy=\"398\" r=\"7\" fill=\"#ffffff\"/><path d=\"M368 416a12 9 0 0 1 24 0\" fill=\"#ffffff\"/><rect class=\"lb-type\" x=\"326\" y=\"438\" width=\"108\" height=\"10\" rx=\"5\" fill=\"#a3cb9e\"/><rect class=\"lb-type lb-type2\" x=\"326\" y=\"458\" width=\"108\" height=\"10\" rx=\"5\" fill=\"#d7e8d6\"/><rect x=\"326\" y=\"478\" width=\"108\" height=\"16\" rx=\"8\" fill=\"#04604f\"/><g class=\"lb-check\"><circle cx=\"458\" cy=\"372\" r=\"17\" fill=\"#2f9e6b\" filter=\"url(#lb-sh)\"/><path d=\"M450 372l6 6 10-11\" fill=\"none\" stroke=\"#fff\" stroke-width=\"4\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></g><path d=\"M164 560h432l-26 30H190z\" fill=\"#3f8a6e\" filter=\"url(#lb-sh)\"/><path d=\"M164 560h432l-4 6H168z\" fill=\"#a3cb9e\"/><rect x=\"350\" y=\"560\" width=\"60\" height=\"6\" rx=\"3\" fill=\"#04604f\" opacity=\".35\"/></g><g class=\"lb-plant\"><path d=\"M140 628c0-48 18-78 46-94M140 628c-8-38-36-58-64-62\" fill=\"none\" stroke=\"#04604f\" stroke-width=\"4\" stroke-linecap=\"round\"/><g class=\"lb-leafA\"><path d=\"M188 532c-22 10-36 32-30 54 22-6 32-28 30-54z\" fill=\"#3f8a6e\"/></g><g class=\"lb-leafB\"><path d=\"M70 564c4 24 24 38 46 36-2-22-22-36-46-36z\" fill=\"#a3cb9e\"/></g><path d=\"M108 624h64l-6 46h-52z\" fill=\"#04604f\" filter=\"url(#lb-sh)\"/><rect x=\"104\" y=\"620\" width=\"72\" height=\"12\" rx=\"6\" fill=\"#3f8a6e\"/></g><g class=\"lb-key\"><g transform=\"translate(572 642) rotate(-28)\" filter=\"url(#lb-sh)\"><circle r=\"22\" fill=\"#d9a21f\"/><circle r=\"8\" fill=\"#fff\"/><rect x=\"18\" y=\"-6\" width=\"70\" height=\"12\" rx=\"6\" fill=\"#d9a21f\"/><rect x=\"62\" y=\"0\" width=\"10\" height=\"20\" rx=\"3\" fill=\"#d9a21f\"/><rect x=\"78\" y=\"0\" width=\"10\" height=\"14\" rx=\"3\" fill=\"#d9a21f\"/></g></g><g class=\"lb-app\" style=\"animation-delay:-0.00s\"><g transform=\"translate(48 293)\"><rect x=\"-38\" y=\"-38\" width=\"76\" height=\"76\" rx=\"20\" fill=\"#0f766e\" filter=\"url(#lb-sh)\"/><g fill=\"none\" stroke=\"#fff\" stroke-width=\"4\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><rect x=\"-14\" y=\"-12\" width=\"28\" height=\"26\" rx=\"5\"/><path d=\"M-14 -3h28M-7 -17v8M7 -17v8\"/></g></g></g><g class=\"lb-app\" style=\"animation-delay:-0.65s\"><g transform=\"translate(105 200)\"><rect x=\"-38\" y=\"-38\" width=\"76\" height=\"76\" rx=\"20\" fill=\"#3f5f8a\" filter=\"url(#lb-sh)\"/><g fill=\"none\" stroke=\"#fff\" stroke-width=\"4\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><circle cx=\"-4\" cy=\"-6\" r=\"7\"/><path d=\"M-17 15c0-8 6-12 13-12s13 4 13 12\"/><path d=\"M9 -11a6 6 0 0 1 0 11M12 3c4 1 6 5 6 10\"/></g></g></g><g class=\"lb-app\" style=\"animation-delay:-1.30s\"><g transform=\"translate(199 130)\"><rect x=\"-38\" y=\"-38\" width=\"76\" height=\"76\" rx=\"20\" fill=\"#b83f8e\" filter=\"url(#lb-sh)\"/><g fill=\"none\" stroke=\"#fff\" stroke-width=\"4\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M-15 -12h30v20h-14l-9 8v-8h-7z\"/><path d=\"M-8 -3h16M-8 3h9\"/></g></g></g><g class=\"lb-app\" style=\"animation-delay:-1.95s\"><g transform=\"translate(317 92)\"><rect x=\"-38\" y=\"-38\" width=\"76\" height=\"76\" rx=\"20\" fill=\"#d27a1f\" filter=\"url(#lb-sh)\"/><g fill=\"none\" stroke=\"#fff\" stroke-width=\"4\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M0 -16l14 7v17L0 16l-14-8v-17z\"/><path d=\"M-14 -9L0 -1l14-8M0 -1v17\"/></g></g></g><g class=\"lb-app\" style=\"animation-delay:-2.60s\"><g transform=\"translate(443 92)\"><rect x=\"-38\" y=\"-38\" width=\"76\" height=\"76\" rx=\"20\" fill=\"#5a55c9\" filter=\"url(#lb-sh)\"/><g fill=\"none\" stroke=\"#fff\" stroke-width=\"4\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M-15 14h30\"/><path d=\"M-9 10v-9M0 10v-18M9 10v-26\"/></g></g></g><g class=\"lb-app\" style=\"animation-delay:-3.25s\"><g transform=\"translate(561 130)\"><rect x=\"-38\" y=\"-38\" width=\"76\" height=\"76\" rx=\"20\" fill=\"#1f3a68\" filter=\"url(#lb-sh)\"/><g fill=\"none\" stroke=\"#fff\" stroke-width=\"4\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><rect x=\"-12\" y=\"-15\" width=\"24\" height=\"30\" rx=\"4\"/><path d=\"M-5 -15v-3h10v3\"/><path d=\"m-6 2 4 4 8-9\"/></g></g></g><g class=\"lb-app\" style=\"animation-delay:-3.90s\"><g transform=\"translate(655 200)\"><rect x=\"-38\" y=\"-38\" width=\"76\" height=\"76\" rx=\"20\" fill=\"#0b7fab\" filter=\"url(#lb-sh)\"/><g fill=\"none\" stroke=\"#fff\" stroke-width=\"4\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M-17 -9h18v16h-18zM1 -3h8l7 7v3H1z\"/><circle cx=\"-9\" cy=\"10\" r=\"4\"/><circle cx=\"9\" cy=\"10\" r=\"4\"/></g></g></g><g class=\"lb-app\" style=\"animation-delay:-4.55s\"><g transform=\"translate(712 293)\"><rect x=\"-38\" y=\"-38\" width=\"76\" height=\"76\" rx=\"20\" fill=\"#c43d2f\" filter=\"url(#lb-sh)\"/><g fill=\"none\" stroke=\"#fff\" stroke-width=\"4\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M-10 -17h13l8 8v26h-21z\"/><path d=\"M-5 2h10M-5 9h10\"/></g></g></g></svg>";
         const VERSION = "1.0.0";
@@ -10005,6 +10725,22 @@ html[data-theme="dark"] .at-dateRange input {
             '<path d="M22 12h-2.48a2 2 0 0 0-1.93 1.46l-2.35 8.36a.25.25 0 0 1-.48 0L9.24 2.18a.25.25 0 0 0-.48 0l-2.35 8.36A2 2 0 0 1 4.49 12H2"/>',
           download:
             '<path d="M12 15V3"/><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/>',
+          eyeOff:
+            '<path d="M10.733 5.076a10.744 10.744 0 0 1 11.205 6.575 1 1 0 0 1 0 .696 10.747 10.747 0 0 1-1.444 2.49"/><path d="M14.084 14.158a3 3 0 0 1-4.242-4.242"/><path d="M17.479 17.499a10.75 10.75 0 0 1-15.417-5.151 1 1 0 0 1 0-.696 10.75 10.75 0 0 1 4.446-5.143"/><path d="m2 2 20 20"/>',
+          circle: '<circle cx="12" cy="12" r="10"/>',
+          briefcase:
+            '<path d="M16 20V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/><rect width="20" height="14" x="2" y="6" rx="2"/>',
+          sun: '<circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/>',
+          moon: '<path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>',
+          monitor:
+            '<rect width="20" height="14" x="2" y="3" rx="2"/><line x1="8" x2="16" y1="21" y2="21"/><line x1="12" x2="12" y1="17" y2="21"/>',
+          monitorCheck:
+            '<path d="m9 10 2 2 4-4"/><rect width="20" height="14" x="2" y="3" rx="2"/><path d="M12 17v4"/><path d="M8 21h8"/>',
+          palette:
+            '<circle cx="13.5" cy="6.5" r=".5" fill="currentColor"/><circle cx="17.5" cy="10.5" r=".5" fill="currentColor"/><circle cx="8.5" cy="7.5" r=".5" fill="currentColor"/><circle cx="6.5" cy="12.5" r=".5" fill="currentColor"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"/>',
+          smartphone:
+            '<rect width="14" height="20" x="5" y="2" rx="2" ry="2"/><path d="M12 18h.01"/>',
+          arrowLeft: '<path d="m12 19-7-7 7-7"/><path d="M19 12H5"/>',
           arrowDown: '<path d="M12 5v14"/><path d="m19 12-7 7-7-7"/>',
           squareOut:
             '<path d="M21 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h6"/><path d="m21 3-9 9"/><path d="M15 3h6v6"/>',
@@ -10621,6 +11357,7 @@ html[data-theme="dark"] .at-dateRange input {
             sel: [],
           },
           mn: { q: "", status: "" },
+          pf: { current: "", next: "", repeat: "", errors: {}, show: {} },
           au: {
             tab: "activity",
             q: "",
@@ -12813,6 +13550,309 @@ html[data-theme="dark"] .at-dateRange input {
       </tbody></table></div>${dataPager("au.trash", items.length, state.trash.page, state.trash.size, [10, 20, 50, 100], "data")}</div>`;
         }
 
+        const THEME_KEY = "sso-demo-theme";
+        const themeChoice = () => {
+          try {
+            const v = localStorage.getItem(THEME_KEY);
+            return v === "light" || v === "dark" ? v : "system";
+          } catch {
+            return "system";
+          }
+        };
+        function applyTheme() {
+          const choice = themeChoice();
+          const dark =
+            choice === "dark" ||
+            (choice === "system" &&
+              window.matchMedia("(prefers-color-scheme: dark)").matches);
+          if (dark) document.documentElement.dataset.theme = "dark";
+          else delete document.documentElement.dataset.theme;
+        }
+        function setTheme(value) {
+          try {
+            localStorage.setItem(THEME_KEY, value);
+          } catch {}
+          applyTheme();
+        }
+        window
+          .matchMedia("(prefers-color-scheme: dark)")
+          .addEventListener("change", () => {
+            if (themeChoice() === "system") applyTheme();
+          });
+
+        const passwordChecks = (value) => [
+          ["Minimal 12 karakter", value.length >= 12],
+          ["Huruf besar", /\p{Lu}/u.test(value)],
+          ["Huruf kecil", /\p{Ll}/u.test(value)],
+          ["Angka", /\p{Nd}/u.test(value)],
+          ["Simbol, misalnya ! @ # $", /[^\p{L}\p{Nd}\s]/u.test(value)],
+        ];
+        function passwordError(value) {
+          if (!value.trim()) return "Wajib diisi";
+          if (value.length < 12) return "Minimal 12 karakter";
+          return passwordChecks(value).every((c) => c[1])
+            ? ""
+            : "Harus memuat huruf besar, huruf kecil, angka, dan simbol";
+        }
+        function profileErrors() {
+          const f = ui.pf;
+          return {
+            current: f.current.trim() ? "" : "Wajib diisi",
+            next: passwordError(f.next),
+            repeat:
+              f.repeat === f.next
+                ? f.repeat.trim()
+                  ? ""
+                  : "Wajib diisi"
+                : "Konfirmasi password belum sama",
+          };
+        }
+        function passwordField(key, label, placeholder, hint, extra = "") {
+          const f = ui.pf;
+          const error = f.errors[key];
+          const visible = f.show[key];
+          return `<label class="${error ? "fld has-error" : "fld"}"><span>${label}</span><div class="pi-field"><input type="${visible ? "text" : "password"}" value="${esc(f[key])}" autocomplete="${key === "current" ? "current-password" : "new-password"}" placeholder="${placeholder}" ${error ? 'aria-invalid="true"' : ""} data-input="pf.${key}" data-pf-blur="${key}"><button class="pi-eye" type="button" aria-label="${visible ? "Sembunyikan password" : "Tampilkan password"}" title="${visible ? "Sembunyikan password" : "Tampilkan password"}" data-pf-eye="${key}">${icon(visible ? "eyeOff" : "eye", 16)}</button></div>${extra}${error ? `<em class="fld-msg">${esc(error)}</em>` : hint ? `<em class="fld-hint">${hint}</em>` : ""}</label>`;
+        }
+
+        function pageProfile() {
+          const f = ui.pf;
+          const count = Object.values(f.errors).filter(Boolean).length;
+          const tiles = [
+            ["Email", me.email, "mail", "app-hr"],
+            [
+              "Departemen",
+              me.department || me.code
+                ? departmentLabel(me.department, me.code)
+                : "",
+              "building",
+              "app-wh",
+            ],
+            ["Jabatan", me.job, "briefcase", "app-br"],
+          ];
+          const checklist = `<span class="pc-list" aria-live="polite">${passwordChecks(
+            f.next,
+          )
+            .map(
+              ([label, ok]) =>
+                `<span class="${ok ? "pc-item pc-ok" : "pc-item"}">${icon(ok ? "circleCheck" : "circle", 14)}${label}</span>`,
+            )
+            .join("")}</span>`;
+          return `<div class="page">${hero("Profil Saya", "Lihat data akun Anda dan ubah password secara berkala.")}<div class="pf-grid"><div class="pf-column"><section class="card pf-card"><header class="pf-head"><i class="ch-ic">${icon("circleUser", 18)}</i><div><h3>Data Akun</h3><small>Identitas Anda di SSO Launcher</small></div></header><div class="pf-body">
+      <div class="pf-profileHead"><span class="av pf-avatar ${avatarClass(me.name)}">${initials(me.name)}</span><div><b>${esc(me.name)}</b><small>${esc(roleTag(me) || me.email)}</small><div class="pf-badges">${statusBadge("on", "circleCheck", "Akun aktif")}</div></div></div>
+      <div class="pf-tiles">${tiles.map((t) => `<div class="pf-tile"><span class="rc-ic sm ${t[3]}">${icon(t[2], 17)}</span><div><small>${t[0]}</small><b class="${t[1] ? "" : "pf-empty"}">${esc(t[1] || "Belum diisi")}</b></div></div>`).join("")}</div>
+      <p class="note-box pf-note"><span>Data ini dikelola oleh Administrator Sistem. Hubungi admin kalau ada yang perlu diubah.</span></p></div></section></div>
+      <section class="card pf-card"><header class="pf-head"><i class="ch-ic ic-warn">${icon("keyRound", 18)}</i><div><h3>Ubah Password</h3><small>Ganti password secara berkala untuk menjaga keamanan akun</small></div></header>
+      <form id="password-form" novalidate><div class="pf-body pf-form">${count >= 2 ? `<p class="note-box danger form-summary" role="alert"><span><b>${count} isian belum benar</b>Periksa kolom yang ditandai merah, lalu simpan lagi.</span></p>` : ""}
+      ${passwordField("current", "Password Lama", "Masukkan password saat ini", "Password yang Anda pakai untuk masuk saat ini.")}
+      ${passwordField("next", "Password Baru", "Masukkan password baru", "", checklist)}
+      ${passwordField("repeat", "Ulangi Password Baru", "Masukkan ulang password baru", "Ketik ulang persis sama dengan password baru.")}
+      <p class="note-box warn"><span><b>Perangkat lain akan dikeluarkan</b>Setelah password diubah, Anda tetap masuk di perangkat ini, tapi perangkat lain harus login ulang.</span></p>
+      <div class="pf-actions"><button class="btn tone-warn" type="submit">Ubah Password${icon("keyRound", 18)}</button></div></div></form></section></div></div>`;
+        }
+
+        async function submitPassword() {
+          ui.pf.errors = profileErrors();
+          if (Object.values(ui.pf.errors).some(Boolean)) return render();
+          const ok = await ask({
+            title: "Ubah password?",
+            message:
+              "Password baru langsung berlaku. Anda tetap masuk di perangkat ini, sedangkan sesi di perangkat lain akan dikeluarkan. Perubahan ini tercatat di riwayat aktivitas.",
+            confirmLabel: "Ya, Ubah",
+            icon: "keyRound",
+            tone: "warn",
+          });
+          if (!ok) return;
+          if ((me.password || PASSWORD) !== ui.pf.current)
+            return toast("Password lama salah atau belum memenuhi syarat.");
+          me.password = ui.pf.next;
+          me.sessions = (me.sessions || defaultSessions()).filter(
+            (s) => s.current,
+          );
+          audit(
+            "update",
+            "password",
+            me.name,
+            "Password diubah sendiri dari halaman Profil Saya",
+          );
+          Object.assign(ui.pf, freshPageState().pf);
+          render();
+          toast(
+            "Password berhasil diubah. Sesi di perangkat lain sudah dikeluarkan.",
+          );
+        }
+
+        const defaultSessions = () => [
+          {
+            id: 1,
+            current: true,
+            mobile: false,
+            device: "Chrome 131 di Windows 11",
+            where: `${DEVICE.ip} · Aktif sekarang`,
+          },
+          {
+            id: 2,
+            current: false,
+            mobile: true,
+            device: "Chrome Mobile 131 di Android 14",
+            where: "10.20.4.88 · Terakhir aktif 3 jam lalu",
+          },
+          {
+            id: 3,
+            current: false,
+            mobile: false,
+            device: "Edge 130 di Windows 10",
+            where: "10.20.2.41 · Terakhir aktif kemarin",
+          },
+        ];
+        const settingsCard = (
+          tone,
+          title,
+          ic,
+          subtitle,
+          body,
+          action = "",
+          cls = "",
+        ) =>
+          `<section class="card stg-card ${cls}"><header class="stg-head"><div class="stg-headTitle"><i class="ch-ic ${tone}">${icon(ic, 18)}</i><div><h3>${title}</h3><small>${subtitle}</small></div></div>${action}</header><div class="stg-body">${body}</div></section>`;
+        const themeMock = (mode) =>
+          `<span class="${mode === "dark" ? "stg-mock stg-mockDark" : "stg-mock"}"><span class="stg-mockSide"><i></i><i></i><i></i></span><span class="stg-mockMain"><i class="stg-mockBar"></i><span class="stg-mockCards"><i></i><i></i></span><i class="stg-mockRow"></i></span></span>`;
+
+        function pageSettings() {
+          if (!me.sessions) me.sessions = defaultSessions();
+          if (!me.prefs)
+            me.prefs = { accessChanges: true, applicationStatus: true };
+          const theme = themeChoice();
+          const themes = [
+            ["light", "Terang", "sun"],
+            ["dark", "Gelap", "moon"],
+            ["system", "Ikuti Sistem", "monitor"],
+          ];
+          const themeCard = settingsCard(
+            "app-pj",
+            "Tampilan",
+            "palette",
+            "Tema warna portal di perangkat ini",
+            `<div class="stg-themes" role="radiogroup" aria-label="Tema">${themes.map((t) => `<button class="stg-theme" type="button" role="radio" aria-checked="${theme === t[0]}" data-theme-choice="${t[0]}"><span class="stg-preview" aria-hidden="true">${t[0] === "system" ? themeMock("light") + themeMock("dark") : themeMock(t[0])}</span><span class="stg-themeLabel">${icon(t[2], 16)}${t[1]}</span></button>`).join("")}</div>`,
+          );
+          const options = [
+            [
+              "accessChanges",
+              "Perubahan akses aplikasi",
+              "Saat Anda mendapat atau kehilangan akses ke sebuah aplikasi.",
+            ],
+            [
+              "applicationStatus",
+              "Status aplikasi",
+              "Saat aplikasi Anda masuk atau selesai maintenance.",
+            ],
+          ];
+          const notificationCard = settingsCard(
+            "app-fn",
+            "Notifikasi",
+            "bell",
+            "Pilih pemberitahuan yang ingin Anda terima",
+            `<div class="stg-options">${options.map((o) => `<div class="stg-option"><div><b>${o[1]}</b><small>${o[2]}</small></div><button class="stg-switch" type="button" role="switch" aria-checked="${me.prefs[o[0]]}" aria-label="${o[1]}" data-pref="${o[0]}"></button></div>`).join("")}<div class="stg-option"><div><b>Keamanan akun</b><small>Login dari perangkat baru, password direset, dan akun dikunci. Selalu dikirim untuk melindungi akun Anda.</small></div>${statusBadge("on", "shieldCheck", "Selalu aktif")}</div></div>`,
+          );
+          const others = me.sessions.filter((s) => !s.current).length;
+          const sessionCard = settingsCard(
+            "app-as",
+            "Sesi & Perangkat",
+            "laptop",
+            "Perangkat yang sedang masuk ke akun Anda",
+            `<ul class="stg-sessions">${me.sessions.map((s) => `<li class="stg-session"><span class="rc-ic sm app-as">${icon(s.mobile ? "smartphone" : "laptop", 18)}</span><span class="stg-sessionText"><b>${esc(s.device)}${s.current ? statusBadge("on", "monitorCheck", "Perangkat ini") : ""}</b><small>${esc(s.where)}</small></span>${s.current ? "" : `<button class="sm-btn danger" type="button" data-session="${s.id}">${icon("logOut", 14)}Keluarkan</button>`}</li>`).join("")}</ul><p class="note-box stg-note"><span>Untuk mengganti password, buka <a href="#/profile">Profil Saya</a>.</span></p>`,
+            others
+              ? `<button class="ac-btn danger" type="button" data-act="sessions-others">${icon("logOut", 15)}Keluar dari perangkat lain</button>`
+              : "",
+          );
+          const facts = [
+            [
+              "clock",
+              "app-as",
+              "Sesi tidak aktif",
+              "Otomatis keluar bila tidak ada aktivitas.",
+              "15 menit",
+            ],
+            [
+              "shieldCheck",
+              "app-nv",
+              "Batas sesi",
+              "Harus login ulang setelah batas waktu ini.",
+              "8 jam",
+            ],
+            [
+              "lock",
+              "app-nv",
+              "Kunci login",
+              "Dikunci setelah 5 kali password salah.",
+              "15 menit",
+            ],
+            [
+              "keyRound",
+              "app-pr",
+              "Syarat password",
+              "Memuat huruf besar, huruf kecil, angka, dan simbol.",
+              "min. 12 karakter",
+            ],
+          ];
+          const securityCard = settingsCard(
+            "app-nv",
+            "Informasi Keamanan",
+            "shieldCheck",
+            "Aturan yang berlaku untuk semua akun SSO Launcher",
+            `<div class="stg-facts">${facts.map((f) => `<div class="stg-fact"><span class="rc-ic sm ${f[1]}">${icon(f[0], 17)}</span><div class="stg-factText"><b>${f[2]}</b><small>${f[3]}</small></div><span class="tag">${f[4]}</span></div>`).join("")}</div>`,
+            "",
+            "stg-full",
+          );
+          return `<div class="page">${hero("Pengaturan", "Atur tampilan, notifikasi, dan perangkat yang terhubung ke akun Anda.")}<div class="stg-grid"><div class="stg-column">${themeCard}${notificationCard}</div><div class="stg-column">${sessionCard}</div></div>${securityCard}</div>`;
+        }
+
+        async function signOutSession(id) {
+          const session = me.sessions.find((s) => s.id === id);
+          const ok = await ask({
+            title: "Keluarkan perangkat ini?",
+            message: `${session.device} harus login ulang untuk masuk lagi.`,
+            confirmLabel: "Ya, Keluarkan",
+            danger: true,
+            icon: "logOut",
+            tone: "danger",
+          });
+          if (!ok) return;
+          me.sessions = me.sessions.filter((s) => s.id !== id);
+          audit(
+            "logout",
+            "session",
+            me.email,
+            "Sesi di perangkat lain dikeluarkan dari halaman Pengaturan",
+          );
+          render();
+          toast("Perangkat dikeluarkan");
+        }
+        async function signOutOthers() {
+          const count = me.sessions.filter((s) => !s.current).length;
+          const ok = await ask({
+            title: "Keluar dari perangkat lain?",
+            message: `${count} perangkat lain harus login ulang. Perangkat ini tetap masuk.`,
+            confirmLabel: "Ya, Keluarkan",
+            danger: true,
+            icon: "logOut",
+            tone: "danger",
+          });
+          if (!ok) return;
+          me.sessions = me.sessions.filter((s) => s.current);
+          audit(
+            "logout",
+            "session",
+            me.email,
+            `Keluar dari ${count} perangkat lain dari halaman Pengaturan`,
+          );
+          render();
+          toast(`${count} perangkat lain dikeluarkan`);
+        }
+
+        function errorView(kind, code, label, title, description) {
+          return `<div class="page"><div class="ev-inline"><section class="hero ev-panel" aria-labelledby="error-title"><div class="hero-copy ev-copy"><div class="eyebrow"><i class="rule"></i>${esc(label)}</div><span class="ev-code" aria-hidden="true">${code}</span><h1 id="error-title">${esc(title)}</h1><p>${esc(description)}</p><div class="hero-actions"><a class="btn" href="#/overview">${icon("home", 17)}Kembali ke Beranda</a><button class="btn btn-ghost" type="button" data-act="history-back">${icon("arrowLeft", 17)}Halaman Sebelumnya</button></div></div><div class="ev-art" aria-hidden="true">${ERROR_ARTS[kind] || ""}</div></section></div></div>`;
+        }
+
         function pageAudit() {
           const state = ui.au;
           const now = Date.now();
@@ -13070,7 +14110,7 @@ html[data-theme="dark"] .at-dateRange input {
           const style = `top:${r.bottom + 8}px;left:${Math.max(12, Math.min(r.right - width, window.innerWidth - width - 12))}px`;
           if (ui.pop === "account") {
             return `<div class="menu-pop" role="menu" style="${style}"><header class="acct-head"><span class="av ${avatarClass(me.name)}">${initials(me.name)}</span><div><b class="js-name">${esc(me.name)}</b><small class="js-email">${esc(roleTag(me))}</small></div></header>
-        <a class="mi" href="#/profile" data-toast="Halaman Profil Saya tersedia di aplikasi asli.">${icon("circleUser", 18)}Profil Saya</a><a class="mi" href="#/settings" data-toast="Halaman Pengaturan tersedia di aplikasi asli.">${icon("settings", 18)}Pengaturan</a><button class="mi danger" type="button" data-act="logout">${icon("logOut", 18)}Keluar</button></div>`;
+        <a class="mi" href="#/profile">${icon("circleUser", 18)}Profil Saya</a><a class="mi" href="#/settings">${icon("settings", 18)}Pengaturan</a><button class="mi danger" type="button" data-act="logout">${icon("logOut", 18)}Keluar</button></div>`;
           }
           const items = myNotices();
           const unread = items.filter((n) => !n.read).length;
@@ -13526,14 +14566,26 @@ html[data-theme="dark"] .at-dateRange input {
             "audit",
           ];
           let page = r.page;
-          if (adminPages.includes(page) && !me.admin) page = "overview";
-          if (!leafMenus().some((m) => m.key === page)) page = "overview";
+          const accountPages = ["profile", "settings"];
+          let denied = null;
+          const menu = db.menus.find((m) => m.key === page && !m.deleted);
+          if (!accountPages.includes(page)) {
+            if (!menu && page !== "overview") page = "overview";
+            else if (
+              (adminPages.includes(page) && !me.admin) ||
+              (menu && !leafMenus().some((m) => m.key === page))
+            )
+              denied = "forbidden";
+            else if (menu?.maintenance) denied = "maintenance";
+          }
           const views = {
             overview: pageOverview,
             "my-apps": pageMyApps,
             favorites: () =>
               pageFavorites() + (ui.fv.modal ? favoriteModal() : ""),
             recent: pageRecent,
+            profile: pageProfile,
+            settings: pageSettings,
             users: pageUsers,
             groups: pageGroups,
             applications: pageApplications,
@@ -13550,7 +14602,27 @@ html[data-theme="dark"] .at-dateRange input {
           [...main.children].forEach((child) => {
             if (!child.classList.contains("tb")) child.remove();
           });
-          main.insertAdjacentHTML("beforeend", views[page]());
+          main.insertAdjacentHTML(
+            "beforeend",
+            denied === "forbidden"
+              ? errorView(
+                  "forbidden",
+                  "403",
+                  "Error 403",
+                  "Akses ditolak",
+                  "Anda tidak memiliki akses ke halaman ini. Kalau Anda membutuhkannya untuk pekerjaan, hubungi Administrator Sistem agar menu ini ditambahkan ke grup Anda.",
+                )
+              : denied === "maintenance"
+                ? errorView(
+                    "maintenance",
+                    "503",
+                    "Sedang Dalam Perbaikan",
+                    "Halaman sedang dalam perbaikan",
+                    menu.maintenanceMessage ||
+                      "Halaman ini sementara tidak bisa dibuka. Silakan coba lagi nanti.",
+                  )
+                : views[page](),
+          );
           syncShell(page);
           document.querySelectorAll("[data-indeterminate]").forEach((el) => {
             el.indeterminate = true;
@@ -13559,7 +14631,11 @@ html[data-theme="dark"] .at-dateRange input {
           if (animate) countUp();
           layer.innerHTML = popover();
           const label =
-            leafMenus().find((m) => m.key === page)?.label || "Beranda";
+            denied === "forbidden"
+              ? "Akses ditolak"
+              : { profile: "Profil Saya", settings: "Pengaturan" }[page] ||
+                leafMenus().find((m) => m.key === page)?.label ||
+                "Beranda";
           document.title = `${label} — SSO Launcher (demo)`;
         }
 
@@ -13575,6 +14651,10 @@ html[data-theme="dark"] .at-dateRange input {
         }
 
         document.addEventListener("submit", (e) => {
+          if (e.target.id === "password-form") {
+            e.preventDefault();
+            return void submitPassword();
+          }
           if (e.target.id !== "login-form") return;
           e.preventDefault();
           const email = document
@@ -13588,7 +14668,7 @@ html[data-theme="dark"] .at-dateRange input {
             ui.loginError = "Isi email dan password.";
             return render();
           }
-          if (!user || password !== PASSWORD) {
+          if (!user || password !== (user.password || PASSWORD)) {
             audit(
               "login_failed",
               "session",
@@ -13669,14 +14749,12 @@ html[data-theme="dark"] .at-dateRange input {
             return toast(d.toast);
           }
           if (d.act === "theme") {
-            const dark = document.documentElement.dataset.theme !== "dark";
-            if (dark) document.documentElement.dataset.theme = "dark";
-            else delete document.documentElement.dataset.theme;
-            try {
-              localStorage.setItem("sso-demo-theme", dark ? "dark" : "light");
-            } catch {}
-            ui.pop = null;
-            layer.innerHTML = "";
+            setTheme(
+              document.documentElement.dataset.theme === "dark"
+                ? "light"
+                : "dark",
+            );
+            if (currentPage === "settings" && me) render();
             return;
           }
           if (d.act === "reset") {
@@ -13850,6 +14928,23 @@ html[data-theme="dark"] .at-dateRange input {
             return render();
           }
           if (d.appbulk) return void bulkApps(d.appbulk);
+          if (d.act === "history-back") return history.back();
+          if (d.themeChoice) {
+            setTheme(d.themeChoice);
+            return render();
+          }
+          if (d.pref) {
+            me.prefs[d.pref] = !me.prefs[d.pref];
+            save();
+            render();
+            return toast("Preferensi notifikasi disimpan");
+          }
+          if (d.session) return void signOutSession(Number(d.session));
+          if (d.act === "sessions-others") return void signOutOthers();
+          if (d.pfEye) {
+            ui.pf.show[d.pfEye] = !ui.pf.show[d.pfEye];
+            return render();
+          }
           if (d.autab) {
             Object.assign(ui.au, { tab: d.autab });
             return render();
@@ -13906,7 +15001,9 @@ html[data-theme="dark"] .at-dateRange input {
           if (k.includes(".")) {
             const [key, field] = k.split(".");
             ui[key][field] = e.target.value;
-            if (key === "ov") ui.ov.appPage = 0;
+            if (key === "pf") {
+              ui.pf.errors[field] = "";
+            } else if (key === "ov") ui.ov.appPage = 0;
             else if (key === "au" && field === "trashQ") ui.au.trash.page = 1;
             else ui[key].page = 1;
           } else ui[k] = e.target.value;
@@ -14041,6 +15138,17 @@ html[data-theme="dark"] .at-dateRange input {
           if (e.target.id === "globalSearch") paintSearch();
         });
         document.addEventListener("focusout", (e) => {
+          const blurKey = e.target.dataset?.pfBlur;
+          if (blurKey && !e.relatedTarget?.closest?.("[data-pf-eye]")) {
+            const err = profileErrors()[blurKey];
+            if (
+              ui.pf.errors[blurKey] !== err &&
+              (ui.pf[blurKey] || err !== "Wajib diisi")
+            ) {
+              ui.pf.errors[blurKey] = err;
+              setTimeout(() => render(), 0);
+            }
+          }
           if (e.target.id === "globalSearch") setTimeout(paintSearch, 0);
         });
         document.addEventListener("mousedown", (e) => {
