@@ -245,7 +245,7 @@
 
     <script>
       (() => {
-        const STORE = "sso-demo-v4";
+        const STORE = "sso-demo-v5";
         const SESSION = "sso-demo-session";
         const PASSWORD = "demo1234";
         const LOGO = "{{LOGO}}";
@@ -348,6 +348,8 @@
           squareMenu:
             '<rect width="18" height="18" x="3" y="3" rx="2"/><path d="M7 8h10"/><path d="M7 12h10"/><path d="M7 16h10"/>',
           copy: '<rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/>',
+          arrowLeftRight:
+            '<path d="M8 3 4 7l4 4"/><path d="M4 7h16"/><path d="m16 21 4-4-4-4"/><path d="M20 17H4"/>',
           arrowDown: '<path d="M12 5v14"/><path d="m19 12-7 7-7-7"/>',
           squareOut:
             '<path d="M21 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h6"/><path d="m21 3-9 9"/><path d="M15 3h6v6"/>',
@@ -600,6 +602,7 @@
             usesSso: a[6],
             status: a[7],
             host: `${a[1]}.demo.test`,
+            credentials: a[6] && a[1] !== "workorder" ? 1 : 0,
             maintenanceMessage:
               a[7] === "maintenance"
                 ? "Sedang pembaruan sistem gudang, kembali normal pukul 15.00."
@@ -872,6 +875,39 @@
                 read: true,
               },
             ],
+            menus: (() => {
+              let id = 0;
+              const list = [];
+              MENUS.forEach((section, sectionIndex) => {
+                const sectionId = ++id;
+                list.push({
+                  id: sectionId,
+                  key: null,
+                  label: section.section,
+                  icon: "",
+                  sectionId: null,
+                  order: sectionIndex,
+                  active: true,
+                  admin: Boolean(section.admin),
+                  locked: false,
+                });
+                section.items.forEach((item, order) =>
+                  list.push({
+                    id: ++id,
+                    key: item.key,
+                    label: item.label,
+                    icon: item.icon,
+                    sectionId,
+                    order,
+                    active: true,
+                    maintenance: false,
+                    maintenanceMessage: "",
+                    locked: item.key === "overview" || item.key === "menus",
+                  }),
+                );
+              });
+              return list;
+            })(),
             seq: { activity: activitySeq, audit: auditSeq },
           };
         }
@@ -920,6 +956,16 @@
             sort: null,
             sel: [],
           },
+          ap: {
+            q: "",
+            status: "",
+            cat: "",
+            page: 1,
+            size: 10,
+            sort: null,
+            sel: [],
+          },
+          mn: { q: "", status: "" },
         });
         const ui = {
           collapsed: false,
@@ -952,7 +998,10 @@
         function myApps() {
           const opened = new Map(myActivities().map((x) => [x.appId, x.at]));
           return db.apps
-            .filter((a) => me.apps.includes(a.id))
+            .filter(
+              (a) =>
+                !a.deleted && a.status !== "inactive" && me.apps.includes(a.id),
+            )
             .map((a) => ({
               ...a,
               isFavorite: me.favorites.includes(a.id),
@@ -1185,7 +1234,7 @@
         }
         function setPage(key, patch) {
           if (
-            (key === "us" || key === "gr") &&
+            (key === "us" || key === "gr" || key === "ap") &&
             ("page" in patch || "size" in patch)
           )
             ui[key].sel = [];
@@ -1628,6 +1677,58 @@
           const [kind, id] = ref.split(":");
           if (kind === "us" || kind === "gr")
             return managementMenu(kind, Number(id));
+          if (kind === "ap") {
+            const a = liveApps().find((x) => x.id === Number(id));
+            if (!a) return [];
+            return [
+              {
+                label: "Ubah",
+                icon: "pencil",
+                tone: "primary",
+                run: () =>
+                  toast("Form ubah aplikasi tersedia di aplikasi asli."),
+              },
+              a.usesSso && {
+                label: "Kredensial SSO",
+                icon: "key",
+                tone: "info",
+                run: () =>
+                  toast(
+                    "Pengelolaan kredensial SSO tersedia di aplikasi asli.",
+                  ),
+              },
+              {
+                label: "Pengguna Aplikasi",
+                icon: "users",
+                tone: "info",
+                run: () =>
+                  toast("Daftar pengguna aplikasi tersedia di aplikasi asli."),
+              },
+              {
+                label: "Buka URL Aplikasi",
+                icon: "squareOut",
+                tone: "info",
+                run: () =>
+                  toast(`URL https://${a.host} hanya contoh di demo ini.`),
+              },
+              ...APP_STATUS.filter((s) => s.value !== a.status).map((s) => ({
+                label: statusActionLabel(s.value),
+                icon: statusIcon(s.value),
+                tone: statusActionTone(s.value),
+                run: () => changeAppStatus(a, s.value),
+              })),
+              {
+                label: "Hapus",
+                icon: "trash",
+                tone: "danger",
+                run: () => removeApp(a),
+              },
+            ].filter(Boolean);
+          }
+          if (kind === "mn") {
+            const m = db.menus.find((x) => x.id === Number(id));
+            return m ? menuActions(m) : [];
+          }
           if (kind !== "rc") return [];
           const x = myActivities().find((item) => item.id === Number(id));
           if (!x) return [];
@@ -2357,45 +2458,475 @@
           return [];
         }
 
+        const APP_STATUS = [
+          { value: "active", label: "Aktif" },
+          { value: "maintenance", label: "Maintenance" },
+          { value: "inactive", label: "Nonaktif" },
+        ];
+        const statusLabel = (status) =>
+          APP_STATUS.find((s) => s.value === status)?.label || status;
+        const statusTone = (status) =>
+          status === "active"
+            ? "on"
+            : status === "maintenance"
+              ? "warn"
+              : "danger";
+        const statusIcon = (status) =>
+          status === "active"
+            ? "circleCheck"
+            : status === "maintenance"
+              ? "wrench"
+              : "ban";
+        const statusActionLabel = (status) =>
+          status === "active"
+            ? "Aktifkan"
+            : status === "maintenance"
+              ? "Set Maintenance"
+              : "Nonaktifkan";
+        const statusActionTone = (status) =>
+          status === "active"
+            ? "success"
+            : status === "maintenance"
+              ? "warn"
+              : "danger";
+        const liveApps = () => db.apps.filter((a) => !a.deleted);
+        const appUsers = (a) =>
+          liveUsers().filter((u) => u.apps.includes(a.id)).length;
+        const ssoBadge = (a) =>
+          !a.usesSso
+            ? statusBadge("off", "external", "Tanpa SSO")
+            : a.credentials > 0
+              ? statusBadge("on", "shieldCheck", "Terhubung")
+              : statusBadge("danger", "shieldAlert", "Belum terhubung");
+        const MAINTENANCE_PLACEHOLDER =
+          "Misalnya: perbaikan server sampai pukul 15.00";
+
+        function applicationList() {
+          const state = ui.ap;
+          const kw = state.q.trim().toLowerCase();
+          const list = liveApps().filter(
+            (a) =>
+              (!state.status || a.status === state.status) &&
+              (!state.cat || a.category === state.cat) &&
+              (!kw ||
+                `${a.name} ${a.slug} ${a.category} ${a.description}`
+                  .toLowerCase()
+                  .includes(kw)),
+          );
+          return sortRows(list, state, {
+            name: (a) => a.name,
+            category: (a) => a.category,
+            users: appUsers,
+            status: (a) =>
+              ["active", "maintenance", "inactive"].indexOf(a.status),
+          });
+        }
+
         function pageApplications() {
-          const head = `<th class="ta-c">No</th>${sortTh("Aplikasi")}${sortTh("Kategori", "hs")}<th class="hs">Slug</th><th>SSO</th>${sortTh("Status")}<th class="ta-r">Aksi</th>`;
-          const rows = db.apps
-            .map(
-              (a, i) =>
-                `<tr><td class="ta-c"><span class="row-no">${i + 1}</span></td><td><div class="who"><span class="av ${a.color}">${icon(a.icon, 18)}</span><div><span class="who-line"><b>${esc(a.name)}</b></span><small>${esc(a.description)}</small></div></div></td><td class="hs">${esc(a.category)}</td><td class="mono hs">${esc(a.slug)}</td><td>${a.usesSso ? statusBadge("on", "shieldCheck", "Terhubung") : statusBadge("off", "external", "Tanpa SSO")}</td><td>${a.status === "maintenance" ? statusBadge("warn", "wrench", "Maintenance") : statusBadge("on", "circleCheck", "Aktif")}</td><td class="ta-r">${rowAct(`Aksi untuk ${a.name}`)}</td></tr>`,
-            )
-            .join("");
-          return tablePage(
+          const state = ui.ap;
+          const apps = liveApps();
+          const list = applicationList();
+          const rows = pageSlice(list, state);
+          const pick = selectionState(
+            "ap",
+            rows.map((a) => a.id),
+          );
+          const filtered = Boolean(state.q.trim() || state.status || state.cat);
+          const toolbar = `<div class="ma-bar us-bar">${searchBox("ap.q", state.q, "Cari aplikasi")}
+      ${tsel("ap-status", state.status, [{ value: "", label: `Semua Status (${apps.length})` }, ...APP_STATUS.map((s) => ({ value: s.value, label: `${s.label} (${apps.filter((a) => a.status === s.value).length})` }))], "Semua Status", (v) => setPage("ap", { status: v, page: 1 }))}
+      ${tsel("ap-cat", state.cat, [{ value: "", label: "Semua Kategori" }, ...sortCategories(apps.map((a) => a.category)).map((c) => ({ value: c, label: c }))], "Semua Kategori", (v) => setPage("ap", { cat: v, page: 1 }))}${resetButton("ap")}</div>`;
+          const bulk = state.sel.length
+            ? `<div class="bulk"><span>${state.sel.length} aplikasi dipilih</span>${APP_STATUS.map((s) => `<button class="ac-btn ${statusActionTone(s.value)}" type="button" data-appbulk="${s.value}">${statusActionLabel(s.value)}${icon(statusIcon(s.value), 15)}</button>`).join("")}<button class="ac-btn danger" type="button" data-appbulk="delete">Hapus${icon("trash", 15)}</button></div>`
+            : "";
+          const head = `<thead><tr><th class="ck">${pickCheck(pick.all, "Pilih semua di halaman ini", 'data-pickall="ap"', pick.some)}</th><th class="ta-c">No</th>${sortHeader("ap", "name", "Aplikasi")}${sortHeader("ap", "category", "Kategori", "hs")}<th class="hs">URL</th>${sortHeader("ap", "users", "Pengguna", "hs")}<th class="hs">SSO</th>${sortHeader("ap", "status", "Status")}<th class="ta-r">Aksi</th></tr></thead>`;
+          const body = rows.length
+            ? rows
+                .map(
+                  (
+                    a,
+                    index,
+                  ) => `<tr class="${[pick.has(a.id) ? "sel" : "", a.status === "maintenance" ? "row-warn" : "", a.status === "inactive" ? "row-danger" : ""].filter(Boolean).join(" ")}"><td class="ck">${pickCheck(pick.has(a.id), `Pilih ${a.name}`, `data-pick="ap:${a.id}"`)}</td><td class="ta-c"><span class="row-no">${(state.page - 1) * state.size + index + 1}</span></td>
+      <td><div class="who"><span class="rc-ic ${a.color}">${icon(a.icon)}</span><div><b>${esc(a.name)}</b><small>${esc(a.slug)}</small></div></div></td><td class="hs">${esc(a.category || "-")}</td><td class="hs"><code class="path">https://${esc(a.host)}</code></td><td class="hs">${countBadge(appUsers(a), "pengguna", "users", "slate")}</td><td class="hs">${ssoBadge(a)}</td><td>${statusBadge(statusTone(a.status), statusIcon(a.status), statusLabel(a.status))}</td>
+      <td class="ta-r"><div class="row-acts"><button class="row-act" type="button" aria-label="Aksi untuk ${esc(a.name)}" aria-haspopup="menu" aria-expanded="false" title="Aksi lainnya" data-rowmenu="ap:${a.id}">${icon("ellipsis", 17)}</button></div></td></tr>`,
+                )
+                .join("")
+            : `<tr><td colspan="9">${empty(filtered ? "Aplikasi tidak ditemukan" : "Belum ada aplikasi", filtered ? "Coba ubah kata kunci atau filter." : "Tambahkan aplikasi yang akan dibuka lewat SSO.", { searching: filtered })}</td></tr>`;
+          return managementPage(
             "Manajemen Aplikasi",
-            "Daftarkan aplikasi, atur status, dan kelola kredensial SSO.",
+            "Daftarkan aplikasi yang dibuka lewat SSO.",
             "Tambah Aplikasi",
-            "",
-            head,
-            rows,
-            db.apps.length,
-            "aplikasi",
+            toolbar,
+            bulk,
+            head + `<tbody>${body}</tbody>`,
+            dataPager(
+              "ap",
+              list.length,
+              state.page,
+              state.size,
+              [10, 20, 50, 100],
+              "aplikasi",
+            ),
           );
         }
 
-        function pageMenus() {
-          const head = `<th class="ta-c">No</th><th>Menu</th><th>Bagian</th><th class="hs">Tujuan</th><th>Status</th>`;
-          let n = 0;
-          const rows = MENUS.flatMap((s) =>
-            s.items.map(
-              (m) =>
-                `<tr><td class="ta-c"><span class="row-no">${++n}</span></td><td><div class="who"><span class="av app-gy">${icon(m.icon, 18)}</span><div><span class="who-line"><b>${esc(m.label)}</b></span></div></div></td><td>${esc(s.section)}</td><td class="mono hs">/${m.key}</td><td>${statusBadge("on", "circleCheck", "Aktif")}</td></tr>`,
-            ),
-          ).join("");
-          return tablePage(
-            "Manajemen Menu",
-            "Atur menu sidebar portal, urutan, dan mode perbaikan.",
-            "",
-            "",
-            head,
-            rows,
-            n,
-            "menu",
+        function applyAppStatus(a, next, message = "") {
+          const previous = statusLabel(a.status);
+          a.status = next;
+          a.maintenanceMessage = next === "maintenance" ? message : "";
+          audit(
+            "update",
+            "application",
+            a.name,
+            `Status diubah dari ${previous} ke ${statusLabel(next)}`,
           );
+        }
+        async function changeAppStatus(a, next) {
+          let message = "";
+          if (next === "maintenance") {
+            const answer = await ask({
+              title: "Alihkan ke maintenance?",
+              message: `${a.name} tetap tampil, tetapi tidak bisa dibuka selama maintenance.`,
+              confirmLabel: statusActionLabel(next),
+              icon: "wrench",
+              tone: "warn",
+              withReason: true,
+              optionalReason: true,
+              reasonLabel: "Pesan untuk pengguna",
+              reasonPlaceholder: MAINTENANCE_PLACEHOLDER,
+              reasonHint:
+                "Pesan ini tampil saat pengguna mengarahkan kursor ke aplikasi. Boleh dikosongkan.",
+            });
+            if (answer === null) return;
+            message = answer;
+          } else {
+            const ok = await ask({
+              title: `${statusActionLabel(next)} aplikasi?`,
+              message:
+                next === "active"
+                  ? `${a.name} akan bisa dibuka kembali oleh pengguna.`
+                  : `${a.name} akan disembunyikan dari semua pengguna.`,
+              confirmLabel: statusActionLabel(next),
+              danger: next === "inactive",
+              icon: statusIcon(next),
+              tone: statusActionTone(next),
+            });
+            if (!ok) return;
+          }
+          applyAppStatus(a, next, message);
+          render();
+          toast(`${a.name}: ${statusLabel(next)}`);
+        }
+        async function removeApp(a) {
+          const reason = await ask({
+            title: "Hapus aplikasi?",
+            message: `${a.name} akan dihapus dan tidak bisa dibuka lagi oleh siapa pun, termasuk lewat SSO.`,
+            confirmLabel: "Hapus",
+            danger: true,
+            icon: "trash",
+            tone: "danger",
+            ...REASON,
+          });
+          if (reason === null) return;
+          a.deleted = true;
+          audit(
+            "delete",
+            "application",
+            a.name,
+            `Dipindahkan ke tempat sampah. Alasan: ${reason}`,
+          );
+          ui.ap.sel = ui.ap.sel.filter((id) => id !== a.id);
+          render();
+          toast(`${a.name} dihapus`);
+        }
+        async function bulkApps(action) {
+          const targets = liveApps().filter((a) => ui.ap.sel.includes(a.id));
+          const count = targets.length;
+          if (!count) return;
+          let reason = "";
+          let message = "";
+          if (action === "delete") {
+            reason = await ask({
+              title: `Hapus ${count} aplikasi?`,
+              message:
+                "Aplikasi terpilih akan dihapus dan tidak bisa dibuka lagi oleh siapa pun, termasuk lewat SSO.",
+              confirmLabel: "Hapus",
+              danger: true,
+              icon: "trash",
+              tone: "danger",
+              ...REASON,
+            });
+            if (reason === null) return;
+          } else if (action === "maintenance") {
+            message = await ask({
+              title: `Alihkan ${count} aplikasi ke maintenance?`,
+              message:
+                "Aplikasi terpilih tetap tampil, tetapi tidak bisa dibuka selama maintenance.",
+              confirmLabel: statusActionLabel(action),
+              icon: "wrench",
+              tone: "warn",
+              withReason: true,
+              optionalReason: true,
+              reasonLabel: "Pesan untuk pengguna",
+              reasonPlaceholder: MAINTENANCE_PLACEHOLDER,
+              reasonHint:
+                "Pesan ini tampil saat pengguna mengarahkan kursor ke aplikasi. Boleh dikosongkan.",
+            });
+            if (message === null) return;
+          } else {
+            const ok = await ask({
+              title: `${statusActionLabel(action)} ${count} aplikasi?`,
+              message:
+                action === "active"
+                  ? "Aplikasi terpilih akan bisa dibuka kembali oleh pengguna."
+                  : "Aplikasi terpilih akan disembunyikan dari semua pengguna.",
+              confirmLabel: statusActionLabel(action),
+              danger: action === "inactive",
+              icon: statusIcon(action),
+              tone: statusActionTone(action),
+            });
+            if (!ok) return;
+          }
+          targets.forEach((a) => {
+            if (action === "delete") {
+              a.deleted = true;
+              audit(
+                "delete",
+                "application",
+                a.name,
+                `Dipindahkan ke tempat sampah. Alasan: ${reason}`,
+              );
+            } else if (a.status !== action || action === "maintenance")
+              applyAppStatus(a, action, message);
+          });
+          ui.ap.sel = [];
+          render();
+          toast(
+            `${count} aplikasi ${action === "delete" ? "dihapus" : `diubah ke ${statusLabel(action)}`}`,
+          );
+        }
+
+        const menuSections = () =>
+          db.menus
+            .filter((m) => m.sectionId === null)
+            .sort((l, r) => l.order - r.order);
+        const menuItems = (sectionId) =>
+          db.menus
+            .filter((m) => m.sectionId === sectionId)
+            .sort((l, r) => l.order - r.order);
+        function menuTree() {
+          return menuSections()
+            .filter((s) => s.active && (!s.admin || me.admin))
+            .map((s) => ({
+              section: s.label,
+              items: menuItems(s.id).filter((m) => m.active),
+            }))
+            .filter((s) => s.items.length);
+        }
+
+        function pageMenus() {
+          const state = ui.mn;
+          const kw = state.q.trim().toLowerCase();
+          const filtered = Boolean(kw || state.status);
+          const matches = (m) =>
+            (!kw || m.label.toLowerCase().includes(kw)) &&
+            (!state.status ||
+              (state.status === "on"
+                ? m.active && !m.maintenance
+                : state.status === "off"
+                  ? !m.active
+                  : m.maintenance));
+          const columns = menuSections()
+            .map((s) => ({
+              section: s,
+              rows: menuItems(s.id).filter(matches),
+              total: menuItems(s.id).length,
+            }))
+            .filter((c) => !filtered || c.rows.length);
+          const menuState = (m) =>
+            m.maintenance
+              ? `<span class="mb-state mb-stateWarn">Maintenance</span>`
+              : !m.active
+                ? `<span class="mb-state mb-stateOff">Nonaktif</span>`
+                : "";
+          const rowActs = (m, label) =>
+            `<button class="row-act" type="button" aria-label="Aksi untuk ${esc(label)}" aria-haspopup="menu" aria-expanded="false" title="Aksi lainnya" data-rowmenu="mn:${m.id}">${icon("ellipsis", 17)}</button>`;
+          const board = columns.length
+            ? `<div class="mb-board">${columns
+                .map(
+                  (
+                    c,
+                  ) => `<section class="card mb-column${c.section.active ? "" : " mb-off"}"><header class="mb-colHead"><b>${esc(c.section.label)}</b><span class="mb-count">${c.total}</span>${c.section.active ? "" : activeBadge(false)}<span class="mb-colActs">${rowActs(c.section, c.section.label)}</span></header>
+      ${c.rows.length ? `<ul class="mb-list">${c.rows.map((m) => `<li class="mb-row${m.active ? "" : " mb-off"}" title="${m.maintenance ? "Mode perbaikan" : m.active ? "" : "Nonaktif"}"><span class="mb-rowMain"><span class="mb-rowIcon">${icon(m.icon, 16)}</span><span class="mb-rowLabel">${esc(m.label)}</span>${menuState(m)}</span><span class="mb-rowActs">${rowActs(m, m.label)}</span></li>`).join("")}</ul>` : `<p class="mb-empty">Belum ada menu di bagian ini.</p>`}
+      <a class="mb-addMenu" href="#" data-toast="Form tambah menu tersedia di aplikasi asli.">${icon("plus", 16)}Tambah menu</a></section>`,
+                )
+                .join(
+                  "",
+                )}<a class="mb-addSection" href="#" data-toast="Form tambah bagian tersedia di aplikasi asli."><span>${icon("plus", 20)}</span><b>Tambah bagian</b><small>Kelompok baru di sidebar</small></a></div>`
+            : empty(
+                filtered ? "Menu tidak ditemukan" : "Belum ada menu",
+                filtered
+                  ? "Coba ubah kata kunci atau filter."
+                  : "Tambahkan bagian, lalu isi dengan menu.",
+                { searching: filtered },
+              );
+          const toolbar = `<header class="mb-boardHead"><div class="ma-bar us-bar mb-toolbar">${searchBox("mn.q", state.q, "Cari menu di semua bagian")}
+      ${tsel(
+        "mn-status",
+        state.status,
+        [
+          { value: "", label: "Semua status" },
+          { value: "on", label: "Aktif" },
+          { value: "off", label: "Nonaktif" },
+          { value: "maintenance", label: "Perbaikan" },
+        ],
+        "Semua status",
+        (v) => setPage("mn", { status: v }),
+      )}
+      <div class="view-tg" role="group" aria-label="Tampilan"><button class="on" type="button" aria-label="Tampilan papan" aria-pressed="true">${icon("grid", 18)}</button><button type="button" aria-label="Tampilan tabel" aria-pressed="false" data-toast="Tampilan tabel menu tersedia di aplikasi asli.">${icon("list", 18)}</button></div>${resetButton("mn")}</div></header>`;
+          return `<div class="page">${hero("Manajemen Menu", "Susunan di bawah sama dengan urutan sidebar pengguna.", `<button class="btn" type="button" data-toast="Form tambah bagian tersedia di aplikasi asli.">Tambah Bagian${icon("plus", 18)}</button>`)}<div class="mb-stack"><section class="card mb-boardCard">${toolbar}<div class="mb-boardBody">${board}</div></section></div></div>`;
+        }
+
+        async function toggleMenu(m) {
+          const isSection = m.sectionId === null;
+          const next = !m.active;
+          const noun = isSection ? "bagian" : "menu";
+          const ok = await ask({
+            title: `${next ? "Aktifkan" : "Nonaktifkan"} ${noun}?`,
+            message: next
+              ? `"${m.label}" akan tampil kembali di sidebar.`
+              : `"${m.label}" tidak akan tampil di sidebar${isSection ? " beserta semua menu di dalamnya" : ""}.`,
+            confirmLabel: next ? "Aktifkan" : "Nonaktifkan",
+            danger: !next,
+            icon: next ? "circleCheck" : "ban",
+            tone: next ? "success" : "danger",
+          });
+          if (!ok) return;
+          m.active = next;
+          audit(
+            "update",
+            "portal_menu",
+            m.label,
+            `Status diubah dari ${next ? "Nonaktif ke Aktif" : "Aktif ke Nonaktif"}`,
+          );
+          syncShell(currentPage);
+          render();
+          toast(`${m.label} ${next ? "diaktifkan" : "dinonaktifkan"}`);
+        }
+        async function maintainMenu(m) {
+          if (m.maintenance) {
+            const ok = await ask({
+              title: "Matikan mode perbaikan?",
+              message: `"${m.label}" akan bisa dibuka kembali seperti biasa.`,
+              confirmLabel: "Matikan",
+              icon: "wrench",
+              tone: "warn",
+            });
+            if (!ok) return;
+            m.maintenance = false;
+            audit("update", "portal_menu", m.label, "Mode perbaikan dimatikan");
+          } else {
+            const message = await ask({
+              title: "Aktifkan mode perbaikan?",
+              message: `"${m.label}" tetap tampil di sidebar, tetapi pengguna akan melihat halaman perbaikan saat membukanya.`,
+              confirmLabel: "Aktifkan",
+              icon: "wrench",
+              tone: "warn",
+              withReason: true,
+              optionalReason: true,
+              reasonLabel: "Pesan untuk pengguna",
+              reasonPlaceholder: MAINTENANCE_PLACEHOLDER,
+              reasonHint:
+                "Pesan ini tampil di halaman perbaikan. Boleh dikosongkan.",
+            });
+            if (message === null) return;
+            m.maintenance = true;
+            m.maintenanceMessage = message;
+            audit(
+              "update",
+              "portal_menu",
+              m.label,
+              "Mode perbaikan diaktifkan",
+            );
+          }
+          render();
+          toast(
+            `${m.label}: ${m.maintenance ? "mode perbaikan aktif" : "mode perbaikan dimatikan"}`,
+          );
+        }
+        async function removeMenu(m) {
+          const isSection = m.sectionId === null;
+          const reason = await ask({
+            title: `Hapus ${isSection ? "bagian" : "menu"}?`,
+            message: isSection
+              ? `Bagian "${m.label}" beserta ${menuItems(m.id).length} menu di dalamnya akan dihapus dari sidebar.`
+              : `Menu "${m.label}" akan dihapus dari sidebar semua pengguna.`,
+            confirmLabel: "Hapus",
+            danger: true,
+            icon: "trash",
+            tone: "danger",
+            ...REASON,
+          });
+          if (reason === null) return;
+          const removed = isSection
+            ? [m.id, ...menuItems(m.id).map((x) => x.id)]
+            : [m.id];
+          db.menus = db.menus.filter((x) => !removed.includes(x.id));
+          audit(
+            "delete",
+            "portal_menu",
+            m.label,
+            `Dipindahkan ke tempat sampah. Alasan: ${reason}`,
+          );
+          syncShell(currentPage);
+          render();
+          toast(`${m.label} dihapus`);
+        }
+
+        function menuActions(m) {
+          const later = (label) => () =>
+            toast(`${label} tersedia di aplikasi asli.`);
+          const isSection = m.sectionId === null;
+          return [
+            {
+              label: isSection ? "Tambah Menu" : "Tambah Submenu",
+              icon: "plus",
+              tone: "primary",
+              run: later(
+                isSection ? "Form tambah menu" : "Form tambah submenu",
+              ),
+            },
+            {
+              label: "Ubah",
+              icon: "pencil",
+              tone: "primary",
+              run: later(isSection ? "Form ubah bagian" : "Form ubah menu"),
+            },
+            !m.locked && {
+              label: m.active ? "Nonaktifkan" : "Aktifkan",
+              icon: m.active ? "ban" : "circleCheck",
+              tone: m.active ? "danger" : "success",
+              run: () => toggleMenu(m),
+            },
+            !isSection &&
+              !m.locked && {
+                label: m.maintenance ? "Atur Mode Perbaikan" : "Mode Perbaikan",
+                icon: "wrench",
+                tone: "warn",
+                run: () => maintainMenu(m),
+              },
+            {
+              label: "Pindah Posisi",
+              icon: "arrowLeftRight",
+              tone: "info",
+              run: later("Pindah posisi menu"),
+            },
+            !m.locked && {
+              label: "Hapus",
+              icon: "trash",
+              tone: "danger",
+              run: () => removeMenu(m),
+            },
+          ].filter(Boolean);
         }
 
         function pageAudit() {
@@ -2462,7 +2993,7 @@
             .filter((n) => n.userId === me.id)
             .sort((l, r) => Date.parse(r.at) - Date.parse(l.at));
         const unreadCount = () => myNotices().filter((n) => !n.read).length;
-        const visibleMenus = () => MENUS.filter((s) => !s.admin || me.admin);
+        const visibleMenus = () => menuTree();
         const forcedCollapse = window.matchMedia(
           "(max-width:1024px) and (min-width:681px)",
         );
@@ -2707,15 +3238,17 @@
           tone = "primary",
           danger = false,
           withReason = false,
+          optionalReason = false,
           reasonLabel = "Alasan",
           reasonPlaceholder = "Masukkan alasan",
+          reasonHint = "Wajib diisi. Alasan tersimpan di riwayat aktivitas.",
         }) {
           return new Promise((resolve) => {
             const host = document.createElement("div");
             const reasonField = withReason
-              ? `<label class="cp-reason"><span>${esc(reasonLabel)}</span><textarea maxlength="500" placeholder="${esc(reasonPlaceholder)}" data-ask-reason></textarea><em>Wajib diisi. Alasan tersimpan di riwayat aktivitas.</em></label>`
+              ? `<label class="cp-reason"><span>${esc(reasonLabel)}</span><textarea maxlength="500" placeholder="${esc(reasonPlaceholder)}" data-ask-reason></textarea><em>${esc(reasonHint)}</em></label>`
               : "";
-            host.innerHTML = `<div class="modal ask show" role="alertdialog" aria-modal="true" aria-labelledby="askTitle" aria-describedby="askMsg"><div class="modal-card ask-card${danger ? " is-danger" : ""} tone-${tone}"><button class="icon-btn ask-close" type="button" aria-label="Tutup" data-ask="0">${icon("x", 18)}</button><div class="ask-ic">${icon(ic, 24)}</div><h3 id="askTitle">${esc(title)}</h3><p id="askMsg">${esc(message)}</p>${reasonField}<div class="ask-btns"><button class="btn btn-ghost" type="button" data-ask="0">Batal${icon("circleX", 18)}</button><button class="btn ask-ok tone-${tone}" type="button" data-ask="1" ${withReason ? "disabled" : ""}>${esc(confirmLabel)}${icon(ic, 18)}</button></div></div></div>`;
+            host.innerHTML = `<div class="modal ask show" role="alertdialog" aria-modal="true" aria-labelledby="askTitle" aria-describedby="askMsg"><div class="modal-card ask-card${danger ? " is-danger" : ""} tone-${tone}"><button class="icon-btn ask-close" type="button" aria-label="Tutup" data-ask="0">${icon("x", 18)}</button><div class="ask-ic">${icon(ic, 24)}</div><h3 id="askTitle">${esc(title)}</h3><p id="askMsg">${esc(message)}</p>${reasonField}<div class="ask-btns"><button class="btn btn-ghost" type="button" data-ask="0">Batal${icon("circleX", 18)}</button><button class="btn ask-ok tone-${tone}" type="button" data-ask="1" ${withReason && !optionalReason ? "disabled" : ""}>${esc(confirmLabel)}${icon(ic, 18)}</button></div></div></div>`;
             const modal = host.firstElementChild;
             const reasonInput = modal.querySelector("[data-ask-reason]");
             const okButton = modal.querySelector('[data-ask="1"]');
@@ -2743,7 +3276,8 @@
             document.addEventListener("keydown", onKey, true);
             reasonInput?.addEventListener("input", (event) => {
               event.stopPropagation();
-              okButton.disabled = reasonInput.value.trim() === "";
+              okButton.disabled =
+                !optionalReason && reasonInput.value.trim() === "";
             });
             modal.addEventListener("mousedown", (event) => {
               if (event.target === modal) finish(false);
@@ -2870,6 +3404,11 @@
           if (app.status !== "active")
             return toast(`${app.name} sedang maintenance.`, "warning");
           if (launching) return;
+          if (app.usesSso && !app.credentials)
+            return toast(
+              `${app.name} belum siap dibuka karena SSO belum terhubung ke SSO Launcher. Hubungi Administrator Sistem.`,
+              "warning",
+            );
           launching = true;
           closePop();
           closeFloating();
@@ -2958,6 +3497,7 @@
           ];
           let page = r.page;
           if (adminPages.includes(page) && !me.admin) page = "overview";
+          if (!leafMenus().some((m) => m.key === page)) page = "overview";
           const views = {
             overview: pageOverview,
             "my-apps": pageMyApps,
@@ -2989,8 +3529,7 @@
           if (animate) countUp();
           layer.innerHTML = popover();
           const label =
-            MENUS.flatMap((s) => s.items).find((m) => m.key === page)?.label ||
-            "Beranda";
+            leafMenus().find((m) => m.key === page)?.label || "Beranda";
           document.title = `${label} — SSO Launcher (demo)`;
         }
 
@@ -3260,6 +3799,7 @@
             toggleSort(ui[scope], key);
             return render();
           }
+          if (d.appbulk) return void bulkApps(d.appbulk);
           if (d.bulk) {
             const [scope, action] = d.bulk.split(":");
             return void runBulk(scope, action);
@@ -3323,7 +3863,11 @@
           if (e.target.matches("[data-pickall]")) {
             const scope = e.target.dataset.pickall;
             const ids = pageSlice(
-              scope === "us" ? userList() : groupList(),
+              scope === "us"
+                ? userList()
+                : scope === "gr"
+                  ? groupList()
+                  : applicationList(),
               ui[scope],
             ).map((x) => x.id);
             ui[scope].sel = e.target.checked

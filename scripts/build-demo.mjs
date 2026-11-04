@@ -14,6 +14,7 @@ const modules = [
   ["nl", "components/layout/notification-list.module.css"],
   ["ei", "components/portal/empty-illustration.module.css"],
   ["cp", "components/portal/confirm-provider.module.css"],
+  ["mb", "components/management/menu-board/menu-board.module.css"],
 ];
 
 function scopeModule(css, prefix) {
