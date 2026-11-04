@@ -9573,6 +9573,116 @@ html[data-theme="dark"] .mb-addSection span {
   }
 }
 
+.at-dateRange {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: var(--ctl)
+}
+
+.at-dateRange span {
+  color: var(--muted);
+  font-size: var(--fs-sm)
+}
+
+.at-dateRange input {
+  height: var(--ctl);
+  padding: 0 10px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-ctl);
+  background: var(--card);
+  color: var(--ink);
+  font: inherit;
+  font-size: var(--fs-sm)
+}
+
+.at-dateRange input:focus {
+  outline: 0;
+  border-color: var(--g700);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--g600) 14%, transparent)
+}
+
+html[data-theme="dark"] .at-dateRange input {
+  color-scheme: dark
+}
+
+@media (max-width:760px) {
+  .at-dateRange {
+    flex: 1 1 100%
+  }
+
+  .at-dateRange input {
+    flex: 1;
+    min-width: 0
+  }
+}
+
+.ad-card.modal-card {
+  width: min(680px, 100%);
+  max-height: min(760px, 92dvh)
+}
+
+.ad-body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 4px 20px 16px
+}
+
+.ad-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 14px
+}
+
+.ad-summary {
+  border: 1px solid var(--line);
+  border-radius: var(--r-card);
+  padding: 12px 14px;
+  margin-bottom: 18px;
+  font-size: var(--fs-md);
+  color: var(--ink)
+}
+
+.ad-reason {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px dashed var(--line);
+  color: var(--body);
+  font-size: var(--fs-sm)
+}
+
+.ad-reason b {
+  color: var(--ink)
+}
+
+.ad-section {
+  margin: 0 0 18px
+}
+
+.ad-section h4 {
+  margin: 0 0 8px;
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: .04em
+}
+
+.ad-code {
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  color: var(--body);
+  word-break: break-all;
+  white-space: normal
+}
+
+.ad-note {
+  color: var(--muted);
+  font-size: var(--fs-sm)
+}
+
       .demo-bar {
         position: relative;
         z-index: 45;
@@ -9786,7 +9896,7 @@ html[data-theme="dark"] .mb-addSection span {
 
     <script>
       (() => {
-        const STORE = "sso-demo-v5";
+        const STORE = "sso-demo-v6";
         const SESSION = "sso-demo-session";
         const PASSWORD = "demo1234";
         const LOGO = "data:image/webp;base64,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";
@@ -9891,6 +10001,10 @@ html[data-theme="dark"] .mb-addSection span {
           copy: '<rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/>',
           arrowLeftRight:
             '<path d="M8 3 4 7l4 4"/><path d="M4 7h16"/><path d="m16 21 4-4-4-4"/><path d="M20 17H4"/>',
+          activity:
+            '<path d="M22 12h-2.48a2 2 0 0 0-1.93 1.46l-2.35 8.36a.25.25 0 0 1-.48 0L9.24 2.18a.25.25 0 0 0-.48 0l-2.35 8.36A2 2 0 0 1 4.49 12H2"/>',
+          download:
+            '<path d="M12 15V3"/><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/>',
           arrowDown: '<path d="M12 5v14"/><path d="m19 12-7 7-7-7"/>',
           squareOut:
             '<path d="M21 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h6"/><path d="m21 3-9 9"/><path d="M15 3h6v6"/>',
@@ -10507,6 +10621,23 @@ html[data-theme="dark"] .mb-addSection span {
             sel: [],
           },
           mn: { q: "", status: "" },
+          au: {
+            tab: "activity",
+            q: "",
+            action: "",
+            module: "",
+            outcome: "",
+            actor: "",
+            from: "",
+            to: "",
+            page: 1,
+            size: 10,
+            sort: null,
+            detail: null,
+            trashType: "user",
+            trashQ: "",
+            trash: { page: 1, size: 10 },
+          },
         });
         const ui = {
           collapsed: false,
@@ -10557,9 +10688,10 @@ html[data-theme="dark"] .mb-addSection span {
           summary,
           outcome = "success",
           actor = me,
+          reason = "",
         ) {
           db.seq.audit += 1;
-          db.audit.unshift({
+          const entry = {
             id: db.seq.audit,
             at: new Date().toISOString(),
             actorId: actor ? actor.id : null,
@@ -10569,9 +10701,29 @@ html[data-theme="dark"] .mb-addSection span {
             targetName,
             summary,
             outcome,
-          });
+            reason,
+          };
+          db.audit.unshift(entry);
           db.audit = db.audit.slice(0, 300);
           save();
+          return entry;
+        }
+        function trash(entity, targetType, summary, reason) {
+          Object.assign(entity, {
+            deleted: true,
+            deletedAt: new Date().toISOString(),
+            deletedBy: me.name,
+            deleteReason: reason,
+          });
+          audit(
+            "delete",
+            targetType,
+            entity.name || entity.label,
+            summary,
+            "success",
+            me,
+            reason,
+          );
         }
         function recordActivity(app) {
           db.activities = db.activities.filter(
@@ -10774,6 +10926,11 @@ html[data-theme="dark"] .mb-addSection span {
           return `<div class="pager">${summary || `<span class="muted">${total === 0 ? "Tidak ada data" : `Menampilkan ${start}–${end} dari ${total} ${unit}`}</span>`}<div class="pager-r">${summary && total > 0 ? `<span class="muted">${start}–${end} dari ${total}</span>` : ""}${sizeSelect}<nav class="pages" aria-label="Halaman"><button type="button" aria-label="Sebelumnya" ${current === 1 ? "disabled" : ""} data-page="${key}:${current - 1}">${icon("chevronLeft", 16)}</button>${numbers.map((n) => (n === "gap" ? "<span>…</span>" : `<button type="button" class="${n === current ? "on" : ""}" ${n === current ? 'aria-current="page"' : ""} data-page="${key}:${n}">${n}</button>`)).join("")}<button type="button" aria-label="Berikutnya" ${current === pages ? "disabled" : ""} data-page="${key}:${current + 1}">${icon("chevronRight", 16)}</button></nav></div></div>`;
         }
         function setPage(key, patch) {
+          if (key.includes(".")) {
+            const [parent, child] = key.split(".");
+            Object.assign(ui[parent][child], patch);
+            return render();
+          }
           if (
             (key === "us" || key === "gr" || key === "ap") &&
             ("page" in patch || "size" in patch)
@@ -11266,6 +11423,23 @@ html[data-theme="dark"] .mb-addSection span {
               },
             ].filter(Boolean);
           }
+          if (kind === "tr") {
+            const [, type, raw] = ref.split(":");
+            return [
+              {
+                label: "Histori",
+                icon: "history",
+                tone: "info",
+                run: () => toast("Histori versi tersedia di aplikasi asli."),
+              },
+              {
+                label: "Pulihkan",
+                icon: "rotate",
+                tone: "success",
+                run: () => restoreItem(type, Number(raw)),
+              },
+            ];
+          }
           if (kind === "mn") {
             const m = db.menus.find((x) => x.id === Number(id));
             return m ? menuActions(m) : [];
@@ -11728,14 +11902,8 @@ html[data-theme="dark"] .mb-addSection span {
         }
         function deleteUser(user, reason) {
           if (user.id === me.id) return false;
-          user.deleted = true;
           user.active = false;
-          audit(
-            "delete",
-            "user",
-            user.name,
-            `Dipindahkan ke tempat sampah. Alasan: ${reason}`,
-          );
+          trash(user, "user", "Dipindahkan ke tempat sampah", reason);
           return true;
         }
         function setGroupActive(group, active) {
@@ -11748,12 +11916,11 @@ html[data-theme="dark"] .mb-addSection span {
           );
         }
         function deleteGroup(group, reason) {
-          group.deleted = true;
-          audit(
-            "delete",
+          trash(
+            group,
             "user_group",
-            group.name,
-            `Grup dipindahkan ke tempat sampah beserta ${memberCount(group)} anggota. Alasan: ${reason}`,
+            `Grup dipindahkan ke tempat sampah beserta ${memberCount(group)} anggota`,
+            reason,
           );
           return true;
         }
@@ -12168,13 +12335,7 @@ html[data-theme="dark"] .mb-addSection span {
             ...REASON,
           });
           if (reason === null) return;
-          a.deleted = true;
-          audit(
-            "delete",
-            "application",
-            a.name,
-            `Dipindahkan ke tempat sampah. Alasan: ${reason}`,
-          );
+          trash(a, "application", "Dipindahkan ke tempat sampah", reason);
           ui.ap.sel = ui.ap.sel.filter((id) => id !== a.id);
           render();
           toast(`${a.name} dihapus`);
@@ -12228,15 +12389,9 @@ html[data-theme="dark"] .mb-addSection span {
             if (!ok) return;
           }
           targets.forEach((a) => {
-            if (action === "delete") {
-              a.deleted = true;
-              audit(
-                "delete",
-                "application",
-                a.name,
-                `Dipindahkan ke tempat sampah. Alasan: ${reason}`,
-              );
-            } else if (a.status !== action || action === "maintenance")
+            if (action === "delete")
+              trash(a, "application", "Dipindahkan ke tempat sampah", reason);
+            else if (a.status !== action || action === "maintenance")
               applyAppStatus(a, action, message);
           });
           ui.ap.sel = [];
@@ -12248,11 +12403,11 @@ html[data-theme="dark"] .mb-addSection span {
 
         const menuSections = () =>
           db.menus
-            .filter((m) => m.sectionId === null)
+            .filter((m) => m.sectionId === null && !m.deleted)
             .sort((l, r) => l.order - r.order);
         const menuItems = (sectionId) =>
           db.menus
-            .filter((m) => m.sectionId === sectionId)
+            .filter((m) => m.sectionId === sectionId && !m.deleted)
             .sort((l, r) => l.order - r.order);
         function menuTree() {
           return menuSections()
@@ -12408,15 +12563,13 @@ html[data-theme="dark"] .mb-addSection span {
             ...REASON,
           });
           if (reason === null) return;
-          const removed = isSection
-            ? [m.id, ...menuItems(m.id).map((x) => x.id)]
-            : [m.id];
-          db.menus = db.menus.filter((x) => !removed.includes(x.id));
-          audit(
-            "delete",
+          trash(
+            m,
             "portal_menu",
-            m.label,
-            `Dipindahkan ke tempat sampah. Alasan: ${reason}`,
+            isSection
+              ? `Bagian dipindahkan ke tempat sampah beserta ${menuItems(m.id).length} menu`
+              : "Dipindahkan ke tempat sampah",
+            reason,
           );
           syncShell(currentPage);
           render();
@@ -12470,24 +12623,360 @@ html[data-theme="dark"] .mb-addSection span {
           ].filter(Boolean);
         }
 
-        function pageAudit() {
-          const head = `<th class="ta-c">No</th>${sortTh("Waktu")}${sortTh("Pengguna")}<th>Aksi</th><th class="hs">Data</th><th class="hs">Ringkasan</th>`;
-          const rows = db.audit
-            .map(
-              (x, i) =>
-                `<tr><td class="ta-c"><span class="row-no">${i + 1}</span></td><td class="mono">${esc(stamp(x.at))}</td><td><div class="who"><span class="av ${avatarClass(x.actorName)}">${initials(x.actorName)}</span><div><span class="who-line"><b>${esc(x.actorName)}</b></span></div></div></td><td>${statusBadge(actionTone(x.action, x.outcome), actionIcon(x.action), actionLabel(x.action))}</td><td class="hs"><b>${esc(x.targetName)}</b><br><small class="muted">${esc(targetLabel(x.targetType))}</small></td><td class="muted hs">${esc(x.summary)}</td></tr>`,
-            )
-            .join("");
-          return tablePage(
-            "Riwayat Aktivitas",
-            "Semua login, perubahan data, dan aplikasi yang dibuka. Coba login dengan password salah, lalu lihat catatannya di sini.",
-            "",
-            "",
-            head,
-            rows,
-            db.audit.length,
-            "aktivitas",
+        const MODULE_OF = {
+          user: "users",
+          password: "users",
+          user_group: "groups",
+          access: "access",
+          application: "applications",
+          application_menu: "applications",
+          service_credential: "applications",
+          portal_menu: "menus",
+          session: "auth",
+          favorite: "portal",
+          activity: "portal",
+        };
+        const MODULE_LABELS = {
+          users: "Pengguna",
+          groups: "Grup & Akses",
+          applications: "Aplikasi",
+          menus: "Menu Portal",
+          access: "Akses Langsung",
+          auth: "Login & Sesi",
+          portal: "Aktivitas Portal",
+        };
+        const TARGET_ICONS = {
+          user: "users",
+          user_group: "usersRound",
+          application: "window",
+          application_menu: "squareMenu",
+          portal_menu: "squareMenu",
+          access: "shieldCheck",
+          service_credential: "key",
+          password: "keyRound",
+          session: "laptop",
+          favorite: "star",
+          activity: "history",
+        };
+        const TARGET_COLORS = {
+          user: "app-hr",
+          user_group: "app-vi",
+          application: "app-pj",
+          application_menu: "app-wh",
+          portal_menu: "app-wh",
+          access: "app-nv",
+          service_credential: "app-as",
+          password: "app-pr",
+          session: "app-hd",
+          favorite: "app-fn",
+          activity: "app-br",
+        };
+        const moduleOf = (x) =>
+          x.action === "launch"
+            ? "portal"
+            : x.action === "logout" && x.targetType === "application"
+              ? "auth"
+              : MODULE_OF[x.targetType] || "portal";
+        const moduleLabel = (m) => MODULE_LABELS[m] || m;
+        const DEVICE = {
+          ip: "10.20.1.15",
+          name: "Laptop Kantor",
+          type: "Desktop",
+          os: "Windows 11",
+          browser: "Chrome 131",
+          agent:
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/131.0 Safari/537.36",
+        };
+        const fullStamp = (iso) =>
+          new Date(iso).toLocaleString("id-ID", {
+            dateStyle: "full",
+            timeStyle: "medium",
+          });
+        const RECYCLE_TYPES = [
+          { value: "user", label: "Pengguna" },
+          { value: "application", label: "Aplikasi" },
+          { value: "user_group", label: "Grup" },
+          { value: "portal_menu", label: "Menu Portal" },
+          { value: "access", label: "Akses Langsung" },
+        ];
+
+        function auditList() {
+          const state = ui.au;
+          const kw = state.q.trim().toLowerCase();
+          const from = state.from ? new Date(`${state.from}T00:00:00`) : null;
+          const to = state.to ? new Date(`${state.to}T23:59:59`) : null;
+          const list = db.audit.filter(
+            (x) =>
+              (!state.action || x.action === state.action) &&
+              (!state.module || moduleOf(x) === state.module) &&
+              (!state.outcome || x.outcome === state.outcome) &&
+              (!state.actor || String(x.actorId) === state.actor) &&
+              (!from || new Date(x.at) >= from) &&
+              (!to || new Date(x.at) <= to) &&
+              (!kw ||
+                `${x.actorName} ${x.targetName} ${x.summary} ${x.reason || ""} ${actionLabel(x.action)} ${targetLabel(x.targetType)}`
+                  .toLowerCase()
+                  .includes(kw)),
           );
+          return sortRows(list, state, {
+            actor: (x) => x.actorName,
+            action: (x) => actionLabel(x.action),
+            target: (x) => x.targetName,
+            occurredAt: (x) => Date.parse(x.at),
+          });
+        }
+
+        function trashItems() {
+          const type = ui.au.trashType;
+          const source =
+            type === "user"
+              ? db.users.map((u) => ({
+                  entity: u,
+                  name: u.name,
+                  detail: u.email,
+                }))
+              : type === "application"
+                ? db.apps.map((a) => ({
+                    entity: a,
+                    name: a.name,
+                    detail: a.category,
+                    icon: a.icon,
+                    color: a.color,
+                  }))
+                : type === "user_group"
+                  ? db.groups.map((g) => ({
+                      entity: g,
+                      name: g.name,
+                      detail: g.department,
+                    }))
+                  : type === "portal_menu"
+                    ? db.menus.map((m) => ({
+                        entity: m,
+                        name: m.label,
+                        detail: m.sectionId === null ? "Bagian" : "Menu",
+                        icon: m.icon || "squareMenu",
+                      }))
+                    : [];
+          const kw = ui.au.trashQ.trim().toLowerCase();
+          return source
+            .filter(
+              (x) =>
+                x.entity.deleted &&
+                (!kw || `${x.name} ${x.detail}`.toLowerCase().includes(kw)),
+            )
+            .sort(
+              (l, r) =>
+                Date.parse(r.entity.deletedAt || 0) -
+                Date.parse(l.entity.deletedAt || 0),
+            );
+        }
+        function trashIcon(type, item) {
+          if (type === "user")
+            return `<span class="av ${avatarClass(item.name)}">${initials(item.name)}</span>`;
+          if (type === "user_group")
+            return `<span class="rc-ic sm ${avatarClass(item.name)}">${icon("usersRound")}</span>`;
+          if (type === "application")
+            return `<span class="rc-ic sm ${item.color}">${icon(item.icon)}</span>`;
+          return `<span class="rc-ic sm ${TARGET_COLORS[type] || "app-wh"}">${icon(item.icon || TARGET_ICONS[type] || "squareMenu")}</span>`;
+        }
+
+        function trashPanel() {
+          const state = ui.au;
+          const items = trashItems();
+          const typeLabel = RECYCLE_TYPES.find(
+            (t) => t.value === state.trashType,
+          ).label;
+          const rows = pageSlice(items, state.trash);
+          return `<div class="ma-panel"><div class="ma-bar us-bar">${searchBox("au.trashQ", state.trashQ, "Cari data terhapus")}${tsel(
+            "au-trash",
+            state.trashType,
+            RECYCLE_TYPES,
+            "Jenis data",
+            (v) => {
+              state.trashType = v;
+              state.trash.page = 1;
+              render();
+            },
+          )}</div>
+      <div class="pk-info"><span>${typeLabel} terhapus <b>${items.length}</b></span><span class="pk-hint">Bisa dikembalikan lewat Pulihkan. Perubahan sebelum dihapus tetap bisa dilihat lewat Histori.</span></div>
+      <div class="table-wrap"><table class="dt ut"><thead><tr><th class="ta-c">No</th><th>Data</th><th class="hs">Dihapus Oleh</th><th class="hs">Alasan</th><th>Waktu</th><th class="ta-r">Aksi</th></tr></thead><tbody>
+      ${
+        rows.length
+          ? rows
+              .map(
+                (item, index) =>
+                  `<tr><td class="ta-c"><span class="row-no">${(state.trash.page - 1) * state.trash.size + index + 1}</span></td><td><div class="who">${trashIcon(state.trashType, item)}<div><b>${esc(item.name)}</b><small>${esc(item.detail || "-")}</small></div></div></td><td class="hs">${esc(item.entity.deletedBy || "-")}</td><td class="muted hs">${esc(item.entity.deleteReason || "-")}</td><td><span class="muted" title="${esc(stamp(item.entity.deletedAt))}">${dayRel(item.entity.deletedAt)}</span></td><td class="ta-r"><div class="row-acts"><button class="row-act" type="button" aria-label="Aksi untuk ${esc(item.name)}" aria-haspopup="menu" aria-expanded="false" title="Aksi lainnya" data-rowmenu="tr:${state.trashType}:${item.entity.id}">${icon("ellipsis", 17)}</button></div></td></tr>`,
+              )
+              .join("")
+          : `<tr><td colspan="6">${empty(state.trashQ ? "Data tidak ditemukan" : "Tempat sampah kosong", state.trashQ ? "Coba kata kunci lain." : `Belum ada ${typeLabel.toLowerCase()} yang dihapus.`, { searching: Boolean(state.trashQ) })}</td></tr>`
+      }
+      </tbody></table></div>${dataPager("au.trash", items.length, state.trash.page, state.trash.size, [10, 20, 50, 100], "data")}</div>`;
+        }
+
+        function pageAudit() {
+          const state = ui.au;
+          const now = Date.now();
+          const week = db.audit.filter(
+            (x) => now - Date.parse(x.at) < 7 * 864e5,
+          );
+          const today = db.audit.filter(
+            (x) => new Date(x.at).toDateString() === new Date().toDateString(),
+          ).length;
+          const stat = (ic, label, value, tone) =>
+            `<div class="sc-card sc-${tone}"><span class="sc-icon">${icon(ic, 20)}</span><span class="sc-text"><b aria-hidden="true" data-count="${value}">${value}</b><span class="sr-only">${value}</span><small>${esc(label)}</small></span></div>`;
+          const stats = `<div class="page-stats"><div class="sc-grid">${stat("activity", "Aktivitas hari ini", today, "info")}${stat("calendar", "Aktivitas 7 hari", week.length, "success")}${stat("trash", "Data dihapus 7 hari", week.filter((x) => x.action === "delete").length, "warn")}${stat("circleAlert", "Aksi gagal 7 hari", week.filter((x) => x.outcome === "failed").length, "danger")}</div></div>`;
+          const tabs = `<div class="tab-bar"><div class="segs" role="tablist" aria-label="Bagian riwayat">${[
+            ["activity", "Aktivitas", "history"],
+            ["trash", "Tempat Sampah", "trash"],
+          ]
+            .map(
+              (t) =>
+                `<button class="${state.tab === t[0] ? "seg on" : "seg"}" type="button" role="tab" aria-selected="${state.tab === t[0]}" data-autab="${t[0]}">${icon(t[2], 15)}${t[1]}</button>`,
+            )
+            .join("")}</div></div>`;
+          let body;
+          if (state.tab === "trash") body = trashPanel();
+          else {
+            const list = auditList();
+            const rows = pageSlice(list, state);
+            const filtered = Boolean(
+              state.q.trim() ||
+              state.action ||
+              state.module ||
+              state.outcome ||
+              state.actor ||
+              state.from ||
+              state.to,
+            );
+            const actors = [
+              ...new Map(
+                db.audit
+                  .filter((x) => x.actorId)
+                  .map((x) => [x.actorId, x.actorName]),
+              ).entries(),
+            ]
+              .map(([id, name]) => ({ value: String(id), label: name }))
+              .sort((l, r) => l.label.localeCompare(r.label, "id-ID"));
+            const withAll = (label, entries) => [
+              { value: "", label },
+              ...entries,
+            ];
+            const toolbar = `<div class="ma-bar us-bar">${searchBox("au.q", state.q, "Cari aktivitas")}
+        ${tsel(
+          "au-action",
+          state.action,
+          withAll(
+            "Semua Aksi",
+            Object.entries(ACTION_LABELS).map(([value, label]) => ({
+              value,
+              label,
+            })),
+          ),
+          "Semua Aksi",
+          (v) => setPage("au", { action: v, page: 1 }),
+        )}
+        ${tsel(
+          "au-module",
+          state.module,
+          withAll(
+            "Semua Modul",
+            Object.entries(MODULE_LABELS).map(([value, label]) => ({
+              value,
+              label,
+            })),
+          ),
+          "Semua Modul",
+          (v) => setPage("au", { module: v, page: 1 }),
+        )}
+        ${tsel(
+          "au-outcome",
+          state.outcome,
+          withAll("Semua Hasil", [
+            { value: "success", label: "Berhasil" },
+            { value: "failed", label: "Gagal" },
+          ]),
+          "Semua Hasil",
+          (v) => setPage("au", { outcome: v, page: 1 }),
+        )}
+        ${tsel("au-actor", state.actor, withAll("Semua Pengguna", actors), "Semua Pengguna", (v) => setPage("au", { actor: v, page: 1 }))}
+        <div class="at-dateRange"><input type="date" aria-label="Dari tanggal" value="${state.from}" ${state.to ? `max="${state.to}"` : ""} data-audate="from"><span>s.d.</span><input type="date" aria-label="Sampai tanggal" value="${state.to}" ${state.from ? `min="${state.from}"` : ""} data-audate="to"></div>
+        ${resetButton("au")}<button class="btn tone-success" type="button" data-act="au-export">Ekspor Excel${icon("download", 18)}</button></div>`;
+            const head = `<thead><tr><th class="ta-c">No</th>${sortHeader("au", "actor", "Dilakukan Oleh")}${sortHeader("au", "action", "Aksi")}${sortHeader("au", "target", "Data Terkait", "hs")}<th class="hs">Keterangan</th><th class="hs">Perangkat</th>${sortHeader("au", "occurredAt", "Waktu", "ta-r")}</tr></thead>`;
+            const tr = (
+              x,
+              index,
+            ) => `<tr tabindex="0" style="cursor:pointer" title="Lihat detail aktivitas" data-audit="${x.id}"><td class="ta-c"><span class="row-no">${(state.page - 1) * state.size + index + 1}</span></td>
+        <td><div class="who"><span class="av ${avatarClass(x.actorName)}">${initials(x.actorName)}</span><div><b>${esc(x.actorName)}</b><small class="sm-only">${esc(targetLabel(x.targetType))}</small></div></div></td>
+        <td><span class="status ${actionTone(x.action, x.outcome)}">${icon(actionIcon(x.action), 13)}${esc(actionLabel(x.action))}</span></td>
+        <td class="hs"><div class="who"><span class="rc-ic sm ${TARGET_COLORS[x.targetType] || "app-wh"}">${icon(TARGET_ICONS[x.targetType] || "squareMenu")}</span><div><b>${esc(x.targetName || "-")}</b><small>${esc(moduleLabel(moduleOf(x)))} · ${esc(targetLabel(x.targetType))}</small></div></div></td>
+        <td class="muted hs">${esc(x.summary || "-")}${x.reason ? `<br><small>Alasan: ${esc(x.reason)}</small>` : ""}</td>
+        <td class="hs"><div class="who"><div><b>${DEVICE.ip}</b><small>${DEVICE.name} · ${DEVICE.os} · ${DEVICE.browser}</small></div></div></td>
+        <td class="ta-r"><span class="muted" title="${esc(stamp(x.at))}">${dayRel(x.at)}</span></td></tr>`;
+            body = `<div class="ma-panel">${toolbar}<div class="table-wrap"><table class="dt ut">${head}<tbody>${rows.length ? rows.map(tr).join("") : `<tr><td colspan="7">${empty(filtered ? "Riwayat tidak ditemukan" : "Belum ada riwayat", filtered ? "Coba ubah kata kunci atau filter." : "Setiap aktivitas akan tercatat di sini.", { searching: filtered })}</td></tr>`}</tbody></table></div>${dataPager("au", list.length, state.page, state.size, [10, 20, 50, 100], "catatan")}</div>`;
+          }
+          return `<div class="page">${hero("Riwayat Aktivitas", "Telusuri aktivitas, histori versi, dan tempat sampah.")}${stats}<div class="card audit-shell">${tabs}${body}</div>${state.detail ? auditDetail(state.detail) : ""}</div>`;
+        }
+
+        function auditDetail(id) {
+          const x = db.audit.find((item) => item.id === id);
+          if (!x) return "";
+          const kv = (label, value, code = false) =>
+            `<div class="kv"><span>${label}</span><div${code ? ' class="ad-code"' : ""}>${esc(value || "—")}</div></div>`;
+          return `<div class="modal show" role="dialog" aria-modal="true" aria-labelledby="auditDetailTitle" data-modal="audit"><div class="modal-card mh-info ad-card"><header><span class="mh-ic">${icon("history", 20)}</span><div><h3 id="auditDetailTitle">${esc(x.targetName || "-")}</h3><p>${esc(actionLabel(x.action))} · ${esc(targetLabel(x.targetType))} · ${esc(moduleLabel(moduleOf(x)))}</p></div><button class="icon-btn fm-close" type="button" aria-label="Tutup" data-act="audit-close">${icon("x", 18)}</button></header>
+      <div class="ad-body"><div class="ad-badges"><span class="status ${actionTone(x.action, x.outcome)}">${icon(actionIcon(x.action), 13)}${esc(actionLabel(x.action))}</span>${x.outcome === "failed" ? statusBadge("danger", "circleX", "Gagal") : statusBadge("on", "circleCheck", "Berhasil")}</div>
+      <div class="ad-summary">${esc(x.summary || "Tidak ada keterangan.")}${x.reason ? `<div class="ad-reason"><b>Alasan:</b> ${esc(x.reason)}</div>` : ""}</div>
+      <section class="ad-section"><h4>Dilakukan Oleh</h4><div class="kv-list">${kv("Nama", x.actorName)}${kv("Waktu", fullStamp(x.at))}${kv("Sesi", `sess_${String(x.actorId || 0).padStart(4, "0")}demo`, true)}${kv("Request", x.action === "launch" ? "POST /api/sso/launch" : x.targetType === "session" ? "POST /api/auth/login" : "PUT /api/admin", true)}${kv("ID Request", `req-demo-${x.id}`, true)}</div></section>
+      <section class="ad-section"><h4>Perangkat</h4><div class="kv-list">${kv("Alamat IP", DEVICE.ip, true)}${kv("Nama Perangkat", DEVICE.name)}${kv("Jenis", DEVICE.type)}${kv("Sistem Operasi", DEVICE.os)}${kv("Browser", DEVICE.browser)}${kv("User Agent", DEVICE.agent, true)}</div></section>
+      <section class="ad-section"><h4>Perubahan Data</h4><p class="ad-note">${x.action === "update" ? "Detail perubahan per kolom tersedia di aplikasi asli." : "Aktivitas ini tidak mengubah isi data."}</p></section></div>
+      <footer><button class="btn" type="button" data-act="audit-close">Selesai${icon("circleCheck", 18)}</button></footer></div></div>`;
+        }
+
+        async function restoreItem(type, id) {
+          const label = RECYCLE_TYPES.find(
+            (t) => t.value === type,
+          ).label.toLowerCase();
+          const entity = (
+            type === "user"
+              ? db.users
+              : type === "application"
+                ? db.apps
+                : type === "user_group"
+                  ? db.groups
+                  : db.menus
+          ).find((x) => x.id === id);
+          if (!entity) return;
+          const name = entity.name || entity.label;
+          const ok = await ask({
+            title: `Pulihkan ${label}?`,
+            message: `${name} akan dipulihkan dan tercatat di riwayat aktivitas. Pengguna dan aplikasi dipulihkan dalam keadaan nonaktif.`,
+            confirmLabel: "Ya, Pulihkan",
+            icon: "rotate",
+            tone: "success",
+          });
+          if (!ok) return;
+          if (
+            type === "portal_menu" &&
+            entity.sectionId !== null &&
+            db.menus.find((m) => m.id === entity.sectionId)?.deleted
+          ) {
+            render();
+            return toast(
+              `${name} tidak bisa dipulihkan karena bentrok dengan data aktif, atau data induknya sudah dihapus.`,
+              "error",
+            );
+          }
+          entity.deleted = false;
+          if (type === "user") entity.active = false;
+          if (type === "application") entity.status = "inactive";
+          audit(
+            "restore",
+            type,
+            name,
+            `${RECYCLE_TYPES.find((t) => t.value === type).label} dipulihkan dari tempat sampah`,
+          );
+          syncShell(currentPage);
+          render();
+          toast(`${name} dipulihkan`);
         }
 
         const PAD = (v) => String(v).padStart(2, "0");
@@ -12843,7 +13332,7 @@ html[data-theme="dark"] .mb-addSection span {
           return `<section class="lp" id="login"><div class="lp-visual"><div class="la"><div class="la-glow" aria-hidden="true"></div>${rings("la-rings")}<div class="la-stage"><div class="la-copy"><h2>Satu Akses untuk Semua Aplikasi.</h2><p>Masuk sekali, lalu buka aplikasi kerja Anda tanpa login ulang. Aman dan terpusat di SSO Launcher.</p><ul class="la-points">${points.map((p) => `<li><span>${icon(p[0], 17)}</span>${p[1]}</li>`).join("")}</ul><div class="la-brand"><img class="la-logo" src="${LOGO}" alt="Logo SSO Launcher"><span class="la-divider" aria-hidden="true"></span><div><b>SSO <span>LAUNCHER</span></b><small>PORTAL AKSES APLIKASI</small></div></div></div><div class="lb-art" aria-hidden="true">${SCENE}</div></div></div></div>
       <div class="lp-panel"><div class="lp-form"><span class="brand lp-logo"><img class="lp-logo-img" src="${LOGO}" alt="Logo SSO Launcher"><span class="lp-brand-text"><b>SSO<span>LAUNCHER</span></b><small>Portal akses aplikasi</small></span></span>
       <form class="lp-step" id="login-form" autocomplete="on" novalidate><h1 class="lp-title">Selamat Datang</h1><p class="lp-sub">Masuk dengan akun SSO Launcher Anda.</p>
-      <label class="lp-label" for="email">Email</label><div class="lp-input${ui.loginError ? " has-error" : ""}"><svg viewBox="0 0 24 24" fill="none"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg><input id="email" name="email" type="email" inputmode="email" autocomplete="email" placeholder="Masukkan email"></div>
+      <label class="lp-label" for="email">Email</label><div class="lp-input${ui.loginError ? " has-error" : ""}"><svg viewBox="0 0 24 24" fill="none"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg><input id="email" name="email" type="email" inputmode="email" autocomplete="email" placeholder="Masukkan email" value="${esc(ui.loginEmail || "")}"></div>
       <label class="lp-label" for="password">Password</label><div class="lp-input${ui.loginError ? " has-error" : ""}"><svg viewBox="0 0 24 24" fill="none"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg><input id="password" name="password" type="password" autocomplete="current-password" placeholder="Masukkan password"><button type="button" class="lp-eye" aria-label="Tampilkan password" data-act="eye"><svg viewBox="0 0 24 24" fill="none"><path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"/><circle cx="12" cy="12" r="3"/></svg></button></div>
       ${ui.loginError ? `<p class="lp-msg">${esc(ui.loginError)}</p>` : ""}
       <div class="lp-row"><label class="lp-check"><input id="remember" type="checkbox"><span class="lp-box"><svg viewBox="0 0 24 24" fill="none"><path d="M20 6 9 17l-5-5"/></svg></span>Ingat saya</label><a class="lp-forgot" href="#" data-toast="Hubungi Administrator Sistem untuk mengatur ulang password.">Lupa password?</a></div>
@@ -13092,6 +13581,7 @@ html[data-theme="dark"] .mb-addSection span {
             .getElementById("email")
             .value.trim()
             .toLowerCase();
+          ui.loginEmail = email;
           const password = document.getElementById("password").value;
           const user = db.users.find((u) => u.email === email);
           if (!email || !password) {
@@ -13148,6 +13638,11 @@ html[data-theme="dark"] .mb-addSection span {
           ) {
             floating.anchor.classList.remove("open");
             closeFloating();
+          }
+          const auditRow = e.target.closest("[data-audit]");
+          if (auditRow) {
+            ui.au.detail = Number(auditRow.dataset.audit);
+            return render();
           }
           const el = e.target.closest("button, a, [data-act]");
           if (!el) {
@@ -13315,8 +13810,22 @@ html[data-theme="dark"] .mb-addSection span {
           }
           if (d.page) {
             const [key, n] = d.page.split(":");
-            if (ui[key]) setPage(key, { page: Number(n) });
+            if (ui[key] || key.includes(".")) setPage(key, { page: Number(n) });
             return;
+          }
+          if (d.reset === "au") {
+            Object.assign(ui.au, {
+              q: "",
+              action: "",
+              module: "",
+              outcome: "",
+              actor: "",
+              from: "",
+              to: "",
+              page: 1,
+            });
+            render();
+            return toast("Filter diatur ulang");
           }
           if (d.reset) {
             const fresh = freshPageState()[d.reset];
@@ -13341,6 +13850,16 @@ html[data-theme="dark"] .mb-addSection span {
             return render();
           }
           if (d.appbulk) return void bulkApps(d.appbulk);
+          if (d.autab) {
+            Object.assign(ui.au, { tab: d.autab });
+            return render();
+          }
+          if (d.act === "audit-close") {
+            ui.au.detail = null;
+            return render();
+          }
+          if (d.act === "au-export")
+            return toast("Ekspor Excel tersedia di aplikasi asli.");
           if (d.bulk) {
             const [scope, action] = d.bulk.split(":");
             return void runBulk(scope, action);
@@ -13388,11 +13907,17 @@ html[data-theme="dark"] .mb-addSection span {
             const [key, field] = k.split(".");
             ui[key][field] = e.target.value;
             if (key === "ov") ui.ov.appPage = 0;
+            else if (key === "au" && field === "trashQ") ui.au.trash.page = 1;
             else ui[key].page = 1;
           } else ui[k] = e.target.value;
           rerenderFocus(`[data-input="${k}"]`);
         });
         document.addEventListener("change", (e) => {
+          if (e.target.matches("[data-audate]")) {
+            ui.au[e.target.dataset.audate] = e.target.value;
+            ui.au.page = 1;
+            return render();
+          }
           if (e.target.matches("[data-pick]")) {
             const [scope, raw] = e.target.dataset.pick.split(":");
             const id = Number(raw);
@@ -13465,6 +13990,14 @@ html[data-theme="dark"] .mb-addSection span {
             ui.fv.modal = false;
             return render();
           }
+          if (e.key === "Escape" && ui.au.detail) {
+            ui.au.detail = null;
+            return render();
+          }
+          if (e.key === "Enter" && e.target.matches?.("[data-audit]")) {
+            ui.au.detail = Number(e.target.dataset.audit);
+            return render();
+          }
           if (e.key === "Escape" && ui.pop) closePop();
           if (e.key === "Escape" && ui.sheet) setSheet(false);
           if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k") {
@@ -13518,6 +14051,10 @@ html[data-theme="dark"] .mb-addSection span {
           }
         });
         document.addEventListener("mousedown", (e) => {
+          if (e.target.matches("[data-modal='audit']")) {
+            ui.au.detail = null;
+            return render();
+          }
           if (e.target.matches("[data-modal]")) {
             ui.fv.modal = false;
             render();

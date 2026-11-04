@@ -15,6 +15,8 @@ const modules = [
   ["ei", "components/portal/empty-illustration.module.css"],
   ["cp", "components/portal/confirm-provider.module.css"],
   ["mb", "components/management/menu-board/menu-board.module.css"],
+  ["at", "components/management/audit-table/audit-toolbar.module.css"],
+  ["ad", "components/management/audit-detail-modal.module.css"],
 ];
 
 function scopeModule(css, prefix) {

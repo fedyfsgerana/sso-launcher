@@ -245,7 +245,7 @@
 
     <script>
       (() => {
-        const STORE = "sso-demo-v5";
+        const STORE = "sso-demo-v6";
         const SESSION = "sso-demo-session";
         const PASSWORD = "demo1234";
         const LOGO = "{{LOGO}}";
@@ -350,6 +350,10 @@
           copy: '<rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/>',
           arrowLeftRight:
             '<path d="M8 3 4 7l4 4"/><path d="M4 7h16"/><path d="m16 21 4-4-4-4"/><path d="M20 17H4"/>',
+          activity:
+            '<path d="M22 12h-2.48a2 2 0 0 0-1.93 1.46l-2.35 8.36a.25.25 0 0 1-.48 0L9.24 2.18a.25.25 0 0 0-.48 0l-2.35 8.36A2 2 0 0 1 4.49 12H2"/>',
+          download:
+            '<path d="M12 15V3"/><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/>',
           arrowDown: '<path d="M12 5v14"/><path d="m19 12-7 7-7-7"/>',
           squareOut:
             '<path d="M21 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h6"/><path d="m21 3-9 9"/><path d="M15 3h6v6"/>',
@@ -966,6 +970,23 @@
             sel: [],
           },
           mn: { q: "", status: "" },
+          au: {
+            tab: "activity",
+            q: "",
+            action: "",
+            module: "",
+            outcome: "",
+            actor: "",
+            from: "",
+            to: "",
+            page: 1,
+            size: 10,
+            sort: null,
+            detail: null,
+            trashType: "user",
+            trashQ: "",
+            trash: { page: 1, size: 10 },
+          },
         });
         const ui = {
           collapsed: false,
@@ -1016,9 +1037,10 @@
           summary,
           outcome = "success",
           actor = me,
+          reason = "",
         ) {
           db.seq.audit += 1;
-          db.audit.unshift({
+          const entry = {
             id: db.seq.audit,
             at: new Date().toISOString(),
             actorId: actor ? actor.id : null,
@@ -1028,9 +1050,29 @@
             targetName,
             summary,
             outcome,
-          });
+            reason,
+          };
+          db.audit.unshift(entry);
           db.audit = db.audit.slice(0, 300);
           save();
+          return entry;
+        }
+        function trash(entity, targetType, summary, reason) {
+          Object.assign(entity, {
+            deleted: true,
+            deletedAt: new Date().toISOString(),
+            deletedBy: me.name,
+            deleteReason: reason,
+          });
+          audit(
+            "delete",
+            targetType,
+            entity.name || entity.label,
+            summary,
+            "success",
+            me,
+            reason,
+          );
         }
         function recordActivity(app) {
           db.activities = db.activities.filter(
@@ -1233,6 +1275,11 @@
           return `<div class="pager">${summary || `<span class="muted">${total === 0 ? "Tidak ada data" : `Menampilkan ${start}–${end} dari ${total} ${unit}`}</span>`}<div class="pager-r">${summary && total > 0 ? `<span class="muted">${start}–${end} dari ${total}</span>` : ""}${sizeSelect}<nav class="pages" aria-label="Halaman"><button type="button" aria-label="Sebelumnya" ${current === 1 ? "disabled" : ""} data-page="${key}:${current - 1}">${icon("chevronLeft", 16)}</button>${numbers.map((n) => (n === "gap" ? "<span>…</span>" : `<button type="button" class="${n === current ? "on" : ""}" ${n === current ? 'aria-current="page"' : ""} data-page="${key}:${n}">${n}</button>`)).join("")}<button type="button" aria-label="Berikutnya" ${current === pages ? "disabled" : ""} data-page="${key}:${current + 1}">${icon("chevronRight", 16)}</button></nav></div></div>`;
         }
         function setPage(key, patch) {
+          if (key.includes(".")) {
+            const [parent, child] = key.split(".");
+            Object.assign(ui[parent][child], patch);
+            return render();
+          }
           if (
             (key === "us" || key === "gr" || key === "ap") &&
             ("page" in patch || "size" in patch)
@@ -1725,6 +1772,23 @@
               },
             ].filter(Boolean);
           }
+          if (kind === "tr") {
+            const [, type, raw] = ref.split(":");
+            return [
+              {
+                label: "Histori",
+                icon: "history",
+                tone: "info",
+                run: () => toast("Histori versi tersedia di aplikasi asli."),
+              },
+              {
+                label: "Pulihkan",
+                icon: "rotate",
+                tone: "success",
+                run: () => restoreItem(type, Number(raw)),
+              },
+            ];
+          }
           if (kind === "mn") {
             const m = db.menus.find((x) => x.id === Number(id));
             return m ? menuActions(m) : [];
@@ -2187,14 +2251,8 @@
         }
         function deleteUser(user, reason) {
           if (user.id === me.id) return false;
-          user.deleted = true;
           user.active = false;
-          audit(
-            "delete",
-            "user",
-            user.name,
-            `Dipindahkan ke tempat sampah. Alasan: ${reason}`,
-          );
+          trash(user, "user", "Dipindahkan ke tempat sampah", reason);
           return true;
         }
         function setGroupActive(group, active) {
@@ -2207,12 +2265,11 @@
           );
         }
         function deleteGroup(group, reason) {
-          group.deleted = true;
-          audit(
-            "delete",
+          trash(
+            group,
             "user_group",
-            group.name,
-            `Grup dipindahkan ke tempat sampah beserta ${memberCount(group)} anggota. Alasan: ${reason}`,
+            `Grup dipindahkan ke tempat sampah beserta ${memberCount(group)} anggota`,
+            reason,
           );
           return true;
         }
@@ -2627,13 +2684,7 @@
             ...REASON,
           });
           if (reason === null) return;
-          a.deleted = true;
-          audit(
-            "delete",
-            "application",
-            a.name,
-            `Dipindahkan ke tempat sampah. Alasan: ${reason}`,
-          );
+          trash(a, "application", "Dipindahkan ke tempat sampah", reason);
           ui.ap.sel = ui.ap.sel.filter((id) => id !== a.id);
           render();
           toast(`${a.name} dihapus`);
@@ -2687,15 +2738,9 @@
             if (!ok) return;
           }
           targets.forEach((a) => {
-            if (action === "delete") {
-              a.deleted = true;
-              audit(
-                "delete",
-                "application",
-                a.name,
-                `Dipindahkan ke tempat sampah. Alasan: ${reason}`,
-              );
-            } else if (a.status !== action || action === "maintenance")
+            if (action === "delete")
+              trash(a, "application", "Dipindahkan ke tempat sampah", reason);
+            else if (a.status !== action || action === "maintenance")
               applyAppStatus(a, action, message);
           });
           ui.ap.sel = [];
@@ -2707,11 +2752,11 @@
 
         const menuSections = () =>
           db.menus
-            .filter((m) => m.sectionId === null)
+            .filter((m) => m.sectionId === null && !m.deleted)
             .sort((l, r) => l.order - r.order);
         const menuItems = (sectionId) =>
           db.menus
-            .filter((m) => m.sectionId === sectionId)
+            .filter((m) => m.sectionId === sectionId && !m.deleted)
             .sort((l, r) => l.order - r.order);
         function menuTree() {
           return menuSections()
@@ -2867,15 +2912,13 @@
             ...REASON,
           });
           if (reason === null) return;
-          const removed = isSection
-            ? [m.id, ...menuItems(m.id).map((x) => x.id)]
-            : [m.id];
-          db.menus = db.menus.filter((x) => !removed.includes(x.id));
-          audit(
-            "delete",
+          trash(
+            m,
             "portal_menu",
-            m.label,
-            `Dipindahkan ke tempat sampah. Alasan: ${reason}`,
+            isSection
+              ? `Bagian dipindahkan ke tempat sampah beserta ${menuItems(m.id).length} menu`
+              : "Dipindahkan ke tempat sampah",
+            reason,
           );
           syncShell(currentPage);
           render();
@@ -2929,24 +2972,360 @@
           ].filter(Boolean);
         }
 
-        function pageAudit() {
-          const head = `<th class="ta-c">No</th>${sortTh("Waktu")}${sortTh("Pengguna")}<th>Aksi</th><th class="hs">Data</th><th class="hs">Ringkasan</th>`;
-          const rows = db.audit
-            .map(
-              (x, i) =>
-                `<tr><td class="ta-c"><span class="row-no">${i + 1}</span></td><td class="mono">${esc(stamp(x.at))}</td><td><div class="who"><span class="av ${avatarClass(x.actorName)}">${initials(x.actorName)}</span><div><span class="who-line"><b>${esc(x.actorName)}</b></span></div></div></td><td>${statusBadge(actionTone(x.action, x.outcome), actionIcon(x.action), actionLabel(x.action))}</td><td class="hs"><b>${esc(x.targetName)}</b><br><small class="muted">${esc(targetLabel(x.targetType))}</small></td><td class="muted hs">${esc(x.summary)}</td></tr>`,
-            )
-            .join("");
-          return tablePage(
-            "Riwayat Aktivitas",
-            "Semua login, perubahan data, dan aplikasi yang dibuka. Coba login dengan password salah, lalu lihat catatannya di sini.",
-            "",
-            "",
-            head,
-            rows,
-            db.audit.length,
-            "aktivitas",
+        const MODULE_OF = {
+          user: "users",
+          password: "users",
+          user_group: "groups",
+          access: "access",
+          application: "applications",
+          application_menu: "applications",
+          service_credential: "applications",
+          portal_menu: "menus",
+          session: "auth",
+          favorite: "portal",
+          activity: "portal",
+        };
+        const MODULE_LABELS = {
+          users: "Pengguna",
+          groups: "Grup & Akses",
+          applications: "Aplikasi",
+          menus: "Menu Portal",
+          access: "Akses Langsung",
+          auth: "Login & Sesi",
+          portal: "Aktivitas Portal",
+        };
+        const TARGET_ICONS = {
+          user: "users",
+          user_group: "usersRound",
+          application: "window",
+          application_menu: "squareMenu",
+          portal_menu: "squareMenu",
+          access: "shieldCheck",
+          service_credential: "key",
+          password: "keyRound",
+          session: "laptop",
+          favorite: "star",
+          activity: "history",
+        };
+        const TARGET_COLORS = {
+          user: "app-hr",
+          user_group: "app-vi",
+          application: "app-pj",
+          application_menu: "app-wh",
+          portal_menu: "app-wh",
+          access: "app-nv",
+          service_credential: "app-as",
+          password: "app-pr",
+          session: "app-hd",
+          favorite: "app-fn",
+          activity: "app-br",
+        };
+        const moduleOf = (x) =>
+          x.action === "launch"
+            ? "portal"
+            : x.action === "logout" && x.targetType === "application"
+              ? "auth"
+              : MODULE_OF[x.targetType] || "portal";
+        const moduleLabel = (m) => MODULE_LABELS[m] || m;
+        const DEVICE = {
+          ip: "10.20.1.15",
+          name: "Laptop Kantor",
+          type: "Desktop",
+          os: "Windows 11",
+          browser: "Chrome 131",
+          agent:
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/131.0 Safari/537.36",
+        };
+        const fullStamp = (iso) =>
+          new Date(iso).toLocaleString("id-ID", {
+            dateStyle: "full",
+            timeStyle: "medium",
+          });
+        const RECYCLE_TYPES = [
+          { value: "user", label: "Pengguna" },
+          { value: "application", label: "Aplikasi" },
+          { value: "user_group", label: "Grup" },
+          { value: "portal_menu", label: "Menu Portal" },
+          { value: "access", label: "Akses Langsung" },
+        ];
+
+        function auditList() {
+          const state = ui.au;
+          const kw = state.q.trim().toLowerCase();
+          const from = state.from ? new Date(`${state.from}T00:00:00`) : null;
+          const to = state.to ? new Date(`${state.to}T23:59:59`) : null;
+          const list = db.audit.filter(
+            (x) =>
+              (!state.action || x.action === state.action) &&
+              (!state.module || moduleOf(x) === state.module) &&
+              (!state.outcome || x.outcome === state.outcome) &&
+              (!state.actor || String(x.actorId) === state.actor) &&
+              (!from || new Date(x.at) >= from) &&
+              (!to || new Date(x.at) <= to) &&
+              (!kw ||
+                `${x.actorName} ${x.targetName} ${x.summary} ${x.reason || ""} ${actionLabel(x.action)} ${targetLabel(x.targetType)}`
+                  .toLowerCase()
+                  .includes(kw)),
           );
+          return sortRows(list, state, {
+            actor: (x) => x.actorName,
+            action: (x) => actionLabel(x.action),
+            target: (x) => x.targetName,
+            occurredAt: (x) => Date.parse(x.at),
+          });
+        }
+
+        function trashItems() {
+          const type = ui.au.trashType;
+          const source =
+            type === "user"
+              ? db.users.map((u) => ({
+                  entity: u,
+                  name: u.name,
+                  detail: u.email,
+                }))
+              : type === "application"
+                ? db.apps.map((a) => ({
+                    entity: a,
+                    name: a.name,
+                    detail: a.category,
+                    icon: a.icon,
+                    color: a.color,
+                  }))
+                : type === "user_group"
+                  ? db.groups.map((g) => ({
+                      entity: g,
+                      name: g.name,
+                      detail: g.department,
+                    }))
+                  : type === "portal_menu"
+                    ? db.menus.map((m) => ({
+                        entity: m,
+                        name: m.label,
+                        detail: m.sectionId === null ? "Bagian" : "Menu",
+                        icon: m.icon || "squareMenu",
+                      }))
+                    : [];
+          const kw = ui.au.trashQ.trim().toLowerCase();
+          return source
+            .filter(
+              (x) =>
+                x.entity.deleted &&
+                (!kw || `${x.name} ${x.detail}`.toLowerCase().includes(kw)),
+            )
+            .sort(
+              (l, r) =>
+                Date.parse(r.entity.deletedAt || 0) -
+                Date.parse(l.entity.deletedAt || 0),
+            );
+        }
+        function trashIcon(type, item) {
+          if (type === "user")
+            return `<span class="av ${avatarClass(item.name)}">${initials(item.name)}</span>`;
+          if (type === "user_group")
+            return `<span class="rc-ic sm ${avatarClass(item.name)}">${icon("usersRound")}</span>`;
+          if (type === "application")
+            return `<span class="rc-ic sm ${item.color}">${icon(item.icon)}</span>`;
+          return `<span class="rc-ic sm ${TARGET_COLORS[type] || "app-wh"}">${icon(item.icon || TARGET_ICONS[type] || "squareMenu")}</span>`;
+        }
+
+        function trashPanel() {
+          const state = ui.au;
+          const items = trashItems();
+          const typeLabel = RECYCLE_TYPES.find(
+            (t) => t.value === state.trashType,
+          ).label;
+          const rows = pageSlice(items, state.trash);
+          return `<div class="ma-panel"><div class="ma-bar us-bar">${searchBox("au.trashQ", state.trashQ, "Cari data terhapus")}${tsel(
+            "au-trash",
+            state.trashType,
+            RECYCLE_TYPES,
+            "Jenis data",
+            (v) => {
+              state.trashType = v;
+              state.trash.page = 1;
+              render();
+            },
+          )}</div>
+      <div class="pk-info"><span>${typeLabel} terhapus <b>${items.length}</b></span><span class="pk-hint">Bisa dikembalikan lewat Pulihkan. Perubahan sebelum dihapus tetap bisa dilihat lewat Histori.</span></div>
+      <div class="table-wrap"><table class="dt ut"><thead><tr><th class="ta-c">No</th><th>Data</th><th class="hs">Dihapus Oleh</th><th class="hs">Alasan</th><th>Waktu</th><th class="ta-r">Aksi</th></tr></thead><tbody>
+      ${
+        rows.length
+          ? rows
+              .map(
+                (item, index) =>
+                  `<tr><td class="ta-c"><span class="row-no">${(state.trash.page - 1) * state.trash.size + index + 1}</span></td><td><div class="who">${trashIcon(state.trashType, item)}<div><b>${esc(item.name)}</b><small>${esc(item.detail || "-")}</small></div></div></td><td class="hs">${esc(item.entity.deletedBy || "-")}</td><td class="muted hs">${esc(item.entity.deleteReason || "-")}</td><td><span class="muted" title="${esc(stamp(item.entity.deletedAt))}">${dayRel(item.entity.deletedAt)}</span></td><td class="ta-r"><div class="row-acts"><button class="row-act" type="button" aria-label="Aksi untuk ${esc(item.name)}" aria-haspopup="menu" aria-expanded="false" title="Aksi lainnya" data-rowmenu="tr:${state.trashType}:${item.entity.id}">${icon("ellipsis", 17)}</button></div></td></tr>`,
+              )
+              .join("")
+          : `<tr><td colspan="6">${empty(state.trashQ ? "Data tidak ditemukan" : "Tempat sampah kosong", state.trashQ ? "Coba kata kunci lain." : `Belum ada ${typeLabel.toLowerCase()} yang dihapus.`, { searching: Boolean(state.trashQ) })}</td></tr>`
+      }
+      </tbody></table></div>${dataPager("au.trash", items.length, state.trash.page, state.trash.size, [10, 20, 50, 100], "data")}</div>`;
+        }
+
+        function pageAudit() {
+          const state = ui.au;
+          const now = Date.now();
+          const week = db.audit.filter(
+            (x) => now - Date.parse(x.at) < 7 * 864e5,
+          );
+          const today = db.audit.filter(
+            (x) => new Date(x.at).toDateString() === new Date().toDateString(),
+          ).length;
+          const stat = (ic, label, value, tone) =>
+            `<div class="sc-card sc-${tone}"><span class="sc-icon">${icon(ic, 20)}</span><span class="sc-text"><b aria-hidden="true" data-count="${value}">${value}</b><span class="sr-only">${value}</span><small>${esc(label)}</small></span></div>`;
+          const stats = `<div class="page-stats"><div class="sc-grid">${stat("activity", "Aktivitas hari ini", today, "info")}${stat("calendar", "Aktivitas 7 hari", week.length, "success")}${stat("trash", "Data dihapus 7 hari", week.filter((x) => x.action === "delete").length, "warn")}${stat("circleAlert", "Aksi gagal 7 hari", week.filter((x) => x.outcome === "failed").length, "danger")}</div></div>`;
+          const tabs = `<div class="tab-bar"><div class="segs" role="tablist" aria-label="Bagian riwayat">${[
+            ["activity", "Aktivitas", "history"],
+            ["trash", "Tempat Sampah", "trash"],
+          ]
+            .map(
+              (t) =>
+                `<button class="${state.tab === t[0] ? "seg on" : "seg"}" type="button" role="tab" aria-selected="${state.tab === t[0]}" data-autab="${t[0]}">${icon(t[2], 15)}${t[1]}</button>`,
+            )
+            .join("")}</div></div>`;
+          let body;
+          if (state.tab === "trash") body = trashPanel();
+          else {
+            const list = auditList();
+            const rows = pageSlice(list, state);
+            const filtered = Boolean(
+              state.q.trim() ||
+              state.action ||
+              state.module ||
+              state.outcome ||
+              state.actor ||
+              state.from ||
+              state.to,
+            );
+            const actors = [
+              ...new Map(
+                db.audit
+                  .filter((x) => x.actorId)
+                  .map((x) => [x.actorId, x.actorName]),
+              ).entries(),
+            ]
+              .map(([id, name]) => ({ value: String(id), label: name }))
+              .sort((l, r) => l.label.localeCompare(r.label, "id-ID"));
+            const withAll = (label, entries) => [
+              { value: "", label },
+              ...entries,
+            ];
+            const toolbar = `<div class="ma-bar us-bar">${searchBox("au.q", state.q, "Cari aktivitas")}
+        ${tsel(
+          "au-action",
+          state.action,
+          withAll(
+            "Semua Aksi",
+            Object.entries(ACTION_LABELS).map(([value, label]) => ({
+              value,
+              label,
+            })),
+          ),
+          "Semua Aksi",
+          (v) => setPage("au", { action: v, page: 1 }),
+        )}
+        ${tsel(
+          "au-module",
+          state.module,
+          withAll(
+            "Semua Modul",
+            Object.entries(MODULE_LABELS).map(([value, label]) => ({
+              value,
+              label,
+            })),
+          ),
+          "Semua Modul",
+          (v) => setPage("au", { module: v, page: 1 }),
+        )}
+        ${tsel(
+          "au-outcome",
+          state.outcome,
+          withAll("Semua Hasil", [
+            { value: "success", label: "Berhasil" },
+            { value: "failed", label: "Gagal" },
+          ]),
+          "Semua Hasil",
+          (v) => setPage("au", { outcome: v, page: 1 }),
+        )}
+        ${tsel("au-actor", state.actor, withAll("Semua Pengguna", actors), "Semua Pengguna", (v) => setPage("au", { actor: v, page: 1 }))}
+        <div class="at-dateRange"><input type="date" aria-label="Dari tanggal" value="${state.from}" ${state.to ? `max="${state.to}"` : ""} data-audate="from"><span>s.d.</span><input type="date" aria-label="Sampai tanggal" value="${state.to}" ${state.from ? `min="${state.from}"` : ""} data-audate="to"></div>
+        ${resetButton("au")}<button class="btn tone-success" type="button" data-act="au-export">Ekspor Excel${icon("download", 18)}</button></div>`;
+            const head = `<thead><tr><th class="ta-c">No</th>${sortHeader("au", "actor", "Dilakukan Oleh")}${sortHeader("au", "action", "Aksi")}${sortHeader("au", "target", "Data Terkait", "hs")}<th class="hs">Keterangan</th><th class="hs">Perangkat</th>${sortHeader("au", "occurredAt", "Waktu", "ta-r")}</tr></thead>`;
+            const tr = (
+              x,
+              index,
+            ) => `<tr tabindex="0" style="cursor:pointer" title="Lihat detail aktivitas" data-audit="${x.id}"><td class="ta-c"><span class="row-no">${(state.page - 1) * state.size + index + 1}</span></td>
+        <td><div class="who"><span class="av ${avatarClass(x.actorName)}">${initials(x.actorName)}</span><div><b>${esc(x.actorName)}</b><small class="sm-only">${esc(targetLabel(x.targetType))}</small></div></div></td>
+        <td><span class="status ${actionTone(x.action, x.outcome)}">${icon(actionIcon(x.action), 13)}${esc(actionLabel(x.action))}</span></td>
+        <td class="hs"><div class="who"><span class="rc-ic sm ${TARGET_COLORS[x.targetType] || "app-wh"}">${icon(TARGET_ICONS[x.targetType] || "squareMenu")}</span><div><b>${esc(x.targetName || "-")}</b><small>${esc(moduleLabel(moduleOf(x)))} · ${esc(targetLabel(x.targetType))}</small></div></div></td>
+        <td class="muted hs">${esc(x.summary || "-")}${x.reason ? `<br><small>Alasan: ${esc(x.reason)}</small>` : ""}</td>
+        <td class="hs"><div class="who"><div><b>${DEVICE.ip}</b><small>${DEVICE.name} · ${DEVICE.os} · ${DEVICE.browser}</small></div></div></td>
+        <td class="ta-r"><span class="muted" title="${esc(stamp(x.at))}">${dayRel(x.at)}</span></td></tr>`;
+            body = `<div class="ma-panel">${toolbar}<div class="table-wrap"><table class="dt ut">${head}<tbody>${rows.length ? rows.map(tr).join("") : `<tr><td colspan="7">${empty(filtered ? "Riwayat tidak ditemukan" : "Belum ada riwayat", filtered ? "Coba ubah kata kunci atau filter." : "Setiap aktivitas akan tercatat di sini.", { searching: filtered })}</td></tr>`}</tbody></table></div>${dataPager("au", list.length, state.page, state.size, [10, 20, 50, 100], "catatan")}</div>`;
+          }
+          return `<div class="page">${hero("Riwayat Aktivitas", "Telusuri aktivitas, histori versi, dan tempat sampah.")}${stats}<div class="card audit-shell">${tabs}${body}</div>${state.detail ? auditDetail(state.detail) : ""}</div>`;
+        }
+
+        function auditDetail(id) {
+          const x = db.audit.find((item) => item.id === id);
+          if (!x) return "";
+          const kv = (label, value, code = false) =>
+            `<div class="kv"><span>${label}</span><div${code ? ' class="ad-code"' : ""}>${esc(value || "—")}</div></div>`;
+          return `<div class="modal show" role="dialog" aria-modal="true" aria-labelledby="auditDetailTitle" data-modal="audit"><div class="modal-card mh-info ad-card"><header><span class="mh-ic">${icon("history", 20)}</span><div><h3 id="auditDetailTitle">${esc(x.targetName || "-")}</h3><p>${esc(actionLabel(x.action))} · ${esc(targetLabel(x.targetType))} · ${esc(moduleLabel(moduleOf(x)))}</p></div><button class="icon-btn fm-close" type="button" aria-label="Tutup" data-act="audit-close">${icon("x", 18)}</button></header>
+      <div class="ad-body"><div class="ad-badges"><span class="status ${actionTone(x.action, x.outcome)}">${icon(actionIcon(x.action), 13)}${esc(actionLabel(x.action))}</span>${x.outcome === "failed" ? statusBadge("danger", "circleX", "Gagal") : statusBadge("on", "circleCheck", "Berhasil")}</div>
+      <div class="ad-summary">${esc(x.summary || "Tidak ada keterangan.")}${x.reason ? `<div class="ad-reason"><b>Alasan:</b> ${esc(x.reason)}</div>` : ""}</div>
+      <section class="ad-section"><h4>Dilakukan Oleh</h4><div class="kv-list">${kv("Nama", x.actorName)}${kv("Waktu", fullStamp(x.at))}${kv("Sesi", `sess_${String(x.actorId || 0).padStart(4, "0")}demo`, true)}${kv("Request", x.action === "launch" ? "POST /api/sso/launch" : x.targetType === "session" ? "POST /api/auth/login" : "PUT /api/admin", true)}${kv("ID Request", `req-demo-${x.id}`, true)}</div></section>
+      <section class="ad-section"><h4>Perangkat</h4><div class="kv-list">${kv("Alamat IP", DEVICE.ip, true)}${kv("Nama Perangkat", DEVICE.name)}${kv("Jenis", DEVICE.type)}${kv("Sistem Operasi", DEVICE.os)}${kv("Browser", DEVICE.browser)}${kv("User Agent", DEVICE.agent, true)}</div></section>
+      <section class="ad-section"><h4>Perubahan Data</h4><p class="ad-note">${x.action === "update" ? "Detail perubahan per kolom tersedia di aplikasi asli." : "Aktivitas ini tidak mengubah isi data."}</p></section></div>
+      <footer><button class="btn" type="button" data-act="audit-close">Selesai${icon("circleCheck", 18)}</button></footer></div></div>`;
+        }
+
+        async function restoreItem(type, id) {
+          const label = RECYCLE_TYPES.find(
+            (t) => t.value === type,
+          ).label.toLowerCase();
+          const entity = (
+            type === "user"
+              ? db.users
+              : type === "application"
+                ? db.apps
+                : type === "user_group"
+                  ? db.groups
+                  : db.menus
+          ).find((x) => x.id === id);
+          if (!entity) return;
+          const name = entity.name || entity.label;
+          const ok = await ask({
+            title: `Pulihkan ${label}?`,
+            message: `${name} akan dipulihkan dan tercatat di riwayat aktivitas. Pengguna dan aplikasi dipulihkan dalam keadaan nonaktif.`,
+            confirmLabel: "Ya, Pulihkan",
+            icon: "rotate",
+            tone: "success",
+          });
+          if (!ok) return;
+          if (
+            type === "portal_menu" &&
+            entity.sectionId !== null &&
+            db.menus.find((m) => m.id === entity.sectionId)?.deleted
+          ) {
+            render();
+            return toast(
+              `${name} tidak bisa dipulihkan karena bentrok dengan data aktif, atau data induknya sudah dihapus.`,
+              "error",
+            );
+          }
+          entity.deleted = false;
+          if (type === "user") entity.active = false;
+          if (type === "application") entity.status = "inactive";
+          audit(
+            "restore",
+            type,
+            name,
+            `${RECYCLE_TYPES.find((t) => t.value === type).label} dipulihkan dari tempat sampah`,
+          );
+          syncShell(currentPage);
+          render();
+          toast(`${name} dipulihkan`);
         }
 
         const PAD = (v) => String(v).padStart(2, "0");
@@ -3302,7 +3681,7 @@
           return `<section class="lp" id="login"><div class="lp-visual"><div class="la"><div class="la-glow" aria-hidden="true"></div>${rings("la-rings")}<div class="la-stage"><div class="la-copy"><h2>Satu Akses untuk Semua Aplikasi.</h2><p>Masuk sekali, lalu buka aplikasi kerja Anda tanpa login ulang. Aman dan terpusat di SSO Launcher.</p><ul class="la-points">${points.map((p) => `<li><span>${icon(p[0], 17)}</span>${p[1]}</li>`).join("")}</ul><div class="la-brand"><img class="la-logo" src="${LOGO}" alt="Logo SSO Launcher"><span class="la-divider" aria-hidden="true"></span><div><b>SSO <span>LAUNCHER</span></b><small>PORTAL AKSES APLIKASI</small></div></div></div><div class="lb-art" aria-hidden="true">${SCENE}</div></div></div></div>
       <div class="lp-panel"><div class="lp-form"><span class="brand lp-logo"><img class="lp-logo-img" src="${LOGO}" alt="Logo SSO Launcher"><span class="lp-brand-text"><b>SSO<span>LAUNCHER</span></b><small>Portal akses aplikasi</small></span></span>
       <form class="lp-step" id="login-form" autocomplete="on" novalidate><h1 class="lp-title">Selamat Datang</h1><p class="lp-sub">Masuk dengan akun SSO Launcher Anda.</p>
-      <label class="lp-label" for="email">Email</label><div class="lp-input${ui.loginError ? " has-error" : ""}"><svg viewBox="0 0 24 24" fill="none"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg><input id="email" name="email" type="email" inputmode="email" autocomplete="email" placeholder="Masukkan email"></div>
+      <label class="lp-label" for="email">Email</label><div class="lp-input${ui.loginError ? " has-error" : ""}"><svg viewBox="0 0 24 24" fill="none"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg><input id="email" name="email" type="email" inputmode="email" autocomplete="email" placeholder="Masukkan email" value="${esc(ui.loginEmail || "")}"></div>
       <label class="lp-label" for="password">Password</label><div class="lp-input${ui.loginError ? " has-error" : ""}"><svg viewBox="0 0 24 24" fill="none"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg><input id="password" name="password" type="password" autocomplete="current-password" placeholder="Masukkan password"><button type="button" class="lp-eye" aria-label="Tampilkan password" data-act="eye"><svg viewBox="0 0 24 24" fill="none"><path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"/><circle cx="12" cy="12" r="3"/></svg></button></div>
       ${ui.loginError ? `<p class="lp-msg">${esc(ui.loginError)}</p>` : ""}
       <div class="lp-row"><label class="lp-check"><input id="remember" type="checkbox"><span class="lp-box"><svg viewBox="0 0 24 24" fill="none"><path d="M20 6 9 17l-5-5"/></svg></span>Ingat saya</label><a class="lp-forgot" href="#" data-toast="Hubungi Administrator Sistem untuk mengatur ulang password.">Lupa password?</a></div>
@@ -3551,6 +3930,7 @@
             .getElementById("email")
             .value.trim()
             .toLowerCase();
+          ui.loginEmail = email;
           const password = document.getElementById("password").value;
           const user = db.users.find((u) => u.email === email);
           if (!email || !password) {
@@ -3607,6 +3987,11 @@
           ) {
             floating.anchor.classList.remove("open");
             closeFloating();
+          }
+          const auditRow = e.target.closest("[data-audit]");
+          if (auditRow) {
+            ui.au.detail = Number(auditRow.dataset.audit);
+            return render();
           }
           const el = e.target.closest("button, a, [data-act]");
           if (!el) {
@@ -3774,8 +4159,22 @@
           }
           if (d.page) {
             const [key, n] = d.page.split(":");
-            if (ui[key]) setPage(key, { page: Number(n) });
+            if (ui[key] || key.includes(".")) setPage(key, { page: Number(n) });
             return;
+          }
+          if (d.reset === "au") {
+            Object.assign(ui.au, {
+              q: "",
+              action: "",
+              module: "",
+              outcome: "",
+              actor: "",
+              from: "",
+              to: "",
+              page: 1,
+            });
+            render();
+            return toast("Filter diatur ulang");
           }
           if (d.reset) {
             const fresh = freshPageState()[d.reset];
@@ -3800,6 +4199,16 @@
             return render();
           }
           if (d.appbulk) return void bulkApps(d.appbulk);
+          if (d.autab) {
+            Object.assign(ui.au, { tab: d.autab });
+            return render();
+          }
+          if (d.act === "audit-close") {
+            ui.au.detail = null;
+            return render();
+          }
+          if (d.act === "au-export")
+            return toast("Ekspor Excel tersedia di aplikasi asli.");
           if (d.bulk) {
             const [scope, action] = d.bulk.split(":");
             return void runBulk(scope, action);
@@ -3847,11 +4256,17 @@
             const [key, field] = k.split(".");
             ui[key][field] = e.target.value;
             if (key === "ov") ui.ov.appPage = 0;
+            else if (key === "au" && field === "trashQ") ui.au.trash.page = 1;
             else ui[key].page = 1;
           } else ui[k] = e.target.value;
           rerenderFocus(`[data-input="${k}"]`);
         });
         document.addEventListener("change", (e) => {
+          if (e.target.matches("[data-audate]")) {
+            ui.au[e.target.dataset.audate] = e.target.value;
+            ui.au.page = 1;
+            return render();
+          }
           if (e.target.matches("[data-pick]")) {
             const [scope, raw] = e.target.dataset.pick.split(":");
             const id = Number(raw);
@@ -3924,6 +4339,14 @@
             ui.fv.modal = false;
             return render();
           }
+          if (e.key === "Escape" && ui.au.detail) {
+            ui.au.detail = null;
+            return render();
+          }
+          if (e.key === "Enter" && e.target.matches?.("[data-audit]")) {
+            ui.au.detail = Number(e.target.dataset.audit);
+            return render();
+          }
           if (e.key === "Escape" && ui.pop) closePop();
           if (e.key === "Escape" && ui.sheet) setSheet(false);
           if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k") {
@@ -3977,6 +4400,10 @@
           }
         });
         document.addEventListener("mousedown", (e) => {
+          if (e.target.matches("[data-modal='audit']")) {
+            ui.au.detail = null;
+            return render();
+          }
           if (e.target.matches("[data-modal]")) {
             ui.fv.modal = false;
             render();
