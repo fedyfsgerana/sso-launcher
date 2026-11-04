@@ -245,7 +245,7 @@
 
     <script>
       (() => {
-        const STORE = "sso-demo-v2";
+        const STORE = "sso-demo-v3";
         const SESSION = "sso-demo-session";
         const PASSWORD = "demo1234";
         const LOGO = "{{LOGO}}";
@@ -342,6 +342,11 @@
           cornerDownRight:
             '<polyline points="15 10 20 15 15 20"/><path d="M4 4v7a4 4 0 0 0 4 4h12"/>',
           arrowUp: '<path d="m5 12 7-7 7 7"/><path d="M12 19V5"/>',
+          arrowDown: '<path d="M12 5v14"/><path d="m19 12-7 7-7-7"/>',
+          squareOut:
+            '<path d="M21 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h6"/><path d="m21 3-9 9"/><path d="M15 3h6v6"/>',
+          lightbulb:
+            '<path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/><path d="M9 18h6"/><path d="M10 22h4"/>',
           laptop:
             '<rect width="18" height="12" x="3" y="4" rx="2" ry="2"/><line x1="2" x2="22" y1="20" y2="20"/>',
           building:
@@ -467,7 +472,6 @@
               "Pemesanan ruang meeting dan jadwal pemakaian",
               true,
               "active",
-              40,
             ],
             [
               "ERP Utama",
@@ -478,7 +482,6 @@
               "Persediaan, pembelian, dan penjualan",
               true,
               "active",
-              180,
             ],
             [
               "Dashboard Penjualan",
@@ -489,7 +492,6 @@
               "Laporan dan grafik penjualan harian",
               true,
               "active",
-              600,
             ],
             [
               "Payroll",
@@ -500,7 +502,6 @@
               "Penggajian dan slip gaji karyawan",
               true,
               "active",
-              1500,
             ],
             [
               "Pengajuan Cuti",
@@ -511,7 +512,6 @@
               "Pengajuan dan persetujuan cuti",
               true,
               "active",
-              2900,
             ],
             [
               "Gudang & Logistik",
@@ -522,7 +522,6 @@
               "Stok, penerimaan, dan pengiriman barang",
               true,
               "maintenance",
-              null,
             ],
             [
               "Helpdesk IT",
@@ -533,7 +532,6 @@
               "Tiket bantuan dan permintaan perangkat",
               true,
               "active",
-              null,
             ],
             [
               "Arsip Dokumen",
@@ -544,7 +542,6 @@
               "Penyimpanan dan pencarian dokumen",
               true,
               "active",
-              null,
             ],
             [
               "Work Order Teknik",
@@ -555,7 +552,6 @@
               "Perawatan mesin dan work order",
               true,
               "active",
-              null,
             ],
             [
               "Email Kantor",
@@ -566,7 +562,6 @@
               "Webmail perusahaan",
               false,
               "active",
-              300,
             ],
             [
               "Wiki Internal",
@@ -577,7 +572,6 @@
               "Panduan kerja dan SOP perusahaan",
               false,
               "active",
-              null,
             ],
             [
               "Forum Karyawan",
@@ -588,7 +582,6 @@
               "Pengumuman dan diskusi internal",
               false,
               "active",
-              null,
             ],
           ].map((a, i) => ({
             id: i + 1,
@@ -600,14 +593,126 @@
             description: a[5],
             usesSso: a[6],
             status: a[7],
-            lastOpenedAt: a[8] === null ? null : ago(a[8]),
+            host: `${a[1]}.demo.test`,
             maintenanceMessage:
               a[7] === "maintenance"
                 ? "Sedang pembaruan sistem gudang, kembali normal pukul 15.00."
                 : "",
           }));
+          const byId = (id) => apps.find((a) => a.id === id);
+          let activitySeq = 0;
+          const activity = (userId, appId, minutes) => ({
+            id: ++activitySeq,
+            userId,
+            appId,
+            title: byId(appId).name,
+            subtitle: byId(appId).description,
+            at: ago(minutes),
+          });
+          const activities = [
+            activity(1, 1, 40),
+            activity(1, 2, 180),
+            activity(1, 10, 300),
+            activity(1, 3, 600),
+            activity(1, 4, 1500),
+            activity(1, 5, 2900),
+            activity(1, 8, 8700),
+            activity(2, 5, 90),
+            activity(2, 1, 1600),
+            activity(2, 10, 3000),
+          ];
+          let auditSeq = 0;
+          const entry = (
+            minutes,
+            actorId,
+            actorName,
+            action,
+            targetType,
+            targetName,
+            summary,
+            outcome = "success",
+          ) => ({
+            id: ++auditSeq,
+            at: ago(minutes),
+            actorId,
+            actorName,
+            action,
+            targetType,
+            targetName,
+            summary,
+            outcome,
+          });
+          const launches = activities.map((x) =>
+            entry(
+              Math.round((Date.now() - Date.parse(x.at)) / 60000),
+              x.userId,
+              x.userId === 1 ? "Administrator" : "Dewi Lestari",
+              "launch",
+              "application",
+              x.title,
+              `Dibuka lewat portal ke ${byId(x.appId).host}${byId(x.appId).usesSso ? "" : " tanpa SSO"}`,
+            ),
+          );
+          const audit = [
+            ...launches,
+            entry(
+              5,
+              1,
+              "Administrator",
+              "update",
+              "application",
+              "Gudang & Logistik",
+              "Status diubah dari Aktif ke Maintenance",
+            ),
+            entry(
+              60,
+              1,
+              "Administrator",
+              "create",
+              "service_credential",
+              "Booking Ruang Meeting",
+              "Kredensial layanan baru dibuat",
+            ),
+            entry(
+              200,
+              1,
+              "Administrator",
+              "favorite_add",
+              "favorite",
+              "Helpdesk IT",
+              "Aplikasi ditambahkan ke favorit",
+            ),
+            entry(
+              1440,
+              1,
+              "Administrator",
+              "create",
+              "user",
+              "Agus Pratama",
+              "Pengguna baru ditambahkan",
+            ),
+            entry(
+              2000,
+              1,
+              "Administrator",
+              "update",
+              "user_group",
+              "Staf HR",
+              "Akses aplikasi Pengajuan Cuti ditambahkan",
+            ),
+            entry(
+              3000,
+              1,
+              "Administrator",
+              "login",
+              "session",
+              "admin@demo.test",
+              "Berhasil masuk ke portal",
+            ),
+          ].sort((l, r) => Date.parse(r.at) - Date.parse(l.at));
           return {
             apps,
+            activities,
             users: [
               {
                 id: 1,
@@ -718,44 +823,7 @@
                 active: true,
               },
             ],
-            audit: [
-              {
-                at: ago(5),
-                actor: "Administrator",
-                action: "Ubah",
-                tone: "info",
-                target: "Aplikasi",
-                name: "Gudang & Logistik",
-                summary: "Mode maintenance diaktifkan",
-              },
-              {
-                at: ago(60),
-                actor: "Administrator",
-                action: "Tambah",
-                tone: "on",
-                target: "Kredensial SSO",
-                name: "Booking Ruang Meeting",
-                summary: "Kredensial baru dibuat",
-              },
-              {
-                at: ago(180),
-                actor: "Dewi Lestari",
-                action: "Buka",
-                tone: "purple",
-                target: "Aplikasi",
-                name: "Pengajuan Cuti",
-                summary: "Membuka aplikasi lewat SSO",
-              },
-              {
-                at: ago(1440),
-                actor: "Administrator",
-                action: "Tambah",
-                tone: "on",
-                target: "Pengguna",
-                name: "Agus Pratama",
-                summary: "Pengguna baru ditambahkan",
-              },
-            ],
+            audit,
             notifications: [
               {
                 id: 1,
@@ -794,27 +862,44 @@
                 read: true,
               },
             ],
-            seq: 1,
+            seq: { activity: activitySeq, audit: auditSeq },
           };
         }
 
         let db = load();
         let me = null;
+        const freshPageState = () => ({
+          ov: {
+            q: "",
+            cat: "",
+            favView: "grid",
+            appView: "grid",
+            favPage: 0,
+            appPage: 0,
+            cols: { fav: 12, apps: 12 },
+          },
+          ma: { q: "", cat: "", seg: "all", view: "grid", page: 1, size: 9 },
+          fv: { q: "", cat: "", page: 1, size: 9, modal: false },
+          rc: {
+            q: "",
+            cat: "",
+            fav: "",
+            period: "all",
+            page: 1,
+            size: 10,
+            sort: null,
+            sel: [],
+          },
+          tbl: { page: 1, size: 10 },
+        });
         const ui = {
           collapsed: false,
           pop: null,
-          views: { fav: "grid", apps: "grid" },
-          pages: { fav: 0, apps: 0 },
-          q: "",
-          cat: "",
-          maQ: "",
-          maCat: "",
-          maView: "grid",
-          maPage: 1,
-          maSize: 9,
+          sheet: false,
           userQ: "",
           userStatus: "",
           loginError: "",
+          ...freshPageState(),
         };
 
         function load() {
@@ -831,22 +916,140 @@
             localStorage.setItem(STORE, JSON.stringify(d));
           } catch {}
         }
-        const myApps = () =>
-          db.apps
+        const myActivities = () =>
+          db.activities
+            .filter((x) => x.userId === me.id)
+            .sort((l, r) => Date.parse(r.at) - Date.parse(l.at));
+        function myApps() {
+          const opened = new Map(myActivities().map((x) => [x.appId, x.at]));
+          return db.apps
             .filter((a) => me.apps.includes(a.id))
-            .map((a) => ({ ...a, isFavorite: me.favorites.includes(a.id) }));
-        function audit(action, tone, target, name, summary) {
+            .map((a) => ({
+              ...a,
+              isFavorite: me.favorites.includes(a.id),
+              lastOpenedAt: opened.get(a.id) || null,
+            }))
+            .sort((l, r) => l.name.localeCompare(r.name));
+        }
+        function audit(
+          action,
+          targetType,
+          targetName,
+          summary,
+          outcome = "success",
+          actor = me,
+        ) {
+          db.seq.audit += 1;
           db.audit.unshift({
+            id: db.seq.audit,
             at: new Date().toISOString(),
-            actor: me ? me.name : "-",
+            actorId: actor ? actor.id : null,
+            actorName: actor ? actor.name : "Tidak dikenal",
             action,
-            tone,
-            target,
-            name,
+            targetType,
+            targetName,
             summary,
+            outcome,
           });
-          db.audit = db.audit.slice(0, 200);
+          db.audit = db.audit.slice(0, 300);
           save();
+        }
+        function recordActivity(app) {
+          db.activities = db.activities.filter(
+            (x) => !(x.userId === me.id && x.appId === app.id),
+          );
+          db.seq.activity += 1;
+          db.activities.unshift({
+            id: db.seq.activity,
+            userId: me.id,
+            appId: app.id,
+            title: app.name,
+            subtitle: app.description,
+            at: new Date().toISOString(),
+          });
+          save();
+        }
+
+        const ACTION_LABELS = {
+          create: "Tambah",
+          update: "Ubah",
+          delete: "Hapus",
+          restore: "Pulihkan",
+          rollback: "Kembalikan Versi",
+          grant: "Beri Akses",
+          revoke: "Cabut Akses",
+          login: "Masuk",
+          login_failed: "Gagal Masuk",
+          logout: "Keluar",
+          launch: "Buka Aplikasi",
+          favorite_add: "Tambah Favorit",
+          favorite_remove: "Hapus Favorit",
+          lock: "Dikunci",
+          unlock: "Kunci Dibuka",
+        };
+        const TARGET_LABELS = {
+          user: "Pengguna",
+          user_group: "Grup",
+          application: "Aplikasi",
+          application_menu: "Menu Aplikasi",
+          portal_menu: "Menu Portal",
+          access: "Akses Langsung",
+          service_credential: "Kredensial Layanan",
+          password: "Password",
+          session: "Sesi",
+          favorite: "Favorit",
+          activity: "Riwayat Pribadi",
+        };
+        const ACTION_ICONS = {
+          create: "plus",
+          update: "pencil",
+          delete: "trash",
+          restore: "rotate",
+          grant: "shieldCheck",
+          revoke: "shieldAlert",
+          login: "logIn",
+          login_failed: "lock",
+          logout: "logOut",
+          launch: "squareOut",
+          favorite_add: "star",
+          favorite_remove: "starOff",
+          lock: "shieldAlert",
+        };
+        const SELF_DESCRIBING = new Set([
+          "launch",
+          "favorite_add",
+          "favorite_remove",
+          "login",
+          "login_failed",
+          "logout",
+          "lock",
+          "unlock",
+        ]);
+        const actionLabel = (action) => ACTION_LABELS[action] || action;
+        const targetLabel = (target) => TARGET_LABELS[target] || target;
+        const actionIcon = (action) => ACTION_ICONS[action] || "pencil";
+        function actionTone(action, outcome = "success") {
+          if (outcome === "failed") return "danger";
+          if (
+            ["create", "restore", "grant", "unlock", "favorite_add"].includes(
+              action,
+            )
+          )
+            return "on";
+          if (action === "rollback") return "warn";
+          if (["delete", "revoke", "lock", "login_failed"].includes(action))
+            return "danger";
+          if (["update", "launch"].includes(action)) return "info";
+          return "off";
+        }
+        function describeActivity(x) {
+          const action = actionLabel(x.action);
+          const target = targetLabel(x.targetType);
+          const name = (x.targetName || "").trim();
+          const title = SELF_DESCRIBING.has(x.action)
+            ? [action, name].filter(Boolean).join(" ")
+            : [action, target.toLowerCase(), name].filter(Boolean).join(" ");
+          return { title, detail: (x.summary || "").trim() || target };
         }
 
         const layer = document.getElementById("layer");
@@ -869,6 +1072,11 @@
         function hero(title, description, actions = "") {
           return `<section class="hero hero-page"><div class="hero-copy"><div class="eyebrow"><i class="rule"></i>SSO LAUNCHER</div><h1>${esc(title)}</h1>${description ? `<p>${esc(description)}</p>` : ""}</div>${actions ? `<div class="hero-actions">${actions}</div>` : ""}${rings("hero-rings")}</section>`;
         }
+        const APP_STATE = {
+          sso: ["shieldCheck", "Masuk otomatis lewat SSO"],
+          link: ["external", "Tanpa SSO, login di aplikasinya sendiri"],
+          maintenance: ["wrench", "Sedang maintenance"],
+        };
         const dot = (a) => {
           const s =
             a.status === "maintenance"
@@ -876,191 +1084,689 @@
               : a.usesSso
                 ? "sso"
                 : "link";
-          return `<span class="app-dot ${s}" aria-hidden="true">${icon({ sso: "shieldCheck", link: "external", maintenance: "wrench" }[s], 10)}</span>`;
+          return `<span class="app-dot ${s}" aria-hidden="true">${icon(APP_STATE[s][0], 10)}</span><span class="sr-only">${APP_STATE[s][1]}</span>`;
         };
-        const empty = (title, description, inPanel = true) =>
-          `<div class="${inPanel ? "empty" : "card empty"}" style="${inPanel ? "grid-column:1 / -1" : ""}"><b>${esc(title)}</b>${esc(description)}</div>`;
-        const stack = (apps, label) =>
+        const tipAttr = (a) =>
+          a.status === "maintenance" ? ` data-mtip="${a.id}"` : "";
+        function emptyArt(searching) {
+          return `<div class="ei-art" aria-hidden="true"><svg class="ei-scene" viewBox="0 0 240 170"><circle class="ei-backdrop" cx="120" cy="84" r="72"/><ellipse class="ei-ground" cx="120" cy="150" rx="78" ry="7"/><g class="ei-leafLeft"><path d="M48 150c-4-26-20-38-34-40 2 16 14 34 34 40z"/><path d="M48 150c6-24-2-42-14-52-6 18-2 40 14 52z"/></g><g class="ei-leafRight"><path d="M192 150c4-26 20-38 34-40-2 16-14 34-34 40z"/><path d="M192 150c-6-24 2-42 14-52 6 18 2 40-14 52z"/></g><g class="ei-card"><rect class="ei-sheet" x="64" y="46" width="112" height="92" rx="12"/><path class="ei-head" d="M64 58a12 12 0 0 1 12-12h88a12 12 0 0 1 12 12v8H64z"/><circle class="ei-headDot" cx="76" cy="56" r="3"/><circle class="ei-headDot" cx="86" cy="56" r="3"/><rect class="ei-row" x="76" y="78" width="88" height="12" rx="6"/><rect class="ei-row" x="76" y="98" width="88" height="12" rx="6"/><rect class="ei-row" x="76" y="118" width="60" height="12" rx="6"/></g>${searching ? `<g class="ei-lens"><circle class="ei-lensGlass" cx="168" cy="112" r="20"/><path class="ei-lensMark" d="M161 105l14 14M175 105l-14 14"/><path class="ei-lensHandle" d="M183 127l14 14"/></g>` : `<g class="ei-sparkles"><path class="ei-spark" d="M188 52v12M182 58h12"/><path class="ei-spark ei-sparkLate" d="M52 70v8M48 74h8"/></g>`}<circle class="ei-dot ei-dotA" cx="40" cy="44" r="4"/><circle class="ei-dot ei-dotB" cx="204" cy="86" r="3"/><circle class="ei-dot ei-dotC" cx="150" cy="26" r="3"/></svg></div>`;
+        }
+        const empty = (
+          title,
+          description,
+          { inPanel = true, searching = false } = {},
+        ) =>
+          `<div class="${inPanel ? "empty" : "card empty"}" style="${inPanel ? "grid-column:1 / -1" : ""}">${emptyArt(searching)}<b>${esc(title)}</b>${esc(description)}</div>`;
+        const stack = (apps, label, limit = 4) =>
           `<span class="as-stack">${
             apps.length
               ? `<span class="as-logos" aria-hidden="true">${apps
-                  .slice(0, 4)
+                  .slice(0, limit)
                   .map(
                     (a) =>
                       `<span class="as-logo ${a.color}">${icon(a.icon, 13)}</span>`,
                   )
                   .join(
                     "",
-                  )}${apps.length > 4 ? `<span class="as-more">+${apps.length - 4}</span>` : ""}</span>`
+                  )}${apps.length > limit ? `<span class="as-more">+${apps.length - limit}</span>` : ""}</span>`
               : ""
           }<span class="as-count">${esc(label)}</span></span>`;
         const viewToggle = (key, value) =>
-          `<div class="view-tg" role="group" aria-label="Tampilan"><button class="${value === "grid" ? "on" : ""}" type="button" aria-label="Tampilan kotak" aria-pressed="${value === "grid"}" data-view="${key}:grid">${icon("grid", 18)}</button><button class="${value === "list" ? "on" : ""}" type="button" aria-label="Tampilan daftar" aria-pressed="${value === "list"}" data-view="${key}:list">${icon("list", 18)}</button></div>`;
+          `<div class="view-tg" role="group" aria-label="Tampilan"><button class="${value === "grid" ? "on" : ""}" type="button" aria-label="Tampilan grid" aria-pressed="${value === "grid"}" data-view="${key}:grid">${icon("grid", 18)}</button><button class="${value === "list" ? "on" : ""}" type="button" aria-label="Tampilan daftar" aria-pressed="${value === "list"}" data-view="${key}:list">${icon("list", 18)}</button></div>`;
         const statusBadge = (tone, ic, text) =>
           `<span class="status ${tone}">${icon(ic, 13)}${esc(text)}</span>`;
+        const resetButton = (key) =>
+          `<button class="icon-sq" type="button" aria-label="Atur ulang filter" title="Atur ulang filter" data-reset="${key}">${icon("rotate", 18)}</button>`;
+        const searchBox = (key, value, placeholder) =>
+          `<label class="search us-search">${icon("search", 18)}<input placeholder="${esc(placeholder)}" value="${esc(value)}" data-input="${key}"></label>`;
+        const categoryBadge = (label, warn) =>
+          `<span class="${warn ? "ac-cat warn" : "ac-cat"}" title="${esc(label)}">${icon("tag", 12)}<span>${esc(label)}</span></span>`;
 
-        function tilePager(key, apps, view, label) {
-          const width =
-            (document.querySelector(".main")?.clientWidth ||
-              window.innerWidth) - 120;
-          const columns = Math.min(
-            12,
-            Math.max(1, Math.floor((width + 6) / 106)),
+        const SELECTS = {};
+        function tsel(id, value, options, ariaLabel, onChange) {
+          SELECTS[id] = { value, options, onChange };
+          const selected = options.find((o) => o.value === value);
+          return `<div class="seg-select"><button type="button" class="ts-control filter${selected ? "" : " is-placeholder"}" aria-label="${esc(ariaLabel)}" aria-haspopup="listbox" aria-expanded="false" data-ts="${id}"><span class="ts-val">${esc(selected ? selected.label : "Pilih opsi")}</span>${icon("chevronDown", 16)}</button></div>`;
+        }
+
+        function dataPager(key, total, page, size, sizes, unit, summary = "") {
+          const pages = Math.max(1, Math.ceil(total / size));
+          const current = Math.min(page, pages);
+          const start = total === 0 ? 0 : (current - 1) * size + 1;
+          const end = Math.min(current * size, total);
+          const numbers = [];
+          for (let n = 1; n <= pages; n += 1) {
+            if (
+              pages <= 7 ||
+              n === 1 ||
+              n === pages ||
+              Math.abs(n - current) <= 1
+            )
+              numbers.push(n);
+            else if (numbers[numbers.length - 1] !== "gap") numbers.push("gap");
+          }
+          const sizeSelect = tsel(
+            `size-${key}`,
+            String(size),
+            sizes.map((s) => ({ value: String(s), label: `${s} per halaman` })),
+            "Jumlah per halaman",
+            (v) => setPage(key, { size: Number(v), page: 1 }),
           );
-          const size = view === "list" ? 6 : columns;
+          return `<div class="pager">${summary || `<span class="muted">${total === 0 ? "Tidak ada data" : `Menampilkan ${start}–${end} dari ${total} ${unit}`}</span>`}<div class="pager-r">${summary && total > 0 ? `<span class="muted">${start}–${end} dari ${total}</span>` : ""}${sizeSelect}<nav class="pages" aria-label="Halaman"><button type="button" aria-label="Sebelumnya" ${current === 1 ? "disabled" : ""} data-page="${key}:${current - 1}">${icon("chevronLeft", 16)}</button>${numbers.map((n) => (n === "gap" ? "<span>…</span>" : `<button type="button" class="${n === current ? "on" : ""}" ${n === current ? 'aria-current="page"' : ""} data-page="${key}:${n}">${n}</button>`)).join("")}<button type="button" aria-label="Berikutnya" ${current === pages ? "disabled" : ""} data-page="${key}:${current + 1}">${icon("chevronRight", 16)}</button></nav></div></div>`;
+        }
+        function setPage(key, patch) {
+          Object.assign(ui[key], patch);
+          render();
+        }
+        const pageSlice = (list, state) => {
+          const pages = Math.max(1, Math.ceil(list.length / state.size));
+          state.page = Math.min(state.page, pages);
+          return list.slice(
+            (state.page - 1) * state.size,
+            state.page * state.size,
+          );
+        };
+
+        const TILE_MIN = 100,
+          TILE_GAP = 6,
+          TILE_MAX = 12,
+          LIST_SIZE = 6;
+        function tilePager(key, apps, view, label) {
+          const state = ui.ov;
+          const columns = state.cols[key];
+          const size = view === "list" ? LIST_SIZE : columns;
           const pages = Math.max(1, Math.ceil(apps.length / size));
-          const current = Math.min(ui.pages[key], pages - 1);
-          ui.pages[key] = current;
+          const pageKey = key === "fav" ? "favPage" : "appPage";
+          const current = Math.min(state[pageKey], pages - 1);
+          state[pageKey] = current;
           const start = current * size;
           const shown = apps.slice(start, start + size);
           const item = (a) =>
             view === "list"
-              ? `<button class="ov-listRow${a.status !== "active" ? " ov-disabled ov-maintenance" : ""}" type="button" data-open="${a.id}"><span class="ov-tileIcon"><span class="ov-logo ov-listLogo ${a.color}">${icon(a.icon, 20)}</span>${dot(a)}</span><span class="ov-listText"><b>${esc(a.name)}</b><small>${esc(a.category)}</small></span>${icon("chevronRight", 18)}</button>`
-              : `<button class="ov-tile${a.status !== "active" ? " ov-disabled ov-maintenance" : ""}" type="button" data-open="${a.id}" title="${a.status === "maintenance" ? esc(a.maintenanceMessage) : ""}"><span class="ov-tileIcon"><span class="ov-logo ${a.color}">${icon(a.icon, 24)}</span>${dot(a)}</span><b class="ov-tileName">${esc(a.name)}</b><small class="ov-tileMeta">${esc(a.category)}</small></button>`;
-          return `<div class="${view === "list" ? "ov-listGrid" : "ov-pagerGrid"}" style="--columns:${columns}">${shown.map(item).join("")}</div>
+              ? `<button class="ov-listRow${a.status !== "active" ? " ov-disabled" : ""}${a.status === "maintenance" ? " ov-maintenance" : ""}" type="button" data-open="${a.id}"${tipAttr(a)}><span class="ov-tileIcon"><span class="ov-logo ov-listLogo ${a.color}">${icon(a.icon, 20)}</span>${dot(a)}</span><span class="ov-listText"><b>${esc(a.name)}</b><small>${esc(a.category || a.description)}</small></span>${icon("chevronRight", 18)}</button>`
+              : `<button class="ov-tile${a.status !== "active" ? " ov-disabled" : ""}${a.status === "maintenance" ? " ov-maintenance" : ""}" type="button" data-open="${a.id}"${tipAttr(a)}><span class="ov-tileIcon"><span class="ov-logo ${a.color}">${icon(a.icon, 24)}</span>${dot(a)}</span><b class="ov-tileName">${esc(a.name)}</b><small class="ov-tileMeta">${esc(a.category || a.description)}</small></button>`;
+          return `<div class="${view === "list" ? "ov-listGrid" : "ov-pagerGrid"}" style="--columns:${columns}" data-grid="${key}">${shown.map(item).join("")}</div>
       <footer class="ov-sectionFoot">${stack(apps, label)}<div class="ov-pagerNav"><span class="ov-pagerInfo">${start + 1}–${start + shown.length} dari ${apps.length}</span>
       <button class="ov-pagerButton ov-pagerPrev" type="button" aria-label="Halaman sebelumnya" ${current === 0 ? "disabled" : ""} data-tpage="${key}:-1">${icon("chevronLeft", 18)}</button>
       <button class="ov-pagerButton ov-pagerNext" type="button" aria-label="Halaman berikutnya" ${current >= pages - 1 ? "disabled" : ""} data-tpage="${key}:1">${icon("chevronRight", 18)}</button></div></footer>`;
         }
+        function fitTiles() {
+          let changed = false;
+          document.querySelectorAll("[data-grid]").forEach((grid) => {
+            const fit = Math.min(
+              TILE_MAX,
+              Math.max(
+                1,
+                Math.floor(
+                  (grid.clientWidth + TILE_GAP) / (TILE_MIN + TILE_GAP),
+                ),
+              ),
+            );
+            if (ui.ov.cols[grid.dataset.grid] !== fit) {
+              ui.ov.cols[grid.dataset.grid] = fit;
+              changed = true;
+            }
+          });
+          return changed;
+        }
         const section = (title, ic, toolbar, body) =>
           `<section class="card ov-section"><header class="ov-sectionHead"><h3><i class="ch-ic">${icon(ic, 18)}</i>${esc(title)}</h3>${toolbar}</header>${body}</section>`;
+        const sortCategories = (values) =>
+          [...new Set(values.filter(Boolean))].sort((l, r) =>
+            l.localeCompare(r),
+          );
+
+        const HELP_TOPICS = [
+          [
+            "lock",
+            "var(--pal-slate)",
+            "Lupa password",
+            "Minta reset ke Administrator",
+            "Hubungi Administrator Sistem untuk mengatur ulang password Anda.",
+          ],
+          [
+            "grid",
+            "var(--pal-teal)",
+            "Belum punya akses",
+            "Ajukan akses aplikasi",
+            "Minta Administrator Sistem menambahkan Anda ke grup yang punya akses aplikasi tersebut.",
+          ],
+          [
+            "triangle",
+            "var(--pal-red)",
+            "Aplikasi tidak bisa dibuka",
+            "Laporkan kendala",
+            "Catat nama aplikasi dan pesan yang muncul, lalu laporkan ke Administrator Sistem.",
+          ],
+          [
+            "shieldAlert",
+            "var(--pal-orange)",
+            "Akun terkunci",
+            "Terlalu banyak percobaan login",
+            "Akun dikunci sementara karena terlalu banyak percobaan login. Tunggu beberapa menit lalu coba lagi, atau hubungi Administrator Sistem.",
+          ],
+        ];
+        const RECENT_ACTIONS = [
+          "create",
+          "update",
+          "delete",
+          "launch",
+          "favorite_add",
+        ];
 
         function pageOverview() {
+          const state = ui.ov;
           const apps = myApps().sort(
             (l, r) =>
               (Date.parse(r.lastOpenedAt || 0) || 0) -
                 (Date.parse(l.lastOpenedAt || 0) || 0) ||
               l.name.localeCompare(r.name),
           );
-          const favs = apps.filter((a) => a.isFavorite);
-          const cats = [...new Set(apps.map((a) => a.category))].sort();
-          const kw = ui.q.trim().toLowerCase();
+          const favs = myApps().filter((a) => a.isFavorite);
+          const cats = sortCategories(apps.map((a) => a.category));
+          const kw = state.q.trim().toLowerCase();
           const shown = apps.filter(
             (a) =>
-              (!ui.cat || a.category === ui.cat) &&
+              (!state.cat || a.category === state.cat) &&
               (!kw ||
                 `${a.name} ${a.category} ${a.description}`
                   .toLowerCase()
                   .includes(kw)),
           );
           const recent = db.audit
-            .filter((x) => x.actor === me.name)
-            .slice(0, 8);
+            .filter(
+              (x) =>
+                x.actorId === me.id &&
+                x.outcome === "success" &&
+                RECENT_ACTIONS.includes(x.action),
+            )
+            .slice(0, 15);
+          const openedLastWeek = myActivities().filter(
+            (x) => Date.now() - Date.parse(x.at) < 7 * 864e5,
+          ).length;
           const first = me.name.split(" ")[0];
           const stat = (ic, label, value, tone) =>
-            `<div class="sc-card sc-${tone}"><span class="sc-icon">${icon(ic, 20)}</span><span class="sc-text"><b>${value}</b><small>${esc(label)}</small></span></div>`;
+            `<div class="sc-card sc-${tone}"><span class="sc-icon">${icon(ic, 20)}</span><span class="sc-text"><b aria-hidden="true" data-count="${value}">${value}</b><span class="sr-only">${value}</span><small>${esc(label)}</small></span></div>`;
           const appToolbar = apps.length
-            ? `<div class="ov-toolbar"><label class="search us-search">${icon("search", 18)}<input placeholder="Cari aplikasi" value="${esc(ui.q)}" data-input="q"></label>
-      <div class="seg-select"><select aria-label="Semua kategori" data-input="cat"><option value="">Semua kategori</option>${cats.map((c) => `<option ${c === ui.cat ? "selected" : ""}>${esc(c)}</option>`).join("")}</select></div>
-      ${viewToggle("apps", ui.views.apps)}<button class="icon-sq" type="button" aria-label="Atur ulang filter" title="Atur ulang filter" data-act="reset-filter">${icon("rotate", 18)}</button></div>`
+            ? `<div class="ov-toolbar">${searchBox("ov.q", state.q, "Cari aplikasi")}
+      ${tsel(
+        "ov-cat",
+        state.cat,
+        [
+          { value: "", label: "Semua kategori" },
+          ...cats.map((c) => ({ value: c, label: c })),
+        ],
+        "Semua kategori",
+        (v) => {
+          state.cat = v;
+          state.appPage = 0;
+          render();
+        },
+      )}
+      ${viewToggle("ov.appView", state.appView)}${resetButton("ov")}</div>`
             : "";
-          const topics = [
-            [
-              "lock",
-              "var(--pal-slate)",
-              "Lupa password",
-              "Minta reset ke Administrator",
-              "Hubungi Administrator Sistem untuk mengatur ulang password Anda.",
-            ],
-            [
-              "grid",
-              "var(--pal-teal)",
-              "Belum punya akses",
-              "Ajukan akses aplikasi",
-              "Minta Administrator Sistem menambahkan Anda ke grup yang punya akses aplikasi tersebut.",
-            ],
-            [
-              "triangle",
-              "var(--pal-red)",
-              "Aplikasi tidak bisa dibuka",
-              "Laporkan kendala",
-              "Catat nama aplikasi dan pesan yang muncul, lalu laporkan ke Administrator Sistem.",
-            ],
-            [
-              "shieldAlert",
-              "var(--pal-orange)",
-              "Akun terkunci",
-              "Terlalu banyak percobaan login",
-              "Akun dikunci sementara karena terlalu banyak percobaan login. Tunggu beberapa menit lalu coba lagi.",
-            ],
-          ];
+          const activities = recent.length
+            ? `<ul class="ov-activities">${recent
+                .map((x) => {
+                  const d = describeActivity(x);
+                  return `<li class="ov-activity"><span class="ov-activityIcon ov-soft ${actionTone(x.action)}">${icon(actionIcon(x.action), 17)}</span><span class="ov-activityText"><b>${esc(d.title)}</b><small>${esc(d.detail)}</small></span><time class="ov-activityTime" datetime="${x.at}">${dayRel(x.at)}</time></li>`;
+                })
+                .join("")}</ul>`
+            : empty(
+                "Belum ada aktivitas",
+                "Data yang Anda tambah, ubah, hapus, serta aplikasi yang Anda buka akan tercatat di sini.",
+              );
+          const help = `<section class="card help"><div class="eyebrow"><i class="rule"></i>BANTUAN</div><h3>Butuh bantuan?</h3><ul class="help-topics">${HELP_TOPICS.map((t) => `<li><button type="button" data-toast="${esc(t[4])}"><span class="help-tile" style="background:${t[1]}">${icon(t[0], 16)}</span><span class="help-text"><b>${t[2]}</b><small>${t[3]}</small></span>${icon("chevronRight", 16)}</button></li>`).join("")}</ul><button class="btn" type="button" data-toast="Hubungi Administrator Sistem untuk bantuan akun.">Hubungi Administrator${icon("headset", 18)}</button></section>`;
           return `<div class="page" id="overviewPage">${hero(`Beranda — ${greeting()}, ${first}`, fullDate())}
-      <div class="ov-stack"><div class="sc-grid">${stat("window", "Aplikasi tersedia", apps.length, "success")}${stat("star", "Favorit", favs.length, "success")}${stat("history", "Dibuka minggu ini", apps.filter((a) => a.lastOpenedAt && Date.now() - Date.parse(a.lastOpenedAt) < 7 * 864e5).length, "info")}${stat("wrench", "Sedang perbaikan", apps.filter((a) => a.status === "maintenance").length, "warn")}</div>
-      ${section("Favorit", "star", favs.length ? viewToggle("fav", ui.views.fav) : "", favs.length ? tilePager("fav", favs, ui.views.fav, `${favs.length} favorit`) : empty("Belum ada favorit", "Tandai aplikasi yang sering dipakai dengan ikon bintang di Aplikasi Saya."))}
-      ${section("Aplikasi Saya", "grid", appToolbar, !apps.length ? empty("Belum ada aplikasi", "Hubungi Administrator Sistem untuk mendapatkan akses aplikasi.") : shown.length ? tilePager("apps", shown, ui.views.apps, `${shown.length} aplikasi`) : empty("Aplikasi tidak ditemukan", "Coba ubah kata kunci atau kategori."))}
-      <div class="ov-row">${section("Aktivitas Terbaru", "history", "", recent.length ? `<ul class="ov-activities">${recent.map((x) => `<li class="ov-activity"><span class="ov-activityIcon ov-soft ${x.tone}">${icon(x.action === "Buka" ? "external" : x.action === "Tambah" ? "plus" : "pencil", 17)}</span><span class="ov-activityText"><b>${esc(x.action)} ${esc(x.target.toLowerCase())}</b><small>${esc(x.name)}</small></span><time class="ov-activityTime">${rel(x.at)}</time></li>`).join("")}</ul>` : empty("Belum ada aktivitas", "Aplikasi yang Anda buka akan tercatat di sini."))}
-      <section class="card help"><div class="eyebrow"><i class="rule"></i>BANTUAN</div><h3>Butuh bantuan?</h3><ul class="help-topics">${topics.map((t) => `<li><button type="button" data-toast="${esc(t[4])}"><span class="help-tile" style="background:${t[1]}">${icon(t[0], 16)}</span><span class="help-text"><b>${t[2]}</b><small>${t[3]}</small></span>${icon("chevronRight", 16)}</button></li>`).join("")}</ul><button class="btn" type="button" data-toast="Hubungi Administrator Sistem untuk bantuan akun.">Hubungi Administrator${icon("headset", 18)}</button></section></div></div></div>`;
+      <div class="ov-stack"><div class="sc-grid">${stat("window", "Aplikasi tersedia", apps.length, "success")}${stat("star", "Favorit", favs.length, "success")}${stat("history", "Dibuka minggu ini", openedLastWeek, "info")}${stat("wrench", "Sedang perbaikan", apps.filter((a) => a.status === "maintenance").length, "warn")}</div>
+      ${section("Favorit", "star", favs.length ? viewToggle("ov.favView", state.favView) : "", favs.length ? tilePager("fav", favs, state.favView, `${favs.length} favorit`) : empty("Belum ada favorit", "Tandai aplikasi yang sering dipakai dengan ikon bintang di Aplikasi Saya."))}
+      ${section("Aplikasi Saya", "grid", appToolbar, !apps.length ? empty("Belum ada aplikasi", "Hubungi Administrator Sistem untuk mendapatkan akses aplikasi.") : shown.length ? tilePager("apps", shown, state.appView, `${shown.length} aplikasi`) : empty("Aplikasi tidak ditemukan", "Coba ubah kata kunci atau kategori.", { searching: true }))}
+      <div class="ov-row">${section("Aktivitas Terbaru", "history", "", activities)}${help}</div></div></div>`;
         }
 
-        function pageMyApps(filter) {
+        function appCard(a) {
+          const maintenance = a.status === "maintenance";
+          return `<article class="ac${maintenance ? " is-maintenance" : ""}"${tipAttr(a)}><button class="ac-hit" type="button" ${a.status !== "active" ? "disabled" : ""} aria-label="Buka ${esc(a.name)}" data-open="${a.id}"><span class="ac-logo-wrap"><span class="ac-logo ${a.color}">${icon(a.icon, 24)}</span>${dot(a)}</span><span class="ac-txt"><span class="ac-title"><b>${esc(a.name)}</b>${a.category ? categoryBadge(a.category, maintenance) : ""}</span><small>${esc(a.description)}</small></span></button><button class="${a.isFavorite ? "star on" : "star"}" type="button" aria-pressed="${a.isFavorite}" aria-label="${a.isFavorite ? "Hapus dari" : "Tambah ke"} favorit" data-fav="${a.id}">${icon(a.isFavorite ? "starOff" : "star", 18)}</button></article>`;
+        }
+
+        const MA_SEGMENTS = [
+          ["all", "Semua", "grid"],
+          ["favorites", "Favorit", "star"],
+          ["recent", "Terbaru", "history"],
+        ];
+        const MA_EMPTY = {
+          all: [
+            "Belum ada aplikasi",
+            "Hubungi Administrator Sistem untuk mendapatkan akses aplikasi.",
+          ],
+          favorites: [
+            "Belum ada favorit",
+            "Tandai aplikasi dengan bintang agar muncul di sini.",
+          ],
+          recent: [
+            "Belum ada aplikasi dibuka",
+            "Aplikasi yang Anda buka akan muncul di sini.",
+          ],
+        };
+
+        function pageMyApps() {
+          const state = ui.ma;
           const apps = myApps();
-          const cats = [...new Set(apps.map((a) => a.category))].sort();
-          const kw = ui.maQ.trim().toLowerCase();
-          let list = apps.filter(
+          const cats = sortCategories(apps.map((a) => a.category));
+          const kw = state.q.trim().toLowerCase();
+          let list =
+            state.seg === "favorites"
+              ? apps.filter((a) => a.isFavorite)
+              : state.seg === "recent"
+                ? apps
+                    .filter((a) => a.lastOpenedAt)
+                    .sort((l, r) =>
+                      r.lastOpenedAt.localeCompare(l.lastOpenedAt),
+                    )
+                : apps;
+          if (state.cat) list = list.filter((a) => a.category === state.cat);
+          if (kw)
+            list = list.filter((a) =>
+              `${a.name} ${a.description} ${a.category}`
+                .toLowerCase()
+                .includes(kw),
+            );
+          const filtered = Boolean(kw || state.cat);
+          const rows = pageSlice(list, state);
+          const copy = MA_EMPTY[state.seg];
+          return `<div class="page">${hero("Aplikasi Saya", "Akses cepat ke aplikasi yang tersedia untuk Anda.")}<div class="card ma-panel"><div class="ma-bar us-bar">${searchBox("ma.q", state.q, "Cari aplikasi")}
+      <div class="segs" role="group" aria-label="Filter aplikasi">${MA_SEGMENTS.map((s) => `<button class="${state.seg === s[0] ? "seg on" : "seg"}" type="button" aria-pressed="${state.seg === s[0]}" data-seg="${s[0]}">${icon(s[2], 15)}${s[1]}</button>`).join("")}</div>
+      ${tsel("ma-cat", state.cat, [{ value: "", label: "Semua Kategori" }, ...cats.map((c) => ({ value: c, label: c }))], "Semua Kategori", (v) => setPage("ma", { cat: v, page: 1 }))}
+      ${viewToggle("ma.view", state.view)}${resetButton("ma")}</div>
+      <div class="${state.view === "list" ? "ma-grid is-list" : "ma-grid"}">${list.length ? rows.map(appCard).join("") : empty(filtered ? "Tidak ada hasil" : copy[0], filtered ? "Coba ubah kata kunci atau kategori." : copy[1], { searching: filtered })}</div>
+      ${dataPager("ma", list.length, state.page, state.size, [9, 18, 36], "aplikasi", list.length ? stack(list, `${list.length} aplikasi`) : "")}</div></div>`;
+        }
+
+        function pageFavorites() {
+          const state = ui.fv;
+          const apps = myApps();
+          const favs = apps.filter((a) => a.isFavorite);
+          const cats = sortCategories(favs.map((a) => a.category));
+          const kw = state.q.trim().toLowerCase();
+          const list = favs.filter(
             (a) =>
-              (!ui.maCat || a.category === ui.maCat) &&
+              (!state.cat || a.category === state.cat) &&
               (!kw ||
-                `${a.name} ${a.category} ${a.description}`
+                `${a.name} ${a.description} ${a.category}`
                   .toLowerCase()
                   .includes(kw)),
           );
-          if (filter === "favorites") list = list.filter((a) => a.isFavorite);
-          if (filter === "recent")
-            list = list
-              .filter((a) => a.lastOpenedAt)
-              .sort(
-                (l, r) =>
-                  Date.parse(r.lastOpenedAt) - Date.parse(l.lastOpenedAt),
-              );
-          const pages = Math.max(1, Math.ceil(list.length / ui.maSize));
-          ui.maPage = Math.min(ui.maPage, pages);
-          const rows = list.slice(
-            (ui.maPage - 1) * ui.maSize,
-            ui.maPage * ui.maSize,
-          );
-          const title = {
-            all: "Aplikasi Saya",
-            favorites: "Favorit",
-            recent: "Terbaru",
-          }[filter];
-          const desc = {
-            all: "Akses cepat ke aplikasi yang tersedia untuk Anda.",
-            favorites: "Aplikasi yang Anda tandai sebagai favorit.",
-            recent: "Aplikasi yang terakhir Anda buka.",
-          }[filter];
-          const segs = [
-            ["all", "Semua", "grid", "my-apps"],
-            ["favorites", "Favorit", "star", "favorites"],
-            ["recent", "Terbaru", "history", "recent"],
-          ];
-          const card = (a) =>
-            `<article class="ac${a.status === "maintenance" ? " is-maintenance" : ""}" title="${a.status === "maintenance" ? esc(a.maintenanceMessage) : ""}"><button class="ac-hit" type="button" aria-label="Buka ${esc(a.name)}" data-open="${a.id}"><span class="ac-logo-wrap"><span class="ac-logo ${a.color}">${icon(a.icon, 24)}</span>${dot(a)}</span><span class="ac-txt"><span class="ac-title"><b>${esc(a.name)}</b><span class="ac-cat${a.status === "maintenance" ? " warn" : ""}" title="${esc(a.category)}">${icon("tag", 12)}<span>${esc(a.category)}</span></span></span><small>${esc(a.description)}</small></span></button><button class="${a.isFavorite ? "star on" : "star"}" type="button" aria-pressed="${a.isFavorite}" aria-label="${a.isFavorite ? "Hapus dari" : "Tambah ke"} favorit" data-fav="${a.id}">${icon(a.isFavorite ? "starOff" : "star", 18)}</button></article>`;
-          const start = list.length ? (ui.maPage - 1) * ui.maSize + 1 : 0;
-          const end = Math.min(list.length, ui.maPage * ui.maSize);
-          return `<div class="page">${hero(title, desc)}<div class="card ma-panel"><div class="ma-bar us-bar"><label class="search us-search">${icon("search", 18)}<input placeholder="Cari aplikasi" value="${esc(ui.maQ)}" data-input="maQ"></label>
-      <div class="segs" role="group" aria-label="Filter aplikasi">${segs.map((s) => `<a class="${filter === s[0] ? "seg on" : "seg"}" href="#/${s[3]}" aria-pressed="${filter === s[0]}">${icon(s[2], 15)}${s[1]}</a>`).join("")}</div>
-      <div class="seg-select"><select aria-label="Semua Kategori" data-input="maCat"><option value="">Semua Kategori</option>${cats.map((c) => `<option ${c === ui.maCat ? "selected" : ""}>${esc(c)}</option>`).join("")}</select></div>
-      ${viewToggle("ma", ui.maView)}<button class="icon-sq" type="button" aria-label="Atur ulang filter" title="Atur ulang filter" data-act="reset-ma">${icon("rotate", 18)}</button></div>
-      <div class="${ui.maView === "list" ? "ma-grid is-list" : "ma-grid"}">${rows.length ? rows.map(card).join("") : empty(kw || ui.maCat ? "Tidak ada hasil" : filter === "favorites" ? "Belum ada favorit" : "Belum ada aplikasi", kw || ui.maCat ? "Coba ubah kata kunci atau kategori." : filter === "favorites" ? "Klik ikon bintang pada aplikasi untuk menambahkannya ke favorit." : "Aplikasi yang Anda buka akan muncul di sini.")}</div>
-      ${pager(list.length, start, end, pages, ui.maPage, "ma", list.length ? stack(list, `${list.length} aplikasi`) : "", [9, 18, 36], ui.maSize, "aplikasi")}</div></div>`;
+          const filtered = Boolean(kw || state.cat);
+          const canAdd = apps.some((a) => !a.isFavorite);
+          const addButton = `<button class="btn tone-warn" type="button" ${canAdd ? "" : "disabled"} title="${!apps.length ? "Belum ada aplikasi yang bisa Anda buka" : !canAdd ? "Semua aplikasi Anda sudah ada di Favorit" : ""}" data-act="fav-modal">Tambah Favorit${icon("star", 18)}</button>`;
+          const rows = pageSlice(list, state);
+          return `<div class="page">${hero("Favorit", "Akses cepat ke aplikasi yang paling sering Anda gunakan.", addButton)}<div class="card ma-panel"><div class="ma-bar us-bar">${searchBox("fv.q", state.q, "Cari aplikasi")}
+      ${tsel("fv-cat", state.cat, [{ value: "", label: "Semua Kategori" }, ...cats.map((c) => ({ value: c, label: c }))], "Semua Kategori", (v) => setPage("fv", { cat: v, page: 1 }))}${resetButton("fv")}</div>
+      <div class="ma-grid">${list.length ? rows.map(appCard).join("") : empty(filtered ? "Tidak ada hasil" : "Belum ada favorit", filtered ? "Coba ubah kata kunci atau kategori." : apps.length ? "Tambahkan aplikasi yang sering Anda pakai agar mudah diakses." : "Belum ada aplikasi yang bisa Anda buka. Hubungi admin untuk mendapatkan akses.", { searching: filtered })}</div>
+      ${dataPager("fv", list.length, state.page, state.size, [9, 18, 36], "favorit", list.length ? stack(list, `${list.length} favorit`) : "")}</div></div>`;
         }
 
-        function pager(
-          total,
-          start,
-          end,
-          pages,
-          current,
-          key,
-          summary,
-          sizes,
-          size,
-          unit,
-        ) {
-          const nums = Array.from({ length: pages }, (_, i) => i + 1);
-          return `<div class="pager">${summary || `<span class="muted">${total ? `Menampilkan ${start}–${end} dari ${total} ${unit}` : "Tidak ada data"}</span>`}<div class="pager-r">${summary && total ? `<span class="muted">${start}–${end} dari ${total}</span>` : ""}
-      <div class="seg-select"><select aria-label="Jumlah per halaman" data-size="${key}">${sizes.map((s) => `<option value="${s}" ${s === size ? "selected" : ""}>${s} / halaman</option>`).join("")}</select></div>
-      <nav class="pages" aria-label="Halaman"><button type="button" aria-label="Sebelumnya" ${current === 1 ? "disabled" : ""} data-page="${key}:${current - 1}">${icon("chevronLeft", 16)}</button>${nums.map((n) => `<button type="button" class="${n === current ? "on" : ""}" ${n === current ? 'aria-current="page"' : ""} data-page="${key}:${n}">${n}</button>`).join("")}<button type="button" aria-label="Berikutnya" ${current === pages ? "disabled" : ""} data-page="${key}:${current + 1}">${icon("chevronRight", 16)}</button></nav></div></div>`;
+        function favoriteModal() {
+          const apps = myApps();
+          return `<div class="modal show" role="dialog" aria-modal="true" aria-labelledby="fmTitle" data-modal="fav"><div class="modal-card mh-warn"><header><span class="mh-ic">${icon("star", 20)}</span><div><h3 id="fmTitle">Tambah Favorit</h3><p>Pilih aplikasi untuk ditampilkan di halaman Favorit.</p></div><button class="icon-btn fm-close" type="button" aria-label="Tutup" data-act="fav-modal-close">${icon("x", 18)}</button></header>
+      <div class="fm-list">${apps.map((a) => `<div class="fm-row"><span class="rc-ic ${a.color}">${icon(a.icon)}</span><div class="fm-txt"><b>${esc(a.name)}</b><small>${esc(a.description)}</small></div><button class="${a.isFavorite ? "sm-btn on" : "sm-btn"}" type="button" aria-pressed="${a.isFavorite}" data-fav="${a.id}">${icon(a.isFavorite ? "check" : "plus", 15)}${a.isFavorite ? "Favorit" : "Tambah"}</button></div>`).join("")}</div>
+      <footer><button class="btn" type="button" data-act="fav-modal-close">Selesai${icon("circleCheck", 18)}</button></footer></div></div>`;
+        }
+
+        const RC_FAVORITE = [
+          { value: "", label: "Semua Aplikasi" },
+          { value: "yes", label: "Favorit" },
+          { value: "no", label: "Bukan Favorit" },
+        ];
+        const RC_PERIOD = [
+          { value: "all", label: "Semua Waktu" },
+          { value: "today", label: "Hari Ini" },
+          { value: "week", label: "7 Hari Terakhir" },
+        ];
+
+        function recentList() {
+          const state = ui.rc;
+          const apps = new Map(myApps().map((a) => [a.id, a]));
+          const kw = state.q.trim().toLowerCase();
+          const now = new Date();
+          let list = myActivities().filter((x) => {
+            const a = apps.get(x.appId);
+            if (state.cat && (a?.category || "") !== state.cat) return false;
+            if (state.fav === "yes" && !a?.isFavorite) return false;
+            if (state.fav === "no" && a?.isFavorite) return false;
+            if (
+              state.period === "today" &&
+              new Date(x.at).toDateString() !== now.toDateString()
+            )
+              return false;
+            if (state.period === "week" && now - new Date(x.at) > 7 * 864e5)
+              return false;
+            return !kw || `${x.title} ${x.subtitle}`.toLowerCase().includes(kw);
+          });
+          if (state.sort) {
+            const value =
+              state.sort.key === "name"
+                ? (x) => x.title
+                : (x) => Date.parse(x.at);
+            list = [...list].sort((l, r) => {
+              const a = value(l),
+                b = value(r);
+              const c = typeof a === "string" ? a.localeCompare(b) : a - b;
+              return state.sort.direction === "asc" ? c : -c;
+            });
+          }
+          return { list, apps };
+        }
+
+        function sortButton(key, label) {
+          const active = ui.rc.sort?.key === key ? ui.rc.sort.direction : null;
+          return `<button class="${active ? "sort-th is-active" : "sort-th"}" type="button" title="${active === "asc" ? `Urutkan ${label} dari besar ke kecil` : active === "desc" ? "Kembalikan urutan bawaan" : `Urutkan ${label} dari kecil ke besar`}" data-sort="${key}">${label}${icon(active === "asc" ? "arrowUp" : active === "desc" ? "arrowDown" : "chevronsUpDown", 13)}</button>`;
+        }
+        const pickCheck = (checked, label, attr, indeterminate = false) =>
+          `<label class="cbx"><input type="checkbox" aria-label="${esc(label)}" ${checked ? "checked" : ""} ${indeterminate && !checked ? "data-indeterminate" : ""} ${attr}><i>${icon("check", 13)}</i></label>`;
+
+        function pageRecent() {
+          const state = ui.rc;
+          const all = myActivities();
+          const { list, apps } = recentList();
+          const rows = pageSlice(list, state);
+          const ids = rows.map((x) => x.id);
+          state.sel = state.sel.filter((id) => all.some((x) => x.id === id));
+          const chosen = state.sel;
+          const allChecked =
+            ids.length > 0 && ids.every((id) => chosen.includes(id));
+          const someChecked = ids.some((id) => chosen.includes(id));
+          const filtered = Boolean(
+            state.q.trim() || state.cat || state.fav || state.period !== "all",
+          );
+          const opened = [...new Set(list.map((x) => x.appId))]
+            .map((id) => apps.get(id))
+            .filter(Boolean);
+          const cats = sortCategories(
+            all.map((x) => apps.get(x.appId)?.category),
+          );
+          const row = (x, index) => {
+            const a = apps.get(x.appId);
+            const time = dayRel(x.at);
+            const selected = chosen.includes(x.id);
+            return `<div class="rc-wrap"><div class="rc-row selectable${selected ? " sel" : ""}"><div class="rc-ck" role="presentation">${pickCheck(selected, `Pilih ${x.title}`, `data-rc-pick="${x.id}"`)}</div><div class="rc-no">${(state.page - 1) * state.size + index + 1}</div>
+        <div class="rc-name"><span class="ac-logo-wrap"><span class="rc-ic ${a ? a.color : "soft"}">${icon(a ? a.icon : "grid")}</span>${a ? dot(a) : ""}</span><div><span class="ac-title"><b>${esc(x.title)}</b>${categoryBadge(a?.category || "Aplikasi", a?.status === "maintenance")}</span><small>${esc(x.subtitle)}<span class="rc-mob"> · ${time}</span></small></div></div>
+        <div class="rc-time">${time}</div><div class="rc-act row-acts" role="presentation"><button class="row-act" type="button" aria-label="Aksi untuk ${esc(x.title)}" aria-haspopup="menu" aria-expanded="false" title="Aksi lainnya" data-rowmenu="rc:${x.id}">${icon("ellipsis", 17)}</button></div></div></div>`;
+          };
+          return `<div class="page">${hero("Terbaru", "Akses aplikasi yang terakhir Anda buka lewat portal.")}<div class="rc-layout"><div class="card rc-table">
+      <div class="ma-bar us-bar">${searchBox("rc.q", state.q, "Cari aktivitas")}
+      ${tsel("rc-cat", state.cat, [{ value: "", label: "Semua Kategori" }, ...cats.map((c) => ({ value: c, label: c }))], "Semua Kategori", (v) => setPage("rc", { cat: v, page: 1 }))}
+      ${tsel("rc-fav", state.fav, RC_FAVORITE, "Semua Aplikasi", (v) => setPage("rc", { fav: v, page: 1 }))}
+      ${tsel("rc-period", state.period, RC_PERIOD, "Semua Waktu", (v) => setPage("rc", { period: v, page: 1 }))}
+      ${resetButton("rc")}<button class="btn tone-danger" type="button" ${all.length ? "" : "disabled"} title="${all.length ? "" : "Belum ada riwayat untuk dibersihkan"}" data-act="rc-clear">Bersihkan Riwayat${icon("trash", 18)}</button></div>
+      ${chosen.length ? `<div class="bulk"><span>${chosen.length} aktivitas dipilih</span><button class="ac-btn danger" type="button" data-act="rc-remove-many">Hapus dari Riwayat${icon("trash", 15)}</button></div>` : ""}
+      <div class="rc-row rc-head selectable"><div class="rc-ck">${pickCheck(allChecked, "Pilih semua di halaman ini", "data-rc-all", someChecked)}</div><div class="rc-no">No</div><div>${sortButton("name", "Nama")}</div><div class="rc-time">${sortButton("time", "Diakses Pada")}</div><div class="rc-act">Aksi</div></div>
+      <div>${list.length ? rows.map(row).join("") : empty(filtered ? "Tidak ada hasil" : "Riwayat masih kosong", filtered ? "Coba ubah kata kunci atau filter." : "Aplikasi yang Anda buka akan muncul di sini.", { searching: filtered })}</div>
+      ${dataPager("rc", list.length, state.page, state.size, [10, 20, 50, 100], "aktivitas", list.length ? stack(opened, `${list.length} aktivitas dari ${opened.length} aplikasi`) : "")}</div>
+      <aside class="rc-aside"><section class="card tip-card"><header class="tip-head"><h3><i class="ch-ic">${icon("lightbulb", 18)}</i>Akses Lebih Cepat</h3></header><div class="tip-body"><p>Semua aktivitas terbaru Anda disimpan di sini untuk memudahkan akses kembali. Saat ini ada <b>${all.length} aktivitas</b> tercatat.</p></div><footer class="tip-foot"><a class="btn btn-ghost" href="#/favorites">Lihat Favorit${icon("star", 18)}</a></footer></section></aside></div></div>`;
+        }
+
+        async function toggleFavorite(appId) {
+          const a = myApps().find((x) => x.id === appId);
+          if (!a) return;
+          const on = a.isFavorite;
+          const approved = await ask({
+            title: on ? "Hapus dari favorit?" : "Tambah ke favorit?",
+            message: on
+              ? `${a.name} akan dihapus dari daftar Favorit.`
+              : `${a.name} akan ditambahkan ke daftar Favorit.`,
+            confirmLabel: on ? "Hapus" : "Tambahkan",
+            danger: on,
+            icon: "star",
+            tone: "warn",
+          });
+          if (!approved) return;
+          me.favorites = on
+            ? me.favorites.filter((id) => id !== appId)
+            : [...me.favorites, appId];
+          audit(
+            on ? "favorite_remove" : "favorite_add",
+            "favorite",
+            a.name,
+            on
+              ? "Aplikasi dihapus dari favorit"
+              : "Aplikasi ditambahkan ke favorit",
+          );
+          render();
+          toast(`${a.name} ${on ? "dihapus dari" : "ditambahkan ke"} favorit`);
+        }
+
+        async function removeActivities(ids, single) {
+          const approved = await ask(
+            single
+              ? {
+                  title: "Hapus dari riwayat?",
+                  message: `"${single.title}" akan dihapus dari daftar Terbaru.`,
+                  confirmLabel: "Ya, Hapus",
+                  danger: true,
+                  icon: "trash",
+                  tone: "danger",
+                }
+              : {
+                  title: `Hapus ${ids.length} aktivitas dari riwayat?`,
+                  message:
+                    "Aktivitas terpilih akan dihapus dari daftar Terbaru.",
+                  confirmLabel: "Ya, Hapus",
+                  danger: true,
+                  icon: "trash",
+                  tone: "danger",
+                },
+          );
+          if (!approved) return;
+          db.activities = db.activities.filter(
+            (x) => !(x.userId === me.id && ids.includes(x.id)),
+          );
+          save();
+          ui.rc.sel = ui.rc.sel.filter((id) => !ids.includes(id));
+          render();
+          toast(
+            single
+              ? "Dihapus dari riwayat"
+              : `${ids.length} aktivitas dihapus dari riwayat`,
+          );
+        }
+
+        async function clearActivities() {
+          const approved = await ask({
+            title: "Bersihkan semua riwayat?",
+            message:
+              "Semua aktivitas di halaman Terbaru akan dihapus dari daftar Anda. Aplikasi dan favorit Anda tidak terpengaruh.",
+            confirmLabel: "Ya, Bersihkan",
+            danger: true,
+            icon: "trash",
+            tone: "danger",
+          });
+          if (!approved) return;
+          db.activities = db.activities.filter((x) => x.userId !== me.id);
+          save();
+          ui.rc.sel = [];
+          render();
+          toast("Riwayat berhasil dibersihkan");
+        }
+
+        const ROW_MENUS = {};
+        function rowMenuItems(ref) {
+          const [kind, id] = ref.split(":");
+          if (kind !== "rc") return [];
+          const x = myActivities().find((item) => item.id === Number(id));
+          if (!x) return [];
+          const a = myApps().find((item) => item.id === x.appId);
+          return [
+            {
+              label: "Buka Lagi",
+              icon: "squareOut",
+              tone: "info",
+              run: () => a && launch(a),
+            },
+            a && {
+              label: a.isFavorite ? "Hapus dari Favorit" : "Tambah ke Favorit",
+              icon: a.isFavorite ? "starOff" : "star",
+              tone: "warn",
+              run: () => toggleFavorite(a.id),
+            },
+            {
+              label: "Hapus dari Riwayat",
+              icon: "trash",
+              tone: "danger",
+              run: () => removeActivities([x.id], x),
+            },
+          ].filter(Boolean);
+        }
+
+        const floatRoot = document.createElement("div");
+        document.body.appendChild(floatRoot);
+        let floating = null;
+        function closeFloating() {
+          if (!floating) return;
+          floating.anchor.setAttribute("aria-expanded", "false");
+          floating.anchor.classList.remove("is-open");
+          floating = null;
+          floatRoot.innerHTML = "";
+        }
+        function openRowMenu(anchor) {
+          if (floating && floating.anchor === anchor) return closeFloating();
+          closeFloating();
+          const items = rowMenuItems(anchor.dataset.rowmenu);
+          if (!items.length) return;
+          ROW_MENUS.current = items;
+          floatRoot.innerHTML = `<div class="menu-pop floating-menu" role="menu" style="width:210px;visibility:hidden">${items.map((item, index) => `<button class="mi row-menu-item ${item.tone}" type="button" role="menuitem" data-rowitem="${index}">${icon(item.icon, 17)}${esc(item.label)}</button>`).join("")}</div>`;
+          const panel = floatRoot.firstElementChild;
+          const rect = anchor.getBoundingClientRect();
+          const height = panel.offsetHeight;
+          const below = window.innerHeight - rect.bottom - 6 - 12;
+          const openUp = below < height && rect.top > below;
+          panel.style.top = `${openUp ? Math.max(12, rect.top - 6 - height) : Math.min(rect.bottom + 6, window.innerHeight - 12 - height)}px`;
+          panel.style.left = `${Math.min(Math.max(12, rect.right - 210), window.innerWidth - 12 - 210)}px`;
+          panel.style.visibility = "visible";
+          anchor.setAttribute("aria-expanded", "true");
+          anchor.classList.add("is-open");
+          floating = { kind: "menu", anchor };
+        }
+        function openSelect(anchor) {
+          if (floating && floating.anchor === anchor) return closeFloating();
+          closeFloating();
+          const config = SELECTS[anchor.dataset.ts];
+          if (!config) return;
+          const rect = anchor.getBoundingClientRect();
+          const width = Math.max(rect.width, 220);
+          const left = Math.min(
+            Math.max(12, rect.left),
+            Math.max(12, window.innerWidth - width - 12),
+          );
+          const spaceBelow = window.innerHeight - rect.bottom - 18;
+          const spaceAbove = rect.top - 18;
+          const above = spaceBelow < 200 && spaceAbove > spaceBelow;
+          const maxHeight = Math.max(
+            160,
+            Math.min(360, above ? spaceAbove : spaceBelow),
+          );
+          const position = above
+            ? `bottom:${window.innerHeight - rect.top + 6}px`
+            : `top:${rect.bottom + 6}px`;
+          floating = {
+            kind: "select",
+            anchor,
+            config,
+            query: "",
+            cursor: Math.max(
+              0,
+              config.options.findIndex((o) => o.value === config.value),
+            ),
+          };
+          floatRoot.innerHTML = `<div class="${above ? "ts-dropdown is-above" : "ts-dropdown"}" style="${position};left:${left}px;width:${width}px;max-height:${maxHeight}px"><div class="ts-search">${icon("search", 16)}<input placeholder="Cari pilihan" aria-label="Cari pilihan" data-ts-search></div><ul class="ts-list" role="listbox"></ul></div>`;
+          anchor.classList.add("open");
+          anchor.setAttribute("aria-expanded", "true");
+          paintSelect();
+          floatRoot.querySelector("[data-ts-search]").focus();
+        }
+        function selectOptions() {
+          const keyword = floating.query.trim().toLocaleLowerCase("id-ID");
+          return floating.config.options.filter(
+            (o) =>
+              !keyword || o.label.toLocaleLowerCase("id-ID").includes(keyword),
+          );
+        }
+        function paintSelect() {
+          const options = selectOptions();
+          floating.cursor = Math.min(
+            floating.cursor,
+            Math.max(options.length - 1, 0),
+          );
+          floatRoot.querySelector(".ts-list").innerHTML = options.length
+            ? options
+                .map(
+                  (o, index) =>
+                    `<li role="option" aria-selected="${o.value === floating.config.value}" class="${[o.value === floating.config.value ? "sel" : "", index === floating.cursor ? "hi" : ""].filter(Boolean).join(" ")}" data-ts-option="${index}"><span>${esc(o.label)}</span>${o.value === floating.config.value ? icon("check", 15) : ""}</li>`,
+                )
+                .join("")
+            : `<li class="ts-empty">Tidak ada pilihan</li>`;
+        }
+        function chooseSelect(index) {
+          const option = selectOptions()[index];
+          if (!option) return;
+          const { config, anchor } = floating;
+          anchor.classList.remove("open");
+          closeFloating();
+          if (option.value !== config.value) config.onChange(option.value);
+        }
+
+        const tipRoot = document.createElement("div");
+        document.body.appendChild(tipRoot);
+        let tipTimer,
+          tipTarget = null;
+        function showMaintenanceTip(target) {
+          if (tipTarget === target) return;
+          clearTimeout(tipTimer);
+          tipTarget = target;
+          tipTimer = setTimeout(
+            () => {
+              const a = db.apps.find(
+                (x) => x.id === Number(target.dataset.mtip),
+              );
+              if (!a || !document.body.contains(target)) return;
+              const rect = target.getBoundingClientRect();
+              const below = rect.bottom + 100 < window.innerHeight;
+              const left = Math.min(
+                Math.max(rect.left + rect.width / 2, 120),
+                window.innerWidth - 120,
+              );
+              tipRoot.innerHTML = `<div role="tooltip" class="hover-tip ${below ? "below" : "above"}" style="top:${below ? rect.bottom + 6 : rect.top - 6}px;left:${left}px"><b>${esc(a.name)}</b><span class="hover-tip-row warn">${icon("wrench", 13)}${esc(a.maintenanceMessage || "Sedang maintenance")}</span></div>`;
+            },
+            tipRoot.firstElementChild ? 0 : 120,
+          );
+        }
+        function hideMaintenanceTip() {
+          clearTimeout(tipTimer);
+          tipTarget = null;
+          const tip = tipRoot.firstElementChild;
+          if (!tip) return;
+          tip.classList.add("is-leaving");
+          tipTimer = setTimeout(() => {
+            tipRoot.innerHTML = "";
+          }, 140);
+        }
+
+        function countUp() {
+          if (window.matchMedia("(prefers-reduced-motion: reduce)").matches)
+            return;
+          document.querySelectorAll("[data-count]").forEach((el) => {
+            const target = Number(el.dataset.count);
+            const start = performance.now();
+            const step = (now) => {
+              const progress = Math.min(1, (now - start) / 900);
+              el.textContent = String(
+                Math.round(target * (1 - Math.pow(1 - progress, 3))),
+              );
+              if (progress < 1) requestAnimationFrame(step);
+            };
+            el.textContent = "0";
+            requestAnimationFrame(step);
+          });
         }
 
         const sortTh = (label, cls = "") =>
@@ -1077,7 +1783,7 @@
           total,
           unit,
         ) =>
-          `<div class="page">${hero(title, desc, btn ? `<button class="btn" type="button" data-toast="Form ${esc(btn.toLowerCase())} tersedia di aplikasi asli.">${esc(btn)}${icon("plus", 18)}</button>` : "")}<div class="card ma-panel">${toolbar}<div class="table-wrap"><table class="dt ut demo-table"><thead><tr>${head}</tr></thead><tbody>${rows}</tbody></table></div>${pager(total, total ? 1 : 0, total, 1, 1, "x", "", [10, 25, 50], 10, unit)}</div></div>`;
+          `<div class="page">${hero(title, desc, btn ? `<button class="btn" type="button" data-toast="Form ${esc(btn.toLowerCase())} tersedia di aplikasi asli.">${esc(btn)}${icon("plus", 18)}</button>` : "")}<div class="card ma-panel">${toolbar}<div class="table-wrap"><table class="dt ut demo-table"><thead><tr>${head}</tr></thead><tbody>${rows}</tbody></table></div>${dataPager("tbl", total, 1, 10, [10, 20, 50, 100], unit)}</div></div>`;
 
         function pageUsers() {
           const kw = ui.userQ.trim().toLowerCase();
@@ -1191,7 +1897,7 @@
           const rows = db.audit
             .map(
               (x, i) =>
-                `<tr><td class="ta-c"><span class="row-no">${i + 1}</span></td><td class="mono">${esc(stamp(x.at))}</td><td><div class="who"><span class="av ${avatarClass(x.actor)}">${initials(x.actor)}</span><div><span class="who-line"><b>${esc(x.actor)}</b></span></div></div></td><td>${statusBadge(x.tone, x.tone === "danger" ? "circleX" : "circleCheck", x.action)}</td><td class="hs"><b>${esc(x.name)}</b><br><small class="muted">${esc(x.target)}</small></td><td class="muted hs">${esc(x.summary)}</td></tr>`,
+                `<tr><td class="ta-c"><span class="row-no">${i + 1}</span></td><td class="mono">${esc(stamp(x.at))}</td><td><div class="who"><span class="av ${avatarClass(x.actorName)}">${initials(x.actorName)}</span><div><span class="who-line"><b>${esc(x.actorName)}</b></span></div></div></td><td>${statusBadge(actionTone(x.action, x.outcome), actionIcon(x.action), actionLabel(x.action))}</td><td class="hs"><b>${esc(x.targetName)}</b><br><small class="muted">${esc(targetLabel(x.targetType))}</small></td><td class="muted hs">${esc(x.summary)}</td></tr>`,
             )
             .join("");
           return tablePage(
@@ -1572,84 +2278,105 @@
       ${viaSso ? `<section class="card"><h1 style="font-size:16px">Respons <code>POST /api/sso/validate</code></h1><p>Data pengguna yang diterima server aplikasi:</p><pre>${esc(JSON.stringify(payload, null, 2))}</pre></section>` : ""}</div></div>`;
         }
 
+        const LAUNCH_STAGES = {
+          sso: (name) => [
+            [
+              "Tahap 1 · Periksa akses",
+              `Memeriksa akses ke ${name}`,
+              "SSO Launcher memastikan akun Anda aktif dan berhak membuka aplikasi ini.",
+              "GET /api/sso/launch → memeriksa sesi dan akses grup",
+            ],
+            [
+              "Tahap 2 · Terbitkan token",
+              `Menyiapkan token untuk ${name}`,
+              "Token dibuat khusus untuk aplikasi ini, berlaku 60 detik dan hanya sekali pakai.",
+              "token: { berlaku 60 detik, sekali pakai }",
+            ],
+            [
+              "Tahap 3 · Kirim token",
+              `Mengirim token ke ${name}`,
+              "Aplikasi memvalidasi token ke SSO Launcher dari sisi server, tanpa perlu login ulang.",
+              "POST /api/sso/validate → identitas pengguna",
+            ],
+          ],
+          direct: (name) => [
+            [
+              "Tahap 1 · Periksa akses",
+              `Memeriksa akses ke ${name}`,
+              "SSO Launcher memastikan akun Anda aktif dan berhak membuka aplikasi ini.",
+              "GET /api/sso/launch → memeriksa sesi dan akses grup",
+            ],
+            [
+              "Tahap 2 · Tanpa SSO",
+              `${name} tidak memakai SSO`,
+              "Tidak ada token yang dikirim. Aplikasi ini memakai login miliknya sendiri.",
+              "sso: tidak dipakai",
+            ],
+            [
+              "Tahap 3 · Buka aplikasi",
+              `Membuka ${name} di tab baru`,
+              "Jika diminta, masuk dengan akun yang terdaftar di aplikasi tersebut.",
+              "tab baru → halaman aplikasi",
+            ],
+          ],
+          back: () => [
+            [
+              "Tahap 1 · Keluar dari aplikasi",
+              "Mengakhiri sesi aplikasi",
+              "Sesi di aplikasi sudah ditutup. SSO Launcher mencatat bahwa Anda keluar.",
+              "POST /api/sso/sign-out → catat keluar",
+            ],
+            [
+              "Tahap 2 · Periksa sesi portal",
+              "Memeriksa sesi SSO Launcher",
+              "Sesi portal Anda tetap aktif, jadi Anda tidak perlu login ulang.",
+              "sesi portal: aktif",
+            ],
+            [
+              "Tahap 3 · Kembali",
+              "Kembali ke Beranda SSO Launcher",
+              "Aplikasi lain tetap bisa dibuka dari portal tanpa login ulang.",
+              "→ Beranda",
+            ],
+          ],
+        };
+        let launching = false;
+
         function launch(app) {
           if (app.status !== "active")
             return toast(`${app.name} sedang maintenance.`, "warning");
-          const stages = app.usesSso
-            ? [
-                [
-                  "Tahap 1 · Periksa akses",
-                  `Memeriksa akses ke ${app.name}`,
-                  "SSO Launcher memastikan akun Anda aktif dan berhak membuka aplikasi ini.",
-                  "GET /api/sso/launch → memeriksa sesi dan akses grup",
-                ],
-                [
-                  "Tahap 2 · Terbitkan token",
-                  `Menyiapkan token untuk ${app.name}`,
-                  "Token dibuat khusus untuk aplikasi ini, berlaku 60 detik dan hanya sekali pakai.",
-                  "token: { berlaku 60 detik, sekali pakai }",
-                ],
-                [
-                  "Tahap 3 · Kirim token",
-                  `Mengirim token ke ${app.name}`,
-                  "Aplikasi memvalidasi token ke SSO Launcher dari sisi server, tanpa perlu login ulang.",
-                  "POST /api/sso/validate → identitas pengguna",
-                ],
-              ]
-            : [
-                [
-                  "Tahap 1 · Periksa akses",
-                  `Memeriksa akses ke ${app.name}`,
-                  "SSO Launcher memastikan akun Anda aktif dan berhak membuka aplikasi ini.",
-                  "GET /api/sso/launch → memeriksa sesi dan akses grup",
-                ],
-                [
-                  "Tahap 2 · Tanpa SSO",
-                  `${app.name} tidak memakai SSO`,
-                  "Tidak ada token yang dikirim. Aplikasi ini memakai login miliknya sendiri.",
-                  "sso: tidak dipakai",
-                ],
-                [
-                  "Tahap 3 · Buka aplikasi",
-                  `Membuka ${app.name}`,
-                  "Jika diminta, masuk dengan akun yang terdaftar di aplikasi tersebut.",
-                  "tab baru → halaman aplikasi",
-                ],
-              ];
-          overlay(stages, () => {
-            const target = db.apps.find((a) => a.id === app.id);
-            target.lastOpenedAt = new Date().toISOString();
-            audit(
-              "Buka",
-              "purple",
-              "Aplikasi",
-              app.name,
-              app.usesSso
-                ? "Membuka aplikasi lewat SSO"
-                : "Membuka aplikasi tanpa SSO",
-            );
-            location.hash = `#/app/${app.slug}`;
-          });
+          if (launching) return;
+          launching = true;
+          closePop();
+          closeFloating();
+          recordActivity(app);
+          audit(
+            "launch",
+            "application",
+            app.name,
+            `Dibuka lewat portal ke ${app.host}${app.usesSso ? "" : " tanpa SSO"}`,
+          );
+          overlay(
+            (app.usesSso ? LAUNCH_STAGES.sso : LAUNCH_STAGES.direct)(app.name),
+            () => {
+              launching = false;
+              location.hash = `#/app/${app.slug}`;
+            },
+          );
         }
 
         function overlay(stages, done) {
-          let step = 0;
-          const paint = () => {
+          const paint = (step) => {
             const s = stages[step];
             layer.innerHTML = `<div class="launch show"><div class="launch-card"><div class="spin"></div><small>${esc(s[0])}</small><h3>${esc(s[1])}</h3><p>${esc(s[2])}</p><code>${esc(s[3])}</code></div></div>`;
           };
-          paint();
-          const tick = () => {
-            step += 1;
-            if (step < stages.length) {
-              paint();
-              setTimeout(tick, 830);
-            } else {
-              layer.innerHTML = "";
-              done();
-            }
-          };
-          setTimeout(tick, 830);
+          paint(0);
+          setTimeout(() => paint(1), 830);
+          setTimeout(() => paint(2), 1660);
+          setTimeout(() => {
+            layer.innerHTML = "";
+            done();
+          }, 2500);
         }
 
         function route() {
@@ -1709,9 +2436,10 @@
           if (adminPages.includes(page) && !me.admin) page = "overview";
           const views = {
             overview: pageOverview,
-            "my-apps": () => pageMyApps("all"),
-            favorites: () => pageMyApps("favorites"),
-            recent: () => pageMyApps("recent"),
+            "my-apps": pageMyApps,
+            favorites: () =>
+              pageFavorites() + (ui.fv.modal ? favoriteModal() : ""),
+            recent: pageRecent,
             users: pageUsers,
             groups: pageGroups,
             applications: pageApplications,
@@ -1730,6 +2458,11 @@
           });
           main.insertAdjacentHTML("beforeend", views[page]());
           syncShell(page);
+          document.querySelectorAll("[data-indeterminate]").forEach((el) => {
+            el.indeterminate = true;
+          });
+          if (page === "overview" && fitTiles()) return render(animate);
+          if (animate) countUp();
           layer.innerHTML = popover();
           const label =
             MENUS.flatMap((s) => s.items).find((m) => m.key === page)?.label ||
@@ -1762,38 +2495,70 @@
             return render();
           }
           if (!user || password !== PASSWORD) {
-            db.audit.unshift({
-              at: new Date().toISOString(),
-              actor: user ? user.name : email,
-              action: "Login gagal",
-              tone: "danger",
-              target: "Login",
-              name: email,
-              summary: user ? "Password salah" : "Email tidak terdaftar",
-            });
-            save();
+            audit(
+              "login_failed",
+              "session",
+              email,
+              `Login gagal: ${user ? "Password salah" : "Email tidak terdaftar"}`,
+              "failed",
+              user || null,
+            );
             ui.loginError = "Email atau password salah.";
             return render();
           }
           if (!user.active) {
+            audit(
+              "login_failed",
+              "session",
+              email,
+              "Login gagal: Akun nonaktif",
+              "failed",
+              user,
+            );
             ui.loginError = "Akun dinonaktifkan. Hubungi Administrator Sistem.";
             return render();
           }
           me = user;
           ui.loginError = "";
           sessionStorage.setItem(SESSION, String(user.id));
-          audit("Login", "on", "Login", user.email, "Login berhasil");
+          Object.assign(ui, freshPageState());
+          audit("login", "session", user.email, "Berhasil masuk ke portal");
           if (location.hash === "#/overview") render(true);
           else location.hash = "#/overview";
         });
 
         document.addEventListener("click", (e) => {
+          const option = e.target.closest("[data-ts-option]");
+          if (option && floating?.kind === "select")
+            return chooseSelect(Number(option.dataset.tsOption));
+          const rowItem = e.target.closest("[data-rowitem]");
+          if (rowItem && floating?.kind === "menu") {
+            const item = ROW_MENUS.current[Number(rowItem.dataset.rowitem)];
+            closeFloating();
+            return item && item.run();
+          }
+          if (
+            floating &&
+            !e.target.closest(".ts-dropdown, .floating-menu") &&
+            e.target.closest("[data-ts], [data-rowmenu]") !== floating.anchor
+          ) {
+            floating.anchor.classList.remove("open");
+            closeFloating();
+          }
           const el = e.target.closest("button, a, [data-act]");
           if (!el) {
             if (ui.pop && !e.target.closest(".menu-pop")) closePop();
             return;
           }
           const d = el.dataset;
+          if (d.ts) {
+            e.preventDefault();
+            return openSelect(el);
+          }
+          if (d.rowmenu) {
+            e.preventDefault();
+            return openRowMenu(el);
+          }
           if (d.act === "toast-close") {
             el.closest(".toast")?.classList.remove("show", "to-interactive");
             return;
@@ -1881,7 +2646,7 @@
               tone: "danger",
             }).then((ok) => {
               if (!ok) return;
-              audit("Logout", "off", "Login", me.email, "Keluar dari portal");
+              audit("logout", "session", me.email, "Keluar dari portal");
               me = null;
               ui.sheet = false;
               sessionStorage.removeItem(SESSION);
@@ -1909,85 +2674,85 @@
           if (d.act === "scroll-top")
             return window.scrollTo({ top: 0, behavior: "smooth" });
           if (d.act === "app-logout") {
-            return overlay(
-              [
-                [
-                  "Tahap 1 · Keluar dari aplikasi",
-                  "Mengakhiri sesi aplikasi",
-                  "Sesi di aplikasi sudah ditutup. SSO Launcher mencatat bahwa Anda keluar.",
-                  "POST /api/sso/sign-out → catat keluar",
-                ],
-                [
-                  "Tahap 2 · Periksa sesi portal",
-                  "Memeriksa sesi SSO Launcher",
-                  "Sesi portal Anda masih aktif, jadi tidak perlu login ulang.",
-                  "POST /api/sso/session → aktif",
-                ],
-                [
-                  "Tahap 3 · Kembali ke portal",
-                  "Kembali ke Beranda",
-                  "Anda kembali ke SSO Launcher.",
-                  "redirect → /overview",
-                ],
-              ],
-              () => {
-                location.hash = "#/overview";
-              },
-            );
+            const app = db.apps.find((x) => x.slug === route().arg);
+            if (app)
+              audit(
+                "logout",
+                "application",
+                app.name,
+                "Keluar dari aplikasi, sesi SSO Launcher tetap aktif",
+              );
+            return overlay(LAUNCH_STAGES.back(), () => {
+              location.hash = "#/overview";
+            });
           }
           if (d.open) {
-            const app =
-              myApps().find((a) => a.id === Number(d.open)) ||
-              db.apps.find((a) => a.id === Number(d.open));
-            return launch(app);
+            const app = myApps().find((a) => a.id === Number(d.open));
+            return app && launch(app);
           }
           if (d.fav) {
-            const id = Number(d.fav);
-            const on = me.favorites.includes(id);
-            me.favorites = on
-              ? me.favorites.filter((x) => x !== id)
-              : [...me.favorites, id];
-            save();
-            render();
-            return toast(
-              on ? "Dihapus dari favorit" : "Ditambahkan ke favorit",
-            );
+            e.preventDefault();
+            return void toggleFavorite(Number(d.fav));
           }
           if (d.view) {
-            const [k, v] = d.view.split(":");
-            if (k === "ma") ui.maView = v;
-            else {
-              ui.views[k] = v;
-              ui.pages[k] = 0;
-            }
+            const [path, value] = d.view.split(":");
+            const [key, field] = path.split(".");
+            ui[key][field] = value;
+            if (key === "ov")
+              ui.ov[field === "favView" ? "favPage" : "appPage"] = 0;
+            if (key === "ma") ui.ma.page = 1;
             return render();
           }
           if (d.tpage) {
-            const [k, delta] = d.tpage.split(":");
-            ui.pages[k] += Number(delta);
+            const [key, delta] = d.tpage.split(":");
+            const field = key === "fav" ? "favPage" : "appPage";
+            ui.ov[field] += Number(delta);
             return render();
           }
           if (d.page) {
-            const [k, n] = d.page.split(":");
-            if (k === "ma") {
-              ui.maPage = Number(n);
-              render();
-            }
+            const [key, n] = d.page.split(":");
+            if (ui[key]) setPage(key, { page: Number(n) });
             return;
           }
-          if (d.act === "reset-filter") {
-            ui.q = "";
-            ui.cat = "";
+          if (d.reset) {
+            const fresh = freshPageState()[d.reset];
+            if (d.reset === "ov")
+              Object.assign(ui.ov, { q: "", cat: "", appPage: 0 });
+            else
+              Object.assign(ui[d.reset], {
+                ...fresh,
+                view: ui[d.reset].view ?? fresh.view,
+                size: ui[d.reset].size,
+              });
             render();
             return toast("Filter diatur ulang");
           }
-          if (d.act === "reset-ma") {
-            ui.maQ = "";
-            ui.maCat = "";
-            ui.maPage = 1;
-            render();
-            return toast("Filter diatur ulang");
+          if (d.seg) {
+            Object.assign(ui.ma, { seg: d.seg, page: 1 });
+            return render();
           }
+          if (d.sort) {
+            const current = ui.rc.sort;
+            ui.rc.sort =
+              !current || current.key !== d.sort
+                ? { key: d.sort, direction: "asc" }
+                : current.direction === "asc"
+                  ? { key: d.sort, direction: "desc" }
+                  : null;
+            ui.rc.page = 1;
+            return render();
+          }
+          if (d.act === "fav-modal") {
+            ui.fv.modal = true;
+            return render();
+          }
+          if (d.act === "fav-modal-close") {
+            ui.fv.modal = false;
+            return render();
+          }
+          if (d.act === "rc-clear") return void clearActivities();
+          if (d.act === "rc-remove-many")
+            return void removeActivities([...ui.rc.sel]);
           if (d.ustatus !== undefined) {
             ui.userStatus = d.ustatus;
             return render();
@@ -1996,27 +2761,73 @@
 
         document.addEventListener("input", (e) => {
           const k = e.target.dataset?.input;
-          if (!k || k === "global" || k === "cat" || k === "maCat") return;
-          ui[k] = e.target.value;
-          if (k === "q") ui.pages.apps = 0;
-          if (k === "maQ") ui.maPage = 1;
+          if (
+            e.target.matches("[data-ts-search]") &&
+            floating?.kind === "select"
+          ) {
+            floating.query = e.target.value;
+            floating.cursor = 0;
+            return paintSelect();
+          }
+          if (!k || k === "global") return;
+          if (k.includes(".")) {
+            const [key, field] = k.split(".");
+            ui[key][field] = e.target.value;
+            if (key === "ov") ui.ov.appPage = 0;
+            else ui[key].page = 1;
+          } else ui[k] = e.target.value;
           rerenderFocus(`[data-input="${k}"]`);
         });
         document.addEventListener("change", (e) => {
-          const k = e.target.dataset?.input;
-          if (k === "cat" || k === "maCat") {
-            ui[k] = e.target.value;
-            ui.pages.apps = 0;
-            ui.maPage = 1;
-            render();
+          if (e.target.matches("[data-rc-pick]")) {
+            const id = Number(e.target.dataset.rcPick);
+            ui.rc.sel = e.target.checked
+              ? [...ui.rc.sel, id]
+              : ui.rc.sel.filter((x) => x !== id);
+            return render();
           }
-          if (e.target.dataset?.size === "ma") {
-            ui.maSize = Number(e.target.value);
-            ui.maPage = 1;
-            render();
+          if (e.target.matches("[data-rc-all]")) {
+            const ids = pageSlice(recentList().list, ui.rc).map((x) => x.id);
+            ui.rc.sel = e.target.checked
+              ? [...new Set([...ui.rc.sel, ...ids])]
+              : ui.rc.sel.filter((x) => !ids.includes(x));
+            return render();
           }
         });
         document.addEventListener("keydown", (e) => {
+          if (floating?.kind === "select") {
+            const options = selectOptions();
+            if (e.key === "Escape") {
+              e.preventDefault();
+              const anchor = floating.anchor;
+              anchor.classList.remove("open");
+              closeFloating();
+              return anchor.focus();
+            }
+            if (e.key === "ArrowDown") {
+              e.preventDefault();
+              floating.cursor = Math.min(
+                floating.cursor + 1,
+                Math.max(options.length - 1, 0),
+              );
+              return paintSelect();
+            }
+            if (e.key === "ArrowUp") {
+              e.preventDefault();
+              floating.cursor = Math.max(floating.cursor - 1, 0);
+              return paintSelect();
+            }
+            if (e.key === "Enter") {
+              e.preventDefault();
+              return chooseSelect(floating.cursor);
+            }
+          }
+          if (floating?.kind === "menu" && e.key === "Escape")
+            return closeFloating();
+          if (e.key === "Escape" && ui.fv.modal) {
+            ui.fv.modal = false;
+            return render();
+          }
           if (e.key === "Escape" && ui.pop) closePop();
           if (e.key === "Escape" && ui.sheet) setSheet(false);
           if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k") {
@@ -2069,7 +2880,25 @@
             chooseSearch(gs.results[Number(option.dataset.gs)]);
           }
         });
+        document.addEventListener("mousedown", (e) => {
+          if (e.target.matches("[data-modal]")) {
+            ui.fv.modal = false;
+            render();
+          }
+        });
         document.addEventListener("mouseover", (e) => {
+          const tipTargetEl = e.target.closest("[data-mtip]");
+          if (tipTargetEl) showMaintenanceTip(tipTargetEl);
+          else if (tipTarget) hideMaintenanceTip();
+          const tsOption = e.target.closest("[data-ts-option]");
+          if (
+            tsOption &&
+            floating?.kind === "select" &&
+            Number(tsOption.dataset.tsOption) !== floating.cursor
+          ) {
+            floating.cursor = Number(tsOption.dataset.tsOption);
+            paintSelect();
+          }
           const option = e.target.closest("[data-gs]");
           if (option && Number(option.dataset.gs) !== gs.cursor) {
             gs.cursor = Number(option.dataset.gs);
@@ -2081,10 +2910,24 @@
         });
         window.addEventListener("hashchange", () => {
           closePop();
+          closeFloating();
+          hideMaintenanceTip();
           ui.sheet = false;
+          Object.assign(ui, freshPageState());
           render(true);
           window.scrollTo({ top: 0 });
         });
+        window.addEventListener(
+          "scroll",
+          () => {
+            if (floating) {
+              floating.anchor.classList.remove("open");
+              closeFloating();
+            }
+            if (tipTarget) hideMaintenanceTip();
+          },
+          { passive: true, capture: true },
+        );
         window.addEventListener("scroll", syncScrollTop, { passive: true });
         forcedCollapse.addEventListener("change", () => {
           if (me && document.getElementById("shell")) syncShell(currentPage);
@@ -2092,6 +2935,7 @@
         let resizeTimer;
         window.addEventListener("resize", () => {
           if (ui.pop) closePop();
+          if (floating) closeFloating();
           syncScrollTop();
           clearTimeout(resizeTimer);
           resizeTimer = setTimeout(() => {
